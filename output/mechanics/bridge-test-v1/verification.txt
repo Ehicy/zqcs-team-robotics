@@ -1,0 +1,13 @@
+SolidWorks 34.4.1
+Solid bodies: 1
+Extrusion feature error: 0 warning: False
+Extreme mm 1,0,0: 150, 125, 150
+Extreme mm -1,0,0: -150, 125, 150
+Extreme mm 0,1,0: -8.74300631892311E-13, 140, 150
+Extreme mm 0,-1,0: 150, 115, 150
+Extreme mm 0,0,1: 150, 125, 150
+Extreme mm 0,0,-1: 150, 125, 0
+SLDPRT save=True error=0 warning=0
+STEP save=True error=0 warning=0
+STL save=True error=0 warning=0
+Preview BMP: True

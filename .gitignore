@@ -1,0 +1,12 @@
+# Local scratch files and additional backups; tracked history is retained.
+/backups/
+/tmp/
+
+# SolidWorks locks, recovery files and uncompressed preview intermediates.
+~$*
+*.sldbak
+*.sldrecover
+/output/mechanics/**/*.bmp
+
+__pycache__/
+*.pyc

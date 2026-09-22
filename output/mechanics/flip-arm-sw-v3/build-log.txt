@@ -1,0 +1,34 @@
+SolidWorks 34.4.1
+BUILD V3_01_base
+Feature errors=0 V3_01_base
+V3_01_base solidBodies=1 box_m=-0.035,-0.07,-8.26770233145153E-05,0.035,0.07,0.005
+STEP V3_01_base ok=True error=0
+BUILD V3_07_servo_stand
+Feature errors=0 V3_07_servo_stand
+V3_07_servo_stand solidBodies=1 box_m=-0.021,-8.26770233145112E-05,-8.27180612553028E-25,0.043,0.081,0.017
+STEP V3_07_servo_stand ok=True error=0
+BUILD V3_REF_MG995_envelope
+Feature errors=0 V3_REF_MG995_envelope
+V3_REF_MG995_envelope solidBodies=1 box_m=-0.0375,-0.01,0,0.017,0.01,0.042
+STEP V3_REF_MG995_envelope ok=True error=0
+BUILD V3_REF_SG90
+Feature errors=0 V3_REF_SG90
+V3_REF_SG90 solidBodies=1 box_m=-0.016,-0.006,0,0.016,0.006,0.029
+STEP V3_REF_SG90 ok=True error=0
+BUILD V3_08_SG90_mount
+Feature errors=0 V3_08_SG90_mount
+V3_08_SG90_mount solidBodies=1 box_m=-0.021,-0.012,-8.26770233145098E-05,0.021,0.012,0.003
+STEP V3_08_SG90_mount ok=True error=0
+pickup angle=216.86989765 block_center_mm=-84.9999999934718,19.9999999912957 bin_rim=148
+pickup SLDASM saved=True error=0
+pickup STEP saved=True error=0
+Preview=True
+raised angle=90 block_center_mm=35,260 bin_rim=148
+raised SLDASM saved=True error=0
+raised STEP saved=True error=0
+Preview=True
+deposit angle=60 block_center_mm=110,239.903810567666 bin_rim=148
+deposit SLDASM saved=True error=0
+deposit STEP saved=True error=0
+Preview=True
+DONE - preliminary layout; not motion-mated or manufacturing released

@@ -1,0 +1,12 @@
+Platform solids=1 feature error=0
+Platform_300x300x300.SLDPRT: True error=0 warning=0
+Platform_300x300x300.STEP: True error=0 warning=0
+Entry_platform translation mm=-300,0,-75 fixed
+Test_bridge_1 translation mm=150,175,0 fixed
+Test_bridge_2 translation mm=450,175,0 fixed
+Exit_platform translation mm=600,0,-75 fixed
+Components=4
+Bridge_with_platforms_TEST.SLDASM: True error=0 warning=0
+Bridge_with_platforms_TEST.STEP: True error=0 warning=0
+Preview=True
+Design envelope mm: L1200 W300 H315. Bridge ends Y300, crowns Y315. Two test arcs, not official clearance geometry.

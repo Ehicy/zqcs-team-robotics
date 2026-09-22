@@ -1,0 +1,65 @@
+SolidWorks 34.4.1
+BUILD V2_01_base
+V2_01_base solidBodies=1 box_m=-0.035,-0.07,-8.26770233145115E-05,0.035,0.07,0.005
+STEP V2_01_base ok=True error=0
+BUILD V2_02_bearing_tower
+V2_02_bearing_tower solidBodies=1 box_m=-0.028,-8.26770233145094E-05,-8.26770233145167E-05,0.028,0.084,0.024
+STEP V2_02_bearing_tower ok=True error=0
+BUILD V2_03_bearing_retainer
+V2_03_bearing_retainer solidBodies=1 box_m=-0.02,-0.012,0,0.02,0.012,0.002
+STEP V2_03_bearing_retainer ok=True error=0
+BUILD V2_04_arm_plate
+V2_04_arm_plate solidBodies=1 box_m=-0.014,-0.016,-9.99702709516014E-05,0.146,0.016,0.012000025
+STEP V2_04_arm_plate ok=True error=0
+BUILD V2_05_wrist_adapter
+V2_05_wrist_adapter solidBodies=1 box_m=-0.012,-0.012,0,0.012,0.012,0.02
+STEP V2_05_wrist_adapter ok=True error=0
+BUILD V2_06_horn_coupler
+V2_06_horn_coupler solidBodies=1 box_m=-0.019,-0.019,-9.99702709516027E-05,0.019,0.0189905489527508,0.016000025
+STEP V2_06_horn_coupler ok=True error=0
+BUILD V2_07_servo_stand
+V2_07_servo_stand solidBodies=1 box_m=-0.021,-8.26770233145112E-05,-8.27180612553028E-25,0.043,0.081,0.024
+STEP V2_07_servo_stand ok=True error=0
+BUILD V2_REF_5mm_shaft
+V2_REF_5mm_shaft solidBodies=1 box_m=-0.0025,-0.0025,0,0.0025,0.0025,0.068
+STEP V2_REF_5mm_shaft ok=True error=0
+BUILD V2_REF_625ZZ
+V2_REF_625ZZ solidBodies=1 box_m=-0.008,-0.008,0,0.008,0.008,0.005
+STEP V2_REF_625ZZ ok=True error=0
+BUILD V2_REF_MG995_envelope
+V2_REF_MG995_envelope solidBodies=1 box_m=-0.01,-0.01,0,0.0305,0.01,0.0395
+STEP V2_REF_MG995_envelope ok=True error=0
+BUILD V2_REF_chassis_255p8x149
+V2_REF_chassis_255p8x149 solidBodies=1 box_m=0,0,0,0.2558,0.003,0.149
+STEP V2_REF_chassis_255p8x149 ok=True error=0
+BUILD V2_REF_electronics_envelope
+V2_REF_electronics_envelope solidBodies=1 box_m=0,0,0,0.15,0.025,0.09
+STEP V2_REF_electronics_envelope ok=True error=0
+BUILD V2_bin_180x143x80
+V2_bin_180x143x80 solidBodies=1 box_m=0,0,0,0.186,0.149,0.083
+STEP V2_bin_180x143x80 ok=True error=0
+BUILD V2_REF_wheel_D60
+V2_REF_wheel_D60 solidBodies=1 box_m=-0.03,-0.03,0,0.03,0.03,0.028
+STEP V2_REF_wheel_D60 ok=True error=0
+BUILD V2_REF_gripper_body
+V2_REF_gripper_body solidBodies=1 box_m=0,0,0,0.02,0.02,0.058
+STEP V2_REF_gripper_body ok=True error=0
+BUILD V2_REF_gripper_finger
+V2_REF_gripper_finger solidBodies=1 box_m=0,0,0,0.035,0.014,0.004
+STEP V2_REF_gripper_finger ok=True error=0
+BUILD V2_REF_block40
+V2_REF_block40 solidBodies=1 box_m=0,0,0,0.04,0.04,0.04
+STEP V2_REF_block40 ok=True error=0
+pickup angle=216.86989765 block_center_mm=-84.9999999934718,19.9999999912957 bin_rim=148
+pickup SLDASM saved=True error=0
+pickup STEP saved=True error=0
+Preview=True
+raised angle=90 block_center_mm=35,260 bin_rim=148
+raised SLDASM saved=True error=0
+raised STEP saved=True error=0
+Preview=True
+deposit angle=60 block_center_mm=110,239.903810567666 bin_rim=148
+deposit SLDASM saved=True error=0
+deposit STEP saved=True error=0
+Preview=True
+DONE - preliminary layout; not motion-mated or manufacturing released
