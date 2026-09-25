@@ -1,21 +1,9 @@
 #include "motor.h"
 #include "pwm.h"
-#include "stm32f10x.h"
-
-#define MOTOR_DIRECTION_PINS (GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | \
-                              GPIO_Pin_5 | GPIO_Pin_4 | GPIO_Pin_3 | GPIO_Pin_2)
-
+/* TIM2/TIM3 的八个 PWM 输入由 pwm 模块统一初始化。 */
 void motor_init(void)
 {
-    GPIO_InitTypeDef gpio;
-    /* TODO_DRV8833：仍是 L298N 的 8 个方向引脚，未来按新接口重配。 */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-    GPIO_ResetBits(GPIOA, MOTOR_DIRECTION_PINS);
-    GPIO_StructInit(&gpio);
-    gpio.GPIO_Pin = MOTOR_DIRECTION_PINS;
-    gpio.GPIO_Mode = GPIO_Mode_Out_PP;
-    gpio.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &gpio);
+    pwm_init();
 }
 
 uint8_t motor_joystick_is_centered(uint8_t value)
@@ -53,30 +41,10 @@ static float absolute_value(float value)
     return value < 0.0f ? -value : value;
 }
 
-/* TODO_DRV8833：L298N 用 IN1/IN2 控方向，另有 EN 接收 PWM。
- * DRV8833 的双输入控制不同，不能原样复用这段输出。
- */
-static void l298n_set_direction(uint16_t pin1, uint16_t pin2, float output)
-{
-    GPIO_ResetBits(GPIOA, pin1 | pin2);
-    if (output > 0.0f)
-    {
-        GPIO_SetBits(GPIOA, pin1);
-    }
-    else if (output < 0.0f)
-    {
-        GPIO_SetBits(GPIOA, pin2);
-    }
-    /* 零输出时两个方向引脚保持低。 */
-}
-
 void motor_stop(void)
 {
-    /* TODO_DRV8833：重做新驱动的滑行/制动输入组合。
-     * 当前 EN=0 只撤掉驱动，不保证车轮瞬间静止。
-     */
+    /* DRV8833 双输入均为 0：滑行，不是主动制动。 */
     pwm_stop_all();
-    GPIO_ResetBits(GPIOA, MOTOR_DIRECTION_PINS);
 }
 
 void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
@@ -111,17 +79,12 @@ void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
         output[wheel] /= largest;
     }
 
-    /* TODO_DRV8833：下面整段是将输出落到旧驱动上的位置。
-     * 先关 EN，再改方向，最后给新 PWM，避免用旧占空比切换方向。
-     * 尚未实现电机反转缓冲/斜坡，相关参数需实车再定。
+    /* 带符号输出：正向 PWM/0，反向 0/PWM，零值 0/0。
+     * PWM 层先清除反方向输入，再写入当前方向，避免出现双高。
+     * 这不是机械减速斜坡；快速反转的电流仍须实车验证。
      */
-    pwm_stop_all();
-    l298n_set_direction(GPIO_Pin_8, GPIO_Pin_9, output[0]);
-    l298n_set_direction(GPIO_Pin_10, GPIO_Pin_11, output[1]);
-    l298n_set_direction(GPIO_Pin_5, GPIO_Pin_4, output[2]);
-    l298n_set_direction(GPIO_Pin_3, GPIO_Pin_2, output[3]);
-    pwm_set1(absolute_value(output[0]));
-    pwm_set2(absolute_value(output[1]));
-    pwm_set3(absolute_value(output[2]));
-    pwm_set4(absolute_value(output[3]));
+    pwm_set1(output[0]);
+    pwm_set2(output[1]);
+    pwm_set3(output[2]);
+    pwm_set4(output[3]);
 }

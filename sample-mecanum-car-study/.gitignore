@@ -4,3 +4,4 @@ user/*.uvguix.*
 user/*.uvoptx
 __pycache__/
 *.pyc
+/build/

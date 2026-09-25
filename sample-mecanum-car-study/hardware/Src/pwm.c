@@ -1,73 +1,112 @@
 #include "pwm.h"
 #include "stm32f10x.h"
 
-void pwm_init(void)
+#define MOTOR_PA_PINS (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | \
+                       GPIO_Pin_6 | GPIO_Pin_7)
+#define MOTOR_PB_PINS (GPIO_Pin_0 | GPIO_Pin_1)
+
+static void timer_init(TIM_TypeDef *tim)
 {
-    GPIO_InitTypeDef gpio;
     TIM_TimeBaseInitTypeDef timer;
     TIM_OCInitTypeDef channel;
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB, ENABLE);
-    /* 独占 TIM3。复位确保输出比较寄存器从零开始。 */
-    TIM_DeInit(TIM3);
+    /* 复位同时关闭 CCR 预装载；停车/换向时写零立即生效。 */
+    TIM_DeInit(tim);
     TIM_TimeBaseStructInit(&timer);
     timer.TIM_ClockDivision = TIM_CKD_DIV1;
     timer.TIM_CounterMode = TIM_CounterMode_Up;
     timer.TIM_Period = PWM_PERIOD_COUNTS - 1U;
     timer.TIM_Prescaler = PWM_PRESCALER_DIV - 1U;
-    TIM_InternalClockConfig(TIM3);
-    TIM_TimeBaseInit(TIM3, &timer);
+    TIM_InternalClockConfig(tim);
+    TIM_TimeBaseInit(tim, &timer);
     TIM_OCStructInit(&channel);
     channel.TIM_OCMode = TIM_OCMode_PWM1;
     channel.TIM_OCPolarity = TIM_OCPolarity_High;
     channel.TIM_OutputState = TIM_OutputState_Enable;
     channel.TIM_Pulse = 0;
-    TIM_OC1Init(TIM3, &channel);
-    TIM_OC2Init(TIM3, &channel);
-    TIM_OC3Init(TIM3, &channel);
-    TIM_OC4Init(TIM3, &channel);
+    TIM_OC1Init(tim, &channel);
+    TIM_OC2Init(tim, &channel);
+    TIM_OC3Init(tim, &channel);
+    TIM_OC4Init(tim, &channel);
+}
 
-    /* TODO_DRV8833：保留旧 EN 引脚，未来重配定时器通道。
-     * TIM3_CH1=PA6，CH2=PA7，CH3=PB0，CH4=PB1。
-     */
+void pwm_init(void)
+{
+    GPIO_InitTypeDef gpio;
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB, ENABLE);
+    /* 先将全部电机输入保持低，再配置定时器和复用输出。 */
+    GPIO_ResetBits(GPIOA, MOTOR_PA_PINS);
+    GPIO_ResetBits(GPIOB, MOTOR_PB_PINS);
     GPIO_StructInit(&gpio);
-    gpio.GPIO_Mode = GPIO_Mode_AF_PP;
+    gpio.GPIO_Mode = GPIO_Mode_Out_PP;
     gpio.GPIO_Speed = GPIO_Speed_50MHz;
-    gpio.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
+    gpio.GPIO_Pin = MOTOR_PA_PINS;
     GPIO_Init(GPIOA, &gpio);
-    gpio.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+    gpio.GPIO_Pin = MOTOR_PB_PINS;
     GPIO_Init(GPIOB, &gpio);
-    /* 保留 CCR 直接更新，零输出不等待下一个 20 ms 周期。
-     * 未来若启用 CCR 预装载，必须同时重做立即停车/换向时序。
-     */
+    timer_init(TIM2);
+    timer_init(TIM3);
+    /* 默认映射：TIM2 CH1..4=PA0..3，TIM3 CH1..4=PA6/PA7/PB0/PB1。 */
+    gpio.GPIO_Mode = GPIO_Mode_AF_PP;
+    gpio.GPIO_Pin = MOTOR_PA_PINS;
+    GPIO_Init(GPIOA, &gpio);
+    gpio.GPIO_Pin = MOTOR_PB_PINS;
+    GPIO_Init(GPIOB, &gpio);
+    TIM_Cmd(TIM2, ENABLE);
     TIM_Cmd(TIM3, ENABLE);
 }
 
 static uint16_t duty_to_compare(float duty)
 {
-    if (!(duty > 0.0f))
-    {
-        return 0; /* 0、负值、NaN；绝不能对零占空比再减 1。 */
-    }
-    if (duty >= 1.0f)
-    {
-        return PWM_PERIOD_COUNTS;
-    }
-    /* PWM1 向上计数：CNT < CCR 时高电平。
-     * ARR=19999，共20000个计数；CCR=0 -> 0%，CCR=20000 -> 100%。
-     */
+    if (!(duty > 0.0f)) return 0;
+    if (duty >= 1.0f) return PWM_PERIOD_COUNTS;
+    /* CCR=0 -> 0%，CCR=ARR+1 -> 100%。 */
     return (uint16_t)(duty * PWM_PERIOD_COUNTS);
 }
 
-void pwm_set1(float duty) { TIM_SetCompare1(TIM3, duty_to_compare(duty)); }
-void pwm_set2(float duty) { TIM_SetCompare2(TIM3, duty_to_compare(duty)); }
-void pwm_set3(float duty) { TIM_SetCompare3(TIM3, duty_to_compare(duty)); }
-void pwm_set4(float duty) { TIM_SetCompare4(TIM3, duty_to_compare(duty)); }
+/* 一个 H 桥占用相邻两个通道。无预装载，先清反向再加正向，
+ * 正反切换不会短暂进入 1/1 制动；不提供机械反转等待或电流限制。
+ */
+static void set_pair(TIM_TypeDef *tim, uint8_t first_pair, float duty)
+{
+    uint16_t compare = duty_to_compare(duty < 0.0f ? -duty : duty);
+    if (first_pair)
+    {
+        if (duty > 0.0f)
+        {
+            TIM_SetCompare2(tim, 0);
+            TIM_SetCompare1(tim, compare);
+        }
+        else
+        {
+            TIM_SetCompare1(tim, 0);
+            TIM_SetCompare2(tim, compare);
+        }
+    }
+    else
+    {
+        if (duty > 0.0f)
+        {
+            TIM_SetCompare4(tim, 0);
+            TIM_SetCompare3(tim, compare);
+        }
+        else
+        {
+            TIM_SetCompare3(tim, 0);
+            TIM_SetCompare4(tim, compare);
+        }
+    }
+}
+
+void pwm_set1(float duty) { set_pair(TIM2, 1, duty); }
+void pwm_set2(float duty) { set_pair(TIM2, 0, duty); }
+void pwm_set3(float duty) { set_pair(TIM3, 1, duty); }
+void pwm_set4(float duty) { set_pair(TIM3, 0, duty); }
 
 void pwm_stop_all(void)
 {
-    TIM_SetCompare1(TIM3, 0);
-    TIM_SetCompare2(TIM3, 0);
-    TIM_SetCompare3(TIM3, 0);
-    TIM_SetCompare4(TIM3, 0);
+    pwm_set1(0.0f);
+    pwm_set2(0.0f);
+    pwm_set3(0.0f);
+    pwm_set4(0.0f);
 }

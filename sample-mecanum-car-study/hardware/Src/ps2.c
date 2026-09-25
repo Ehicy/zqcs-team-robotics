@@ -2,10 +2,10 @@
 #include "delay.h"
 #include "stm32f10x.h"
 
-#define PS2_DATA_PIN  GPIO_Pin_12
-#define PS2_CMD_PIN   GPIO_Pin_13
-#define PS2_CS_PIN    GPIO_Pin_14
-#define PS2_CLK_PIN   GPIO_Pin_15
+#define PS2_DATA_PIN  GPIO_Pin_14
+#define PS2_CMD_PIN   GPIO_Pin_15
+#define PS2_CS_PIN    GPIO_Pin_12
+#define PS2_CLK_PIN   GPIO_Pin_13
 #define PS2_HALF_CLOCK_US  16U
 #define PS2_BYTE_GAP_US    16U
 

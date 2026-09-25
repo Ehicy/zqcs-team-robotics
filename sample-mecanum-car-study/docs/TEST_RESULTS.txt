@@ -1,6 +1,7 @@
+2026-09-24 Windows host verification; SANITIZE=0 (MinGW UBSan library unavailable).
 PASS: all 6 application C files, real STM32 headers, warnings as errors
 PASS: Keil source/include paths exist
-PASS: PWM zero, fractional, full-scale, overflow, NaN/Inf
+PASS: four DRV8833 pairs, signed PWM, saturation, NaN/Inf, reversal write order
 PASS: axes, all 256 center checks, deadzone edges, 2197 mixed inputs, ratios
 PASS: LSB-first wire simulation, 256 byte values, frame layout, invalid clearing
 PASS: startup, invalid-frame stop, neutral rearm, 16 buttons, no phantom release

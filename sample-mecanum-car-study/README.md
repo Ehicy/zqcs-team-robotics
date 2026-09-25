@@ -2,7 +2,7 @@
 
 基于 Serialist/sample-mecanum-car 的 `1fa85bbdcd6c62f33f871284b642959cea975805`，2026-09-15 检查和修改。
 
-**已修复输入/PWM/控制流程问题，电机驱动仍保留 L298N，尚未适配你们的 DRV8833。没有完成 Keil 编译或实车验证。**
+**2026-09-24：已适配两块 DRV8833 控制四个电机，TIM2/TIM3 双输入 PWM，默认 20 kHz。实际轮位、方向、电流和遥控失联行为仍需实测。**
 
 先打开：
 - [检查与修改记录](docs/REVIEW.zh-CN.md)：发现的问题、修复方式、测试范围与剩余限制。
@@ -12,7 +12,9 @@
 
 本版主循环在上电/通信异常后等待摇杆回中且按键全部松开，随后才接受控制；无效包清零电机输出。接收器若持续返回格式正确的旧帧，程序仍不能确认无线失联，须实测。
 
-全项目搜索 `TODO_DRV8833` 可找到将来改电机驱动的位置；`TODO_GRIPPER` 是夹爪动作占位。主机测试运行 `python3 tests/run_tests.py`，需要 Python 3 和 GCC。
+电机驱动 TODO 已完成；`TODO_GRIPPER` 仍是夹爪动作占位。当前接线、编译烧录与验收见 [DRV8833 说明](docs/DRV8833.zh-CN.md)。主机测试运行 `python tests/run_tests.py`，需要 Python 3 和 GCC；Windows 缺少 UBSan 时先设置 `$env:SANITIZE='0'`。
+
+新增独立 GNU 构建入口：`python build_firmware.py --toolchain <Arm GNU bin目录>`，输出 `build/crtc-motor.hex`。原 Keil 工程保留。
 
 以下保留原项目说明，材料清单和引脚描述属于上游硬件：
 

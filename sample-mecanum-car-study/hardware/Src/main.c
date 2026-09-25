@@ -1,9 +1,3 @@
-/* 学习顺序：main.c -> ps2.c -> motor.c -> pwm.c。
- * 每轮：读手柄 -> 检查有效性/回中 -> 处理按键 -> 更新底盘 -> 等待。
- * L298N 接口仍保留。未来换 DRV8833 请搜索 TODO_DRV8833。
- * TODO_LINK_LOSS：接收器若重复返回有效旧帧，本程序无法识别无线失联。
- * TODO_WATCHDOG：主循环卡死/硬件异常后的独立停机措施仍需设计。
- */
 #include "main.h"
 
 #define CONTROL_LOOP_DELAY_MS  10U
@@ -103,8 +97,7 @@ static void control_step(void)
 int main(void)
 {
     delay_init();
-    motor_init(); /* 先让方向引脚保持低电平 */
-    pwm_init();   /* PWM 从零输出启动 */
+    motor_init(); /* 初始化 TIM2/TIM3，八个输入从低电平启动 */
     motor_stop();
     ps2_init();
     while (1)

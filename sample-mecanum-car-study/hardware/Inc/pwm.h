@@ -1,14 +1,11 @@
 #ifndef PWM_H
 #define PWM_H
-/* 暂时保留原频率，不替电机选择新参数。
- * 正常时钟配置下 TIM3 时钟为 72 MHz：
- * PWM频率 = 72000000 / 72 / 20000 = 50 Hz，原注释的 kHz 数值不正确。
- * 寄存器 ARR = 周期计数数 - 1；PSC = 分频倍数 - 1。
- * TODO_DRV8833：结合 TT 电机、驱动板和实测重新选择频率与引脚。
+/* 默认 TIM2/TIM3 时钟 72 MHz：72 MHz / 1 / 3600 = 20 kHz。
+ * 这是电机调试起点，需实测温升与低速表现；TIM4 留给舵机。
+ * ARR = 周期计数数 - 1；PSC = 分频倍数 - 1。
  */
-#define PWM_PERIOD_COUNTS  20000U
-#define PWM_PRESCALER_DIV  72U
-/* CCR 需要能表示 PERIOD_COUNTS，才能得到精确的 100% 占空比。 */
+#define PWM_PERIOD_COUNTS  3600U
+#define PWM_PRESCALER_DIV  1U
 #if PWM_PERIOD_COUNTS < 1 || PWM_PERIOD_COUNTS > 65535
 #error PWM_PERIOD_COUNTS must fit a 16-bit compare register
 #endif
@@ -16,9 +13,15 @@
 #error PWM_PRESCALER_DIV is outside the timer range
 #endif
 
+/* 独占 TIM2/TIM3，默认引脚映射。初始化后八个输入均为低。
+ * 1: PA0/PA1; 2: PA2/PA3; 3: PA6/PA7; 4: PB0/PB1。
+ * nSLEEP 由驱动板硬件保持高；本模块不控制 PA8。
+ */
 void pwm_init(void);
 void pwm_stop_all(void);
-/* duty 是 0.0～1.0；负值/NaN 归零，超过 1 的值限制为 1。 */
+/* duty 改为带符号的 -1～1：越界限幅，NaN 归零。
+ * 正向 PWM/0，反向 0/PWM；0/0 为滑行。仅在主循环调用。
+ */
 void pwm_set1(float duty);
 void pwm_set2(float duty);
 void pwm_set3(float duty);

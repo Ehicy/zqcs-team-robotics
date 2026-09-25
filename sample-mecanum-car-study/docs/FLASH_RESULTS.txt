@@ -1,0 +1,81 @@
+      -------------------------------------------------------------------
+                       STM32CubeProgrammer v2.23.0                  
+      -------------------------------------------------------------------
+ST-LINK SN  : 37FF71064E57343655231443
+ST-LINK FW  : V2J37S7
+Board       : --
+Voltage     : 3.26V
+SWD freq    : 950 KHz
+Connect mode: Normal
+Reset mode  : Software reset
+Device ID   : 0x410
+Revision ID : Rev A
+Device name : STM32F101/F102/F103 Medium-density
+NVM size    : 128 KBytes
+Device type : MCU
+Device CPU  : Cortex-M3
+BL Version  : --
+Opening and parsing file: crtc-motor.hex
+Memory Programming ...
+  File          : crtc-motor.hex
+  Size          : 5.18 KB 
+  Address       : 0x08000000
+Erasing memory corresponding to segment 0:
+Erasing internal memory sectors [0 5]
+Download in Progress:
+File download complete
+Time elapsed during download operation: 00:00:00.577
+Verifying...
+File size < 32KB legacy verify will be used
+Read progress:
+Time elapsed during verifying operation: 00:00:00.084
+Download verified successfully
+MCU Reset
+Software reset is performed
+Post-reset readback and register snapshot:
+      -------------------------------------------------------------------
+                       STM32CubeProgrammer v2.23.0                  
+      -------------------------------------------------------------------
+ST-LINK SN  : 37FF71064E57343655231443
+ST-LINK FW  : V2J37S7
+Board       : --
+Voltage     : 3.26V
+SWD freq    : 950 KHz
+Connect mode: Hot Plug
+Reset mode  : Software reset
+Device ID   : 0x410
+Revision ID : Rev A
+Device name : STM32F101/F102/F103 Medium-density
+NVM size    : 128 KBytes
+Device type : MCU
+Device CPU  : Cortex-M3
+BL Version  : --
+UPLOADING ...
+  File          : C:\Users\15300\Documents\codex_repos\CRTC\sample-mecanum-car-study\build\readback.bin
+  Size          : 5304 Bytes
+  Address:      : 0x8000000
+Read progress:
+Data read successfully
+Time elapsed during read operation is: 00:00:00.083
+Reading 32-bit memory content
+  Size          : 80 Bytes
+  Address:      : 0x40000000
+0x40000000 : 00000001 00000000 00000000 00000000
+0x40000010 : 0000001F 00000000 00006060 00006060
+0x40000020 : 00001111 00000163 00000000 00000E0F
+0x40000030 : 00000000 00000000 00000000 00000000
+0x40000040 : 00000000 00000000 00000000 00000001
+Reading 32-bit memory content
+  Size          : 80 Bytes
+  Address:      : 0x40000400
+0x40000400 : 00000001 00000000 00000000 00000000
+0x40000410 : 0000001F 00000000 00006060 00006060
+0x40000420 : 00001111 00000B69 00000000 00000E0F
+0x40000430 : 00000000 00000000 00000000 00000000
+0x40000440 : 00000000 00000000 00000000 00000001
+Reading 32-bit memory content
+  Size          : 8 Bytes
+  Address:      : 0x40021000
+0x40021000 : 03038583 001D040A
+0x2000001C : 00 00 00 00 80 80 80 80
+SHA256 BIN/readback: e928fc2b7365dc7399ad571d49d25cd3fda280aa089eed3d909cf4a4609f1355

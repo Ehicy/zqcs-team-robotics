@@ -1,5 +1,7 @@
 # 源码检查与修改记录
 
+> 下文保留 2026-09-15 的历史审查记录。2026-09-24 已完成 DRV8833、20 kHz 和 PS2 接线适配，当前实现及验证以 [DRV8833 说明](DRV8833.zh-CN.md) 为准；下文“将来要改”描述的是旧版状态。
+
 检查日期：2026-09-15。上游：[Serialist/sample-mecanum-car](https://github.com/Serialist/sample-mecanum-car)。
 克隆基线：`1fa85bbdcd6c62f33f871284b642959cea975805`；本地分支：`study-readable-fixes`。
 

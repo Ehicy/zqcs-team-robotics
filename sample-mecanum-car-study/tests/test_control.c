@@ -12,9 +12,9 @@
 
 static void assert_stopped(void)
 {
-    assert(mock_ccr[0] == 0 && mock_ccr[1] == 0 &&
-           mock_ccr[2] == 0 && mock_ccr[3] == 0);
-    assert(mock_gpio_a == 0);
+    unsigned i;
+    for (i = 0; i < 8; i++) assert(mock_ccr[i] == 0);
+
 }
 static void run_frame(uint8_t forward, uint8_t sideways, uint8_t turn,
                       uint16_t pressed, uint8_t mode, uint8_t marker)
@@ -30,46 +30,45 @@ static void normal(uint8_t forward, uint8_t sideways, uint8_t turn, uint16_t pre
 
 static void test_pwm(void)
 {
-    unsigned ch, i;
-    const float input[] = {0.0f, -0.01f, 0.00001f, 0.5f, 1.0f, 1.4f,
-                           NAN, INFINITY, -INFINITY};
-    const uint16_t expected[] = {0, 0, 0, 10000, 20000, 20000, 0, 20000, 0};
-    for (i = 0; i < sizeof input / sizeof input[0]; i++)
+    unsigned ch, i, other;
+    void (*setters[4])(float) = {pwm_set1,pwm_set2,pwm_set3,pwm_set4};
+    const float input[] = {0.0f, 0.00001f, 0.5f, 1.0f, 1.4f,
+                           -0.5f, -1.0f, -1.4f, NAN, INFINITY, -INFINITY, -0.0f};
+    const int expected[] = {0, 0, 1800, 3600, 3600, -1800, -3600, -3600,
+                            0, 3600, -3600, 0};
+    for (ch = 0; ch < 4; ch++)
     {
-        pwm_set1(input[i]); pwm_set2(input[i]);
-        pwm_set3(input[i]); pwm_set4(input[i]);
-        for (ch = 0; ch < 4; ch++) assert(mock_ccr[ch] == expected[i]);
+        for (i = 0; i < sizeof input / sizeof input[0]; i++)
+        {
+            setters[ch](input[i]);
+            assert((int)mock_ccr[ch*2] - mock_ccr[ch*2+1] == expected[i]);
+            for (other = 0; other < 8; other++)
+                if (other / 2 != ch) assert(mock_ccr[other] == 0);
+        }
+        setters[ch](1.0f); setters[ch](-1.0f); setters[ch](1.0f);
+        motor_stop(); assert_stopped();
     }
-    motor_stop();
-    puts("PASS: PWM zero, fractional, full-scale, overflow, NaN/Inf");
+    puts("PASS: four DRV8833 pairs, signed PWM, saturation, NaN/Inf, reversal write order");
 }
 
 static void assert_wheels(int a, int b, int c, int d)
 {
     const int expected[4] = {a,b,c,d};
-    const uint16_t positive[4] = {GPIO_Pin_8, GPIO_Pin_10, GPIO_Pin_5, GPIO_Pin_3};
-    const uint16_t negative[4] = {GPIO_Pin_9, GPIO_Pin_11, GPIO_Pin_4, GPIO_Pin_2};
     unsigned i;
     for (i = 0; i < 4; i++)
-    {
-        int signed_value = (int)mock_ccr[i];
-        if (mock_gpio_a & negative[i]) signed_value = -signed_value;
-        if (expected[i] > 0) assert(mock_gpio_a & positive[i]);
-        if (expected[i] < 0) assert(mock_gpio_a & negative[i]);
-        assert(abs(signed_value - expected[i]) <= 1);
-    }
+        assert(abs((int)mock_ccr[2*i] - mock_ccr[2*i+1] - expected[i]) <= 1);
 }
 
 static void test_motor(void)
 {
     unsigned i, j, k, axis;
     const uint8_t values[] = {0,1,64,119,120,127,128,129,136,137,192,254,255};
-    motor(0,128,128); assert_wheels(10000,10000,10000,10000);
-    motor(255,128,128); assert_wheels(-10000,-10000,-10000,-10000);
-    motor(128,0,128); assert_wheels(10000,-10000,-10000,10000);
-    motor(128,128,0); assert_wheels(-8000,-8000,8000,8000);
+    motor(0,128,128); assert_wheels(1800,1800,1800,1800);
+    motor(255,128,128); assert_wheels(-1800,-1800,-1800,-1800);
+    motor(128,0,128); assert_wheels(1800,-1800,-1800,1800);
+    motor(128,128,0); assert_wheels(-1440,-1440,1440,1440);
     /* 未限幅时是 0.6,-0.4,0.4,1.4；应整体除以 1.4，不能逐轮截断。 */
-    motor(0,0,0); assert_wheels(8571,-5714,5714,20000);
+    motor(0,0,0); assert_wheels(1542,-1028,1028,3600);
 
     for (i = 0; i < 256; i++)
     {
@@ -78,14 +77,14 @@ static void test_motor(void)
         if (i >= 120 && i <= 136) assert_stopped();
     }
     motor(119,128,128); assert(mock_ccr[0] > 0);
-    motor(137,128,128); assert(mock_ccr[0] > 0);
+    motor(137,128,128); assert(mock_ccr[1] > 0);
     motor(NAN,128,128); assert_stopped();
     for (i = 0; i < sizeof values; i++)
         for (j = 0; j < sizeof values; j++)
             for (k = 0; k < sizeof values; k++)
             {
                 motor(values[i], values[j], values[k]);
-                for (axis = 0; axis < 4; axis++) assert(mock_ccr[axis] <= 20000);
+                for (axis = 0; axis < 8; axis++) assert(mock_ccr[axis] <= PWM_PERIOD_COUNTS);
             }
     motor_stop();
     puts("PASS: axes, all 256 center checks, deadzone edges, 2197 mixed inputs, ratios");
@@ -163,10 +162,13 @@ static void test_control(void)
 
 int main(void)
 {
-    motor_init(); /* 检查独立开 GPIOA 时钟，不再依赖 pwm_init */
-    pwm_init();
+    motor_init(); /* 同时初始化两个定时器和八路输出 */
+    assert(mock_af_a == (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |
+                         GPIO_Pin_6 | GPIO_Pin_7));
+    assert(mock_af_b == (GPIO_Pin_0 | GPIO_Pin_1));
     ps2_init();
-    assert(mock_period == 19999 && mock_prescaler == 71);
+    assert(mock_period[0] == 3599 && mock_prescaler[0] == 0);
+    assert(mock_period[1] == 3599 && mock_prescaler[1] == 0);
     assert_stopped();
     test_pwm();
     test_motor();

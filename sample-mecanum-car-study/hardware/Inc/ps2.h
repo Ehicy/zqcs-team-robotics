@@ -2,8 +2,8 @@
 #define PS2_H
 #include <stdint.h>
 
-/* 以 ps2.c 接线为准；原头文件中 PA4～PA7 的注释已过时。
- * DATA -> PB12（输入）；CMD -> PB13；CS/ATT -> PB14；CLK -> PB15。
+/* 与 PROJECT.md 的信号接线图一致。
+ * DATA -> PB14（输入）；CMD -> PB15；CS/ATT -> PB12；CLK -> PB13。
  * 只接受 0x73 的 9 字节模拟模式，不支持 0x41 数字/0x79 压感模式。
  */
 #define PS2_MODE_ANALOG  0x73U
