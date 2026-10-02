@@ -36,7 +36,7 @@ static void speed_led_init(void)
 
 static void speed_led_step(void)
 {
-    if (motor_get_speed_percent() <= MOTOR_SPEED_LED_THRESHOLD)
+    if (!motor_output_above_percent(MOTOR_SPEED_LED_THRESHOLD))
     {
         GPIO_SetBits(GPIOC, SPEED_LED_PIN);
         speed_led_active = 0;
@@ -44,7 +44,7 @@ static void speed_led_step(void)
         speed_led_steps = 0;
         return;
     }
-    /* 严格超过60%才闪：70/80/90/100%亮灭提示，60%及以下灭。 */
+    /* 任一轮实际PWM严格超过60%才闪；不是电流、温度或通信报警。 */
     if (!speed_led_active)
     {
         speed_led_active = 1;
@@ -59,24 +59,6 @@ static void speed_led_step(void)
         speed_led_on = (uint8_t)!speed_led_on;
         if (speed_led_on) GPIO_ResetBits(GPIOC, SPEED_LED_PIN);
         else GPIO_SetBits(GPIOC, SPEED_LED_PIN);
-    }
-}
-
-static void on_button_pressed(uint8_t button, const ps2_data *data)
-{
-    uint8_t speed = motor_get_speed_percent();
-    /* 原参考包 ax_ps2.h：btn2 bit2=L1、bit3=R1；不是 L2/R2。
-     * 同时按 L1/R1 不改变速度；按下边沿一次调一级，长按不重复。
-     */
-    if ((data->btn2 & 0x0CU) == 0x0CU) return;
-    if (button == PS2_BUTTON_L1)
-    {
-        motor_set_speed_percent(speed >= MOTOR_SPEED_STEP_PERCENT ?
-            (uint8_t)(speed - MOTOR_SPEED_STEP_PERCENT) : 0U);
-    }
-    else if (button == PS2_BUTTON_R1)
-    {
-        motor_set_speed_percent((uint8_t)(speed + MOTOR_SPEED_STEP_PERCENT));
     }
 }
 
@@ -122,8 +104,6 @@ static void buttons_process(const ps2_data *data)
         {
             is_down = (uint8_t)((data->btn2 >> (button - 8)) & 1U);
         }
-        if (!button_was_down[button] && is_down)
-            on_button_pressed(button, data);
         /* 其他动作沿用原项目：从“按下”变成“松开”时只执行一次。 */
         if (button_was_down[button] && !is_down)
         {
@@ -148,7 +128,8 @@ static void control_update(void)
     control_mode = ps2Data.mode;
     control_loops++;
     /* START在数字/模拟有效帧中都复位控制状态；优先于任何肩键。
-     * 速度回0、输出撤掉、按键历史清除；灯在本次step末随0%立即灭。
+     * 清空运动目标、输出/斜坡和按键历史；恢复默认上限100%。
+     * 必须松键回中后再推杆才能启动；灯在本次step末随零输出立即灭。
      */
     if (frame_valid && (ps2Data.btn1 & (1U << PS2_BUTTON_START)) != 0U)
     {
@@ -183,7 +164,8 @@ static void control_update(void)
 static void control_step(void)
 {
     control_update();
-    /* 模式无效/START停车也继续显示速度档，不把灯当通信或运动状态。 */
+    motor_update(); /* 无效帧/START已清空目标，不会在后续斜坡中重新启动 */
+    /* 指示实际输出，松杆/异常/START撤输出后立即灭。 */
     speed_led_step();
 }
 

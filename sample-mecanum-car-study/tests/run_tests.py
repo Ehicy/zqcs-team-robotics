@@ -45,3 +45,11 @@ with tempfile.TemporaryDirectory(prefix="mecanum-tests-") as temp:
                    "tests/mock_hardware.c", "hardware/Src/ps2.c", "hardware/Src/pwm.c",
                    "-o", button_exe], check=True)
     subprocess.run([button_exe], check=True)
+    tuning_exe = str(Path(temp) / ("test_motor_tuning.exe" if os.name == "nt" else "test_motor_tuning"))
+    subprocess.run(flags + extra + ["-Itests", "tests/test_motor_tuning.c",
+                   "tests/mock_hardware.c", "hardware/Src/motor.c", "hardware/Src/pwm.c",
+                   "-o", tuning_exe], check=True)
+    subprocess.run([tuning_exe], check=True)
+    clock_exe = str(Path(temp) / ("test_delay_clock.exe" if os.name == "nt" else "test_delay_clock"))
+    subprocess.run(flags + extra + ["tests/test_delay_clock.c", "-o", clock_exe], check=True)
+    subprocess.run([clock_exe], check=True)

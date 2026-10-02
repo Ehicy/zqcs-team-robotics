@@ -10,6 +10,7 @@ extern uint32_t mock_apb2;
 extern uint16_t mock_af_a, mock_af_b;
 extern uint16_t mock_period[2];
 extern uint16_t mock_prescaler[2];
+extern uint32_t mock_millis;
 void mock_frame(const uint8_t *bytes, size_t count);
 void mock_assert_poll_complete(void);
 #endif

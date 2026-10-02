@@ -12,6 +12,7 @@ uint32_t mock_apb2;
 uint16_t mock_af_a, mock_af_b;
 uint16_t mock_period[2];
 uint16_t mock_prescaler[2];
+uint32_t mock_millis;
 static uint8_t incoming[9];
 static uint8_t outgoing[9];
 static size_t input_count;
@@ -166,3 +167,4 @@ void TIM_SetCompare4(TIM_TypeDef *t, uint16_t v) { set_compare(t,3,v); }
 void delay_init(void) {}
 void delay_us(uint16_t us) { (void)us; }
 void delay_ms(uint16_t ms) { (void)ms; }
+uint32_t delay_millis(void) { return mock_millis; }

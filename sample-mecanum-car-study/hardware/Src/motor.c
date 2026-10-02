@@ -1,24 +1,92 @@
 #include "motor.h"
 #include "pwm.h"
+#include "delay.h"
+#include "motor_tuning.h"
 /* volatile 便于 ST-Link/Watch 查看；所有写入都经过 100% 上限函数。 */
 static volatile uint8_t speed_percent = MOTOR_SPEED_INITIAL_PERCENT;
+static float target_duty[4];
+static float applied_duty[4];
+static int8_t last_direction[4];
+static uint32_t zero_since_ms[4];
+static uint32_t last_update_ms;
+static motor_calibration_t wheel_calibration[4] = MOTOR_CALIBRATION_DEFAULTS;
+
+static float absolute_value(float value)
+{
+    return value < 0.0f ? -value : value;
+}
+
+static int8_t direction_of(float duty)
+{
+    return duty > 0.0f ? 1 : (duty < 0.0f ? -1 : 0);
+}
+
+static void write_outputs(void)
+{
+    pwm_set1(applied_duty[0]);
+    pwm_set2(applied_duty[1]);
+    pwm_set3(applied_duty[2]);
+    pwm_set4(applied_duty[3]);
+}
+
 /* TIM2/TIM3 的八个 PWM 输入由 pwm 模块统一初始化。 */
 void motor_init(void)
 {
+    static const motor_calibration_t defaults[4] = MOTOR_CALIBRATION_DEFAULTS;
+    uint8_t wheel;
+    uint32_t now = delay_millis();
     pwm_init();
+    for (wheel = 0; wheel < 4; wheel++)
+    {
+        target_duty[wheel] = applied_duty[wheel] = 0.0f;
+        last_direction[wheel] = 0;
+        zero_since_ms[wheel] = now;
+        wheel_calibration[wheel] = defaults[wheel];
+    }
+    last_update_ms = now;
     motor_set_speed_percent(MOTOR_SPEED_INITIAL_PERCENT);
 }
 
 void motor_set_speed_percent(uint8_t percent)
 {
+    float largest = 0.0f;
+    float limit;
+    uint8_t wheel;
     speed_percent = percent > MOTOR_SPEED_MAX_PERCENT ?
                     MOTOR_SPEED_MAX_PERCENT : percent;
-    if (speed_percent == 0U) motor_stop();
+    if (speed_percent == 0U)
+    {
+        motor_stop();
+        return;
+    }
+    /* 降档上限立即生效，不能在慢减速期间继续超过用户选定档位。 */
+    limit = (float)speed_percent / 100.0f;
+    for (wheel = 0; wheel < 4; wheel++)
+        if (absolute_value(applied_duty[wheel]) > largest)
+            largest = absolute_value(applied_duty[wheel]);
+    if (largest > limit)
+        for (wheel = 0; wheel < 4; wheel++) applied_duty[wheel] *= limit / largest;
+    for (wheel = 0; wheel < 4; wheel++)
+        if (absolute_value(target_duty[wheel]) > limit)
+            target_duty[wheel] = direction_of(target_duty[wheel]) * limit;
+    write_outputs();
 }
 
 uint8_t motor_get_speed_percent(void)
 {
     return speed_percent;
+}
+
+uint8_t motor_output_above_percent(uint8_t percent)
+{
+    uint8_t wheel;
+    for (wheel = 0; wheel < 4; wheel++)
+    {
+        /* 与PWM层的CCR量化一致，2160/3600=60%本身不触发。 */
+        uint16_t compare = (uint16_t)(absolute_value(applied_duty[wheel]) * PWM_PERIOD_COUNTS);
+        if ((uint32_t)compare * 100U > (uint32_t)percent * PWM_PERIOD_COUNTS) return 1;
+    }
+    return 0;
 }
 
 uint8_t motor_joystick_is_centered(uint8_t value)
@@ -27,8 +95,8 @@ uint8_t motor_joystick_is_centered(uint8_t value)
            value <= JOYSTICK_CENTER + JOYSTICK_DEADZONE;
 }
 
-/* 只取离中心的方向向量：稍后归一化，推杆幅度不再决定速度。
- * 每轴回中区 120～136 置零，原始值小于中心时为正。
+/* 120～136回中；死区外从0连续增加至端点1，推杆幅度决定PWM。
+ * 每轴中心128，两边端点距离不同，分别校正。
  */
 static float motor_axis_offset(float value)
 {
@@ -40,21 +108,83 @@ static float motor_axis_offset(float value)
     offset = JOYSTICK_CENTER - value;
     /* 中心 128 两侧分别有 128/127 个计数，端点校正后对称。 */
     if (offset > JOYSTICK_DEADZONE)
-        return offset / JOYSTICK_CENTER;
+        return (offset - JOYSTICK_DEADZONE) / (JOYSTICK_CENTER - JOYSTICK_DEADZONE);
     if (offset < -JOYSTICK_DEADZONE)
-        return offset / (255 - JOYSTICK_CENTER);
+        return (offset + JOYSTICK_DEADZONE) / (255 - JOYSTICK_CENTER - JOYSTICK_DEADZONE);
     return 0.0f;
-}
-
-static float absolute_value(float value)
-{
-    return value < 0.0f ? -value : value;
 }
 
 void motor_stop(void)
 {
+    uint8_t wheel;
+    uint32_t now = delay_millis();
+    for (wheel = 0; wheel < 4; wheel++)
+    {
+        if (applied_duty[wheel] != 0.0f) zero_since_ms[wheel] = now;
+        target_duty[wheel] = applied_duty[wheel] = 0.0f;
+    }
+    last_update_ms = now;
     /* DRV8833 双输入均为 0：滑行，不是主动制动。 */
     pwm_stop_all();
+}
+
+uint8_t motor_set_calibration(uint8_t wheel, const motor_calibration_t *calibration)
+{
+    if (wheel >= 4U || calibration == 0 ||
+        calibration->forward_gain_percent > 100U ||
+        calibration->reverse_gain_percent > 100U ||
+        calibration->forward_min_percent > 100U ||
+        calibration->reverse_min_percent > 100U) return 0;
+    wheel_calibration[wheel] = *calibration;
+    return 1;
+}
+
+void motor_update(void)
+{
+    uint32_t now = delay_millis();
+    uint32_t elapsed = now - last_update_ms;
+    uint8_t wheel;
+    uint8_t reversing = 0;
+    float factor = 1.0f;
+    float desired[4];
+    last_update_ms = now;
+    if (elapsed > MOTOR_UPDATE_MAX_MS) elapsed = MOTOR_UPDATE_MAX_MS;
+
+    for (wheel = 0; wheel < 4; wheel++)
+    {
+        int8_t direction = direction_of(target_duty[wheel]);
+        if (direction != 0 && last_direction[wheel] != 0 &&
+            direction != last_direction[wheel] &&
+            (applied_duty[wheel] != 0.0f ||
+             (uint32_t)(now - zero_since_ms[wheel]) < MOTOR_REVERSAL_COAST_MS))
+            reversing = 1;
+    }
+    /* 任一轮需要换向时，四轮统一降到零，避免不同轮换向时车身突扭。
+     * 无转速/电流传感器，80ms 是可调等待，不能证明转子已经停下。
+     */
+    for (wheel = 0; wheel < 4; wheel++)
+    {
+        float difference;
+        float rate;
+        float allowed;
+        desired[wheel] = reversing ? 0.0f : target_duty[wheel];
+        difference = absolute_value(desired[wheel] - applied_duty[wheel]);
+        rate = absolute_value(desired[wheel]) > absolute_value(applied_duty[wheel]) ?
+               MOTOR_ACCEL_PERCENT_PER_SECOND : MOTOR_DECEL_PERCENT_PER_SECOND;
+        allowed = rate * (float)elapsed / 100000.0f;
+        if (difference > allowed && difference > 0.0f && allowed / difference < factor)
+            factor = allowed / difference;
+    }
+    /* 同一个插值比例用于四轮：缓起步保持目标比例，停车保持旧比例。 */
+    for (wheel = 0; wheel < 4; wheel++)
+    {
+        float previous = applied_duty[wheel];
+        if (factor >= 1.0f) applied_duty[wheel] = desired[wheel];
+        else applied_duty[wheel] += (desired[wheel] - applied_duty[wheel]) * factor;
+        if (applied_duty[wheel] == 0.0f && previous != 0.0f) zero_since_ms[wheel] = now;
+        if (applied_duty[wheel] != 0.0f) last_direction[wheel] = direction_of(applied_duty[wheel]);
+    }
+    write_outputs();
 }
 
 void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
@@ -62,7 +192,6 @@ void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
     float forward = motor_axis_offset(joystick_forward);
     float sideways = motor_axis_offset(joystick_sideways);
     float turn = motor_axis_offset(joystick_turn);
-    float direction_scale = absolute_value(forward);
     float speed = (float)motor_get_speed_percent() / 100.0f;
     /* 2026-09-30 实测：正电气输出使两只后轮后退、两只前轮前进。
      * 顺序：1左后(×)、2右后(○)、3左前(□)、4右前(△)。
@@ -73,16 +202,8 @@ void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
     float magnitude;
     uint8_t wheel;
 
-    /* 左杆保留平移方向/分量比例，消除推杆幅度；右杆只取左/右。 */
-    if (absolute_value(sideways) > direction_scale)
-        direction_scale = absolute_value(sideways);
-    if (direction_scale > 0.0f)
-    {
-        forward /= direction_scale;
-        sideways /= direction_scale;
-    }
-    turn = (turn > 0.0f ? 1.0f : (turn < 0.0f ? -1.0f : 0.0f)) *
-           MOTOR_O_ROTATION_SIGN;
+    /* 左杆方向与幅度控制平移，右杆左右与幅度控制旋转；超限统一缩小。 */
+    turn *= MOTOR_O_ROTATION_SIGN;
 
     /* 俯视 O 形滚子，F=前、L=左；先算“让车前进”为正的轮输出。
      * O 形的旋转杠杆为半轴距减半轮距，不能套 X 形的加和。
@@ -106,15 +227,20 @@ void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
     for (wheel = 0; wheel < 4; wheel++)
     {
         /* 先整体限幅，再乘统一速度；任意混合均不超过选定百分比。 */
-        output[wheel] = output[wheel] / largest * speed * polarity[wheel];
+        float mechanical = output[wheel] / largest * speed;
+        const motor_calibration_t *calibration = &wheel_calibration[wheel];
+        float gain = mechanical > 0.0f ? calibration->forward_gain_percent :
+                                         calibration->reverse_gain_percent;
+        float minimum = (float)(mechanical > 0.0f ? calibration->forward_min_percent :
+                                                      calibration->reverse_min_percent) / 100.0f;
+        float value = absolute_value(mechanical) * gain / 100.0f;
+        /* 零轮必须仍为零；最低 PWM 只补非零目标，且服从整体档位上限。 */
+        if (value > 0.0f && value < minimum) value = minimum;
+        if (value > speed) value = speed;
+        target_duty[wheel] = direction_of(mechanical) * value * polarity[wheel];
     }
 
-    /* 带符号输出：正向 PWM/0，反向 0/PWM，零值 0/0。
-     * PWM 层先清除反方向输入，再写入当前方向，避免出现双高。
-     * 这不是机械减速斜坡；快速反转的电流仍须实车验证。
-     */
-    pwm_set1(output[0]);
-    pwm_set2(output[1]);
-    pwm_set3(output[2]);
-    pwm_set4(output[3]);
+    /* 松杆、速度0和非法输入造成的全零目标，立即撤掉输出。 */
+    if (target_duty[0] == 0.0f && target_duty[1] == 0.0f &&
+        target_duty[2] == 0.0f && target_duty[3] == 0.0f) motor_stop();
 }

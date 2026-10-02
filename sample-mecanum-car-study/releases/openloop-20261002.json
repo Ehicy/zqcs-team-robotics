@@ -1,0 +1,16 @@
+{
+  "id": "openloop-20261002",
+  "tag": "chassis/openloop-20261002",
+  "label": "Early open-loop joystick control, 500ms linear startup",
+  "snapshot": "backups/motor-openloop-20261002-01",
+  "parts": [
+    "hardware",
+    "tests"
+  ],
+  "binary": "backups/motor-openloop-20261002-01/crtc-motor.bin",
+  "hex": "backups/motor-openloop-20261002-01/crtc-motor.hex",
+  "source_note": "Hardware/tests snapshot, other files inherited from merged repository base.",
+  "bin_bytes": 7260,
+  "sha256": "7274982c39df1b1ffb018ecd7a099ba4e064fc2c6d57c4344730844dbc9b9ca3",
+  "independent_board_readback_previously_passed": true
+}

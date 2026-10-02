@@ -34,6 +34,10 @@
 void delay_init(void);     // 延时初始化
 void delay_us(uint16_t us); // 软件微妙延时
 void delay_ms(uint16_t ms); // 软件毫秒延时
+/* DWT周期计数得到毫秒时基；不占用延时所用SysTick，不启用中断。
+ * 仅主循环调用，至少每个DWT计数回绕周期调用一次(72MHz时约59秒)。
+ */
+uint32_t delay_millis(void);
 
 #endif
 

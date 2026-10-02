@@ -22,6 +22,7 @@ static void run_frame(uint8_t forward, uint8_t sideways, uint8_t turn,
     uint8_t frame[9] = {0xFF, mode, marker, (uint8_t)~pressed,
                        (uint8_t)~(pressed >> 8), turn, 128, sideways, forward};
     mock_frame(frame, 9);
+    mock_millis += 12U; /* 含手柄通信的实际轮询周期，非固定10ms假设 */
     control_step();
     mock_assert_poll_complete();
 }
@@ -55,6 +56,12 @@ static void assert_wheels(int a, int b, int c, int d)
 {
     const int expected[4] = {a,b,c,d};
     unsigned i;
+    /* 保留原方向/档位/混合的稳态验收；瞬态斜坡/换向在独立测试覆盖。 */
+    for (i = 0; i < 150; i++)
+    {
+        mock_millis += 10U;
+        motor_update();
+    }
     for (i = 0; i < 4; i++)
     {
         if (abs((int)mock_ccr[2*i] - mock_ccr[2*i+1] - expected[i]) > 1)
@@ -69,8 +76,8 @@ static void test_motor(void)
 {
     unsigned i, j, k, axis;
     const uint8_t values[] = {0,1,64,119,120,127,128,129,136,137,192,254,255};
-    assert(motor_get_speed_percent() == 0U);
-    motor(0,128,128); assert_stopped();
+    assert(motor_get_speed_percent() == 100U);
+    motor(128,128,128); assert_stopped();
     motor_set_speed_percent(10);
     motor(0,128,128); assert_wheels(-360,-360,360,360);
     motor_set_speed_percent(0); assert_stopped();
@@ -97,13 +104,13 @@ static void test_motor(void)
     motor(255,255,128); assert_wheels(0,1800,-1800,0);
     /* 平移与左转混合：电气输出 -1,-1,3,-1，统一除以 3 后乘 50%。 */
     motor(0,0,0); assert_wheels(-600,-600,1800,-600);
-    /* 相同方向的小幅/大幅推杆必须同输出，右杆也只取方向。 */
-    motor(119,128,128); assert_wheels(-1800,-1800,1800,1800);
-    motor(137,128,128); assert_wheels(1800,1800,-1800,-1800);
-    motor(128,119,128); assert_wheels(1800,-1800,1800,-1800);
-    motor(128,128,119); assert_wheels(-1800,1800,1800,-1800);
-    motor(0,64,128); assert_wheels(-600,-1800,1800,600);
-    motor(64,96,128); assert_wheels(-600,-1800,1800,600);
+    /* 死区外连续调速，左杆与右杆都保留幅度。 */
+    motor(119,128,128); assert_wheels(-15,-15,15,15);
+    motor(137,128,128); assert_wheels(15,15,-15,-15);
+    motor(128,119,128); assert_wheels(15,-15,15,-15);
+    motor(128,128,119); assert_wheels(-15,15,15,-15);
+    motor(0,64,128); assert_wheels(-655,-1800,1800,655);
+    motor(64,96,128); assert_wheels(-480,-1200,1200,480);
 
     for (i = 0; i < 256; i++)
     {
@@ -111,8 +118,8 @@ static void test_motor(void)
         motor((float)i, 128, 128);
         if (i >= 120 && i <= 136) assert_stopped();
     }
-    motor(119,128,128); assert(mock_ccr[1] > 0);
-    motor(137,128,128); assert(mock_ccr[0] > 0);
+    motor(119,128,128); assert_wheels(-15,-15,15,15);
+    motor(137,128,128); assert_wheels(15,15,-15,-15);
     motor(NAN,128,128); assert_stopped();
     motor_set_speed_percent(100);
     for (i = 0; i < sizeof values; i++)
@@ -120,10 +127,12 @@ static void test_motor(void)
             for (k = 0; k < sizeof values; k++)
             {
                 motor(values[i], values[j], values[k]);
+                mock_millis += 12U;
+                motor_update();
                 for (axis = 0; axis < 8; axis++) assert(mock_ccr[axis] <= 3600U);
             }
     motor_stop();
-    puts("PASS: calibrated O wheels, direction only, 0/10/50/100% limit, 2197 mixed inputs");
+    puts("PASS: calibrated O wheels, continuous analog amplitude, duty limits, 2197 mixed inputs");
 }
 
 static void test_ps2(void)
@@ -158,47 +167,34 @@ static void test_control(void)
     uint8_t button;
     const uint8_t modes[] = {0,0x41,0x79,0xFF};
     unsigned i;
-    motor_set_speed_percent(MOTOR_SPEED_INITIAL_PERCENT);
-    control_ready = 0;
-    normal(0,128,128,0); assert_stopped(); /* 上电已推杆，不能启动 */
+    motor_init(); control_ready = 0;
+    normal(0,128,128,0); assert_stopped(); /* 推杆上电不能启动 */
     normal(128,128,128,0); assert_stopped();
-    normal(0,128,128,0); assert_stopped(); /* 初始速度0，回中使能后也不转 */
-    assert(motor_get_speed_percent() == 0);
-    normal(128,128,128,0x0800); assert_stopped(); /* R1加到10% */
-    normal(128,128,128,0);
-    normal(0,128,128,0); assert_wheels(-360,-360,360,360);
+    normal(0,128,128,0); assert_wheels(-3600,-3600,3600,3600);
     assert(control_mode == PS2_MODE_ANALOG);
-
     for (i = 0; i < sizeof modes; i++)
     {
         run_frame(0,128,128,0,modes[i],0x5A); assert_stopped();
-        normal(0,128,128,0); assert_stopped(); /* 连上但未回中 */
-        normal(128,128,128,1); assert_stopped(); /* 按键未松 */
+        normal(0,128,128,0); assert_stopped();
+        normal(128,128,128,1); assert_stopped();
         normal(128,128,128,0); assert_stopped();
-        normal(0,128,128,0); assert_wheels(-360,-360,360,360);
+        normal(0,128,128,0); assert_wheels(-3600,-3600,3600,3600);
     }
     run_frame(0,128,128,0,0x73,0); assert_stopped();
     normal(128,128,128,0); assert_stopped();
+    normal(0,128,128,0); assert_wheels(-3600,-3600,3600,3600);
 
-    /* START 优先于推杆和普通按键；松开 START 后仍须回中。 */
-    normal(0,128,128,0); assert_wheels(-360,-360,360,360);
     normal(0,0,0,(uint16_t)(1U << PS2_BUTTON_START)); assert_stopped();
-    assert(control_ready == 0);
-    assert(motor_get_speed_percent() == 0);
-    assert(last_released_button == 255);
+    assert(control_ready == 0 && last_released_button == 255);
     assert(mock_gpio_c & GPIO_Pin_13);
-    normal(0,128,128,0); assert_stopped();
+    for (i = 0; i < 20; i++) normal(0,128,128,0);
+    assert_stopped(); /* 斜坡不能恢复被START清掉的目标 */
     normal(128,128,128,(uint16_t)(1U << PS2_BUTTON_START)); assert_stopped();
-    normal(128,128,128,0); assert_stopped();
-    assert(control_ready == 1);
-    normal(0,128,128,0); assert_stopped(); /* START后必须重新加速 */
-    normal(128,128,128,0x0800);
-    normal(128,128,128,0);
-    normal(128,0,128,0); assert_wheels(360,-360,360,-360);
-    normal(128,128,0,0); assert_wheels(-360,360,360,-360);
+    normal(128,128,128,0); assert_stopped(); assert(control_ready == 1);
+    normal(128,0,128,0); assert_wheels(3600,-3600,3600,-3600);
+    normal(128,128,0,0); assert_wheels(-3600,3600,3600,-3600);
     normal(128,128,128,0); assert_stopped();
 
-    /* 其余 15 个按键均应在松开时触发一次，按住/持续松开不重复。 */
     for (button = 0; button < PS2_BUTTON_COUNT; button++)
     {
         if (button == PS2_BUTTON_START) continue;
@@ -210,112 +206,77 @@ static void test_control(void)
         last_released_button = 255;
         normal(128,128,128,0); assert(last_released_button == 255);
     }
-    /* 按住时丢帧，不能伪造松开事件；恢复后也不能触发旧动作。 */
     normal(0,128,128,(uint16_t)(1U << PS2_BUTTON_CROSS));
     last_released_button = 255;
     run_frame(0,128,128,0,0xFF,0xFF);
     assert_stopped(); assert(last_released_button == 255);
-    normal(128,128,128,0);
-    normal(128,128,128,0);
+    normal(128,128,128,0); normal(128,128,128,0);
     assert(last_released_button == 255);
-    puts("PASS: zero-speed startup, analog-only, START reset/rearm, 15 buttons, no phantom release");
+    puts("PASS: zero-output startup, analog-only, START reset/rearm, immediate fault stop, no phantom release");
 }
 
-static void test_speed_buttons(void)
+static void test_analog_controls(void)
 {
     unsigned i;
-    /* 独立用协议字节掩码：L1=0400，R1=0800；不靠被测枚举生成期望。 */
-    motor_set_speed_percent(0);
-    control_ready = 0;
+    motor_init(); control_ready = 0;
     normal(128,128,128,0x0800); assert_stopped();
-    assert(motor_get_speed_percent() == 0);
     normal(128,128,128,0); assert_stopped();
-    normal(119,128,128,0x0800); assert_wheels(-360,-360,360,360);
+    normal(119,128,128,0); assert_wheels(-30,-30,30,30);
+    normal(64,128,128,0); assert_wheels(-1680,-1680,1680,1680);
+    normal(0,128,128,0); assert_wheels(-3600,-3600,3600,3600);
+    /* L1/R1、L2/R2无调速绑定，按住和同按都不改变摇杆目标。 */
     for (i = 0; i < 20; i++) normal(0,128,128,0x0800);
-    assert(motor_get_speed_percent() == 10); /* 长按不连加，幅度不控速 */
-    normal(0,128,128,0); assert_wheels(-360,-360,360,360);
-    for (i = 0; i < 15; i++)
-    {
-        normal(0,128,128,0x0800);
-        normal(0,128,128,0);
-    }
+    assert_wheels(-3600,-3600,3600,3600);
+    normal(0,128,128,0x0400); assert_wheels(-3600,-3600,3600,3600);
+    normal(0,128,128,0x0C00); assert_wheels(-3600,-3600,3600,3600);
+    normal(0,128,128,0x0300); assert_wheels(-3600,-3600,3600,3600);
     assert(motor_get_speed_percent() == 100);
-    normal(0,0,0,0); assert_wheels(-1200,-1200,3600,-1200);
-    normal(128,128,0,0); assert_wheels(-3600,3600,3600,-3600);
-    normal(0,128,128,0x0300); /* L2/R2 不调速度 */
-    assert(motor_get_speed_percent() == 100);
-    normal(0,128,128,0);
-    normal(0,128,128,0x0C00); /* L1/R1 同按不调速度 */
-    assert(motor_get_speed_percent() == 100);
-    normal(0,128,128,0);
-    normal(0,128,128,0x0400); assert_wheels(-3240,-3240,3240,3240);
-    for (i = 0; i < 20; i++) normal(0,128,128,0x0400);
-    assert(motor_get_speed_percent() == 90);
-    normal(0,128,128,0);
-    for (i = 0; i < 12; i++)
-    {
-        normal(0,128,128,0x0400);
-        normal(0,128,128,0);
-    }
-    assert(motor_get_speed_percent() == 0); assert_stopped();
-    normal(0,128,128,0x0800); assert_wheels(-360,-360,360,360);
+    normal(128,128,128,0); assert_stopped();
+    normal(128,128,64,0); assert_wheels(-1680,1680,1680,-1680);
+    normal(128,128,128,0); assert_stopped();
     run_frame(0,128,128,0x0800,0x41,0x5A); assert_stopped();
-    assert(control_mode == 0x41);
-    normal(128,128,128,0x0800); assert_stopped();
-    assert(motor_get_speed_percent() == 10); /* 恢复时按住不能误加速 */
-    normal(128,128,128,0); assert_stopped();
-    normal(0,128,128,0x0800); assert_wheels(-720,-720,720,720);
-    normal(128,128,128,0); assert_stopped();
-    motor_init(); assert(motor_get_speed_percent() == 0);
-    puts("PASS: wire L1/R1, initial 0%, 10% steps, held/simultaneous, 0..100%, rearm");
+    normal(128,128,128,0x0800); assert_stopped(); assert(!control_ready);
+    normal(128,128,128,0); assert_stopped(); assert(control_ready);
+    normal(0,128,128,0); assert_wheels(-3600,-3600,3600,3600);
+    motor_init(); assert_stopped();
+    puts("PASS: continuous left/right stick control, no shoulder speed binding, neutral rearm");
 }
 
 static void test_speed_led(void)
 {
     unsigned i;
-    motor_set_speed_percent(0);
-    control_ready = 0;
+    motor_init(); speed_led_init(); control_ready = 0;
     normal(128,128,128,0);
-    assert(mock_gpio_c & GPIO_Pin_13); /* 初始0%灭 */
-    for (i = 0; i < 6; i++)
+    assert(mock_gpio_c & GPIO_Pin_13); /* 上限100%但实际零输出，灯灭 */
+    motor_set_speed_percent(60);
+    for (i = 0; i < 40; i++)
     {
-        normal(128,128,128,0x0800);
-        normal(128,128,128,0);
-        assert(mock_gpio_c & GPIO_Pin_13); /* 10..60%均灭 */
+        normal(0,128,128,0);
+        assert(mock_gpio_c & GPIO_Pin_13);
     }
-    assert(motor_get_speed_percent() == 60);
-    normal(128,128,128,0x0800); /* 实际R1帧到70%，立刻亮 */
-    assert(motor_get_speed_percent() == 70);
+    assert(!motor_output_above_percent(60));
+    motor_set_speed_percent(70);
+    for (i = 0; i < 10; i++) normal(0,128,128,0);
+    assert(motor_output_above_percent(60));
+    speed_led_init(); normal(0,128,128,0);
     assert(!(mock_gpio_c & GPIO_Pin_13));
-    for (i = 0; i < SPEED_LED_BLINK_STEPS; i++) normal(128,128,128,0);
+    for (i = 0; i < SPEED_LED_BLINK_STEPS; i++) normal(0,128,128,0);
     assert(mock_gpio_c & GPIO_Pin_13);
-    for (i = 0; i < SPEED_LED_BLINK_STEPS; i++) normal(128,128,128,0);
+    for (i = 0; i < SPEED_LED_BLINK_STEPS; i++) normal(0,128,128,0);
     assert(!(mock_gpio_c & GPIO_Pin_13));
-    normal(128,128,128,0x0400); /* L1回60%，立即灭并清闪烁相位 */
-    assert(motor_get_speed_percent() == 60);
-    assert(mock_gpio_c & GPIO_Pin_13);
-    normal(128,128,128,0);
-    normal(128,128,128,0x0800); /* 重新到70% */
-    assert(motor_get_speed_percent() == 70);
+    normal(128,128,128,0); assert_stopped(); assert(mock_gpio_c & GPIO_Pin_13);
+    for (i = 0; i < 35; i++) normal(0,128,128,0);
     assert(!(mock_gpio_c & GPIO_Pin_13));
-    for (i = 0; i < SPEED_LED_BLINK_STEPS; i++)
-        run_frame(128,128,128,0,0x41,0x5A);
-    assert(mock_gpio_c & GPIO_Pin_13); assert_stopped();
-    /* START在数字模式也重置，且优先于同时按下的R1。 */
-    last_released_button = 11;
     run_frame(0,0,0,0x0808,0x41,0x5A);
-    assert(motor_get_speed_percent() == 0); assert_stopped();
-    assert(control_ready == 0 && last_released_button == 255);
+    assert_stopped(); assert(!control_ready && last_released_button == 255);
     assert(mock_gpio_c & GPIO_Pin_13);
     assert(speed_led_active == 0 && speed_led_steps == 0 && speed_led_on == 0);
     for (i = 0; i < PS2_BUTTON_COUNT; i++) assert(button_was_down[i] == 0);
-    normal(128,128,128,0x0800); assert_stopped(); /* R1未松，不能恢复 */
-    assert(motor_get_speed_percent() == 0 && control_ready == 0);
-    normal(128,128,128,0); assert_stopped();
-    normal(0,128,128,0); assert_stopped(); /* 恢复后0%仍停 */
-    run_frame(128,128,128,0,0xFF,0xFF);
-    assert(mock_gpio_c & GPIO_Pin_13);
-    puts("PASS: PC13 off at 0..60%, blink at 70%, START resets speed/buttons/LED in digital mode");
+    normal(128,128,128,0x0800); assert_stopped(); assert(!control_ready);
+    normal(128,128,128,0); assert_stopped(); assert(control_ready);
+    run_frame(0,128,128,0,0xFF,0xFF);
+    assert_stopped(); assert(mock_gpio_c & GPIO_Pin_13);
+    puts("PASS: PC13 actual PWM threshold, blink phase, immediate neutral/START/fault off");
 }
 
 int main(void)
@@ -333,7 +294,7 @@ int main(void)
     test_motor();
     test_ps2();
     test_control();
-    test_speed_buttons();
+    test_analog_controls();
     test_speed_led();
     puts("All host tests passed (not a hardware or Keil build test).");
     return 0;
