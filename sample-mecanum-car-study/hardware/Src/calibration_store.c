@@ -3,7 +3,6 @@
 #define RECORD_BYTES 16U
 #define RECORD_WORDS 8U
 #define RECORD_MAGIC 0xC217U
-#define RECORD_VERSION 1U
 #define RECORD_COMMIT 0xA55AU
 
 typedef struct
@@ -41,7 +40,7 @@ static uint8_t record_valid(const uint16_t *words, strafe_calibration_t *data)
 {
     data->front_percent = (uint8_t)words[4];
     data->rear_percent = (uint8_t)(words[4] >> 8);
-    return words[0] == RECORD_MAGIC && words[1] == RECORD_VERSION &&
+    return words[0] == RECORD_MAGIC && words[1] == CAL_STORE_VERSION &&
            words[7] == RECORD_COMMIT && (uint16_t)(words[4] ^ words[5]) == 0xFFFFU &&
            words[6] == record_crc(words) && gains_valid(data);
 }
@@ -111,7 +110,7 @@ uint8_t calibration_store_save(const strafe_calibration_t *data)
         address = page;
     }
     sequence = latest.valid ? latest.sequence + 1U : 0U;
-    words[0] = RECORD_MAGIC; words[1] = RECORD_VERSION;
+    words[0] = RECORD_MAGIC; words[1] = CAL_STORE_VERSION;
     words[2] = (uint16_t)sequence; words[3] = (uint16_t)(sequence >> 16);
     words[4] = (uint16_t)data->front_percent | ((uint16_t)data->rear_percent << 8);
     words[5] = (uint16_t)~words[4]; words[6] = record_crc(words); words[7] = RECORD_COMMIT;

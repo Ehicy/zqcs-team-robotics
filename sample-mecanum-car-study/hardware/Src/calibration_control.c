@@ -64,18 +64,24 @@ static void changed(uint8_t front, uint8_t rear)
 }
 static void learn_from_driver(const ps2_data *data, uint16_t pressed, uint32_t now)
 {
-    float side = motor_joystick_axis(data->LJoy_LR);
-    float turn = motor_joystick_axis(data->RJoy_LR) * MOTOR_O_ROTATION_SIGN;
-    float side_abs = side < 0.0f ? -side : side;
-    float turn_abs = turn < 0.0f ? -turn : turn;
-    int8_t sign = side > 0.0f ? 1 : -1;
+    float forward, side, turn, side_abs, turn_abs;
+    float raw_side = motor_joystick_axis(data->LJoy_LR);
+    float raw_side_abs = raw_side < 0.0f ? -raw_side : raw_side;
+    int8_t sign;
     uint32_t elapsed;
     uint8_t front, rear;
+    motor_joystick_map(data->LJoy_UD, data->LJoy_LR, data->RJoy_LR,
+                       &forward, &side, &turn);
+    turn *= MOTOR_O_ROTATION_SIGN;
+    side_abs = side < 0.0f ? -side : side;
+    turn_abs = turn < 0.0f ? -turn : turn;
+    sign = side > 0.0f ? 1 : -1;
     /* 只有SELECT单独按住、纯横移>=30%、小幅纠偏才推断“右杆是在纠偏”。
      * 人是反馈来源；不是由PWM推算车身已经走直，更不是轮速闭环。
      */
     if (pressed != KEY(PS2_BUTTON_SELECT) || !motor_joystick_is_centered(data->LJoy_UD) ||
-        side_abs < 0.30f || turn_abs > side_abs * 0.35f || !motor_output_above_percent(0))
+        raw_side_abs < 0.30f || side_abs == 0.0f ||
+        turn_abs > side_abs * 0.35f || !motor_output_above_percent(0))
     {
         /* 松开SELECT才恢复本次训练的步数预算。大幅转杆/停机只重计稳定时间。 */
         if (!(pressed & KEY(PS2_BUTTON_SELECT))) learn_steps = 0;

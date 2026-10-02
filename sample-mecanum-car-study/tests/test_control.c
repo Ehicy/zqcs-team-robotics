@@ -76,6 +76,8 @@ static void test_motor(void)
 {
     unsigned i, j, k, axis;
     const uint8_t values[] = {0,1,64,119,120,127,128,129,136,137,192,254,255};
+    /* 保留已核算的85/100混合回归；新版默认值在test_motor_tuning覆盖。 */
+    assert(motor_set_strafe_percent(85,100));
     assert(motor_get_speed_percent() == 100U);
     motor(128,128,128); assert_stopped();
     motor_set_speed_percent(10);
@@ -105,12 +107,12 @@ static void test_motor(void)
     /* 混合机械输出1,1,2.85,-0.85，统一限幅后乘50%并补后轮极性。 */
     motor(0,0,0); assert_wheels(-631,-631,1800,-536);
     /* 死区外连续调速，左杆与右杆都保留幅度。 */
-    motor(119,128,128); assert_wheels(-15,-15,15,15);
-    motor(137,128,128); assert_wheels(15,15,-15,-15);
-    motor(128,119,128); assert_wheels(15,-15,12,-12);
-    motor(128,128,119); assert_wheels(-15,15,15,-15);
+    motor(119,128,128); assert_wheels(-11,-11,11,11);
+    motor(137,128,128); assert_wheels(11,11,-11,-11);
+    motor(128,119,128); assert_wheels(11,-11,9,-9);
+    motor(128,128,119); assert_wheels(-7,7,7,-7);
     motor(0,64,128); assert_wheels(-655,-1800,1714,740);
-    motor(64,96,128); assert_wheels(-480,-1200,1146,534);
+    motor(64,96,128); assert_wheels(-390,-977,933,434);
 
     for (i = 0; i < 256; i++)
     {
@@ -118,8 +120,8 @@ static void test_motor(void)
         motor((float)i, 128, 128);
         if (i >= 120 && i <= 136) assert_stopped();
     }
-    motor(119,128,128); assert_wheels(-15,-15,15,15);
-    motor(137,128,128); assert_wheels(15,15,-15,-15);
+    motor(119,128,128); assert_wheels(-11,-11,11,11);
+    motor(137,128,128); assert_wheels(11,11,-11,-11);
     motor(NAN,128,128); assert_stopped();
     motor_set_speed_percent(100);
     for (i = 0; i < sizeof values; i++)
@@ -191,7 +193,7 @@ static void test_control(void)
     assert_stopped(); /* 斜坡不能恢复被START清掉的目标 */
     normal(128,128,128,(uint16_t)(1U << PS2_BUTTON_START)); assert_stopped();
     normal(128,128,128,0); assert_stopped(); assert(control_ready == 1);
-    normal(128,0,128,0); assert_wheels(3600,-3600,3060,-3060);
+    normal(128,0,128,0); assert_wheels(3420,-3420,3600,-3600);
     normal(128,128,0,0); assert_wheels(-3600,3600,3600,-3600);
     normal(128,128,128,0); assert_stopped();
 
@@ -221,8 +223,8 @@ static void test_analog_controls(void)
     motor_init(); control_ready = 0;
     normal(128,128,128,0x0800); assert_stopped();
     normal(128,128,128,0); assert_stopped();
-    normal(119,128,128,0); assert_wheels(-30,-30,30,30);
-    normal(64,128,128,0); assert_wheels(-1680,-1680,1680,1680);
+    normal(119,128,128,0); assert_wheels(-22,-22,22,22);
+    normal(64,128,128,0); assert_wheels(-1351,-1351,1351,1351);
     normal(0,128,128,0); assert_wheels(-3600,-3600,3600,3600);
     /* L1/R1、L2/R2无调速绑定，按住和同按都不改变摇杆目标。 */
     for (i = 0; i < 20; i++) normal(0,128,128,0x0800);
@@ -232,7 +234,7 @@ static void test_analog_controls(void)
     normal(0,128,128,0x0300); assert_wheels(-3600,-3600,3600,3600);
     assert(motor_get_speed_percent() == 100);
     normal(128,128,128,0); assert_stopped();
-    normal(128,128,64,0); assert_wheels(-1680,1680,1680,-1680);
+    normal(128,128,64,0); assert_wheels(-1022,1022,1022,-1022);
     normal(128,128,128,0); assert_stopped();
     run_frame(0,128,128,0x0800,0x41,0x5A); assert_stopped();
     normal(128,128,128,0x0800); assert_stopped(); assert(!control_ready);

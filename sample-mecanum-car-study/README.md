@@ -2,9 +2,11 @@
 
 基于 Serialist/sample-mecanum-car 的 `1fa85bbdcd6c62f33f871284b642959cea975805`，2026-09-15 检查和修改。
 
-**2026-10-02 最新试验源码：保留实测轮位、后轮反向补偿和俯视 O 形麦轮；左杆连续控制平移方向与 PWM 幅度，右杆连续控制旋转，L1/R1 不再调速。上电输出 0、上限 100%，加速约 0.2s 到满幅，换向降零并等待至少 40ms；松杆或 START 立即撤驱动，回中松键后恢复。默认前/后轴横移增益 85/100，增加 SELECT 人工辅助学习和停车 Flash 保存。TIM2/TIM3 双输入 PWM 默认 20 kHz。**
+**2026-10-02 最新试验源码：保留实测轮位、后轮反向补偿和俯视 O 形麦轮；左杆连续控制平移方向与 PWM 幅度，右杆连续控制旋转，L1/R1 不再调速。上电输出 0、上限 100%，加速约 0.5s 到满幅，换向降零并等待至少 40ms；松杆或 START 立即撤驱动，回中松键后恢复。默认前/后轴横移增益 100/95（补偿反向缩小），旧版 Flash 参数不加载，增加 SELECT 人工辅助学习和停车 Flash 保存。TIM2/TIM3 双输入 PWM 默认 20 kHz。**
 
-最新 9820 字节试验版已通过主机测试、Cortex-M3 编译、ST-Link 下载校验及独立读回；模拟模式73、回中使能、八路CCR为0，横移参数前85/后100。HEX 为 `build/driver-calibration/crtc-driver-calibration.hex`。实车响应和横移学习尚待验证，操作见 [横移学习与保存](docs/DRIVER_CALIBRATION.zh-CN.md)。此前 7260 字节开环版用户实机确认前后正常、横移伴随转弯；历史见 [无编码器 TT 调优说明](docs/MOTOR_TUNING.zh-CN.md)，本轮读取与下载证据见 [ST-Link诊断](docs/STLINK_RESEARCH_2026-10-02.zh-CN.md)。
+**本次更新：**左杆25%、右杆50%三次混合映射（[手感调参](docs/PAD_MAPPING.zh-CN.md)），0.5秒满幅起步，前100/后95，SELECT单次训练最多5点，Flash记录升级到版本2。新固件10036字节已构建、通过主机测试、ST-Link下载校验并独立读回一致；板上模拟模式73、回中使能、前100/后95、八路CCR全0，旧Flash记录未加载。手感和横移改善待实测。最新操作和状态见[靠近原始状态的补偿](docs/STRAFE_NEAR_BASELINE.zh-CN.md)。
+
+上一版 9820 字节试验版已通过主机测试、Cortex-M3 编译、ST-Link 下载校验及独立读回；模拟模式73、回中使能、八路CCR为0，横移参数前85/后100。HEX 为 `build/driver-calibration/crtc-driver-calibration.hex`。实车响应和横移学习尚待验证，操作见 [横移学习与保存](docs/DRIVER_CALIBRATION.zh-CN.md)。此前 7260 字节开环版用户实机确认前后正常、横移伴随转弯；历史见 [无编码器 TT 调优说明](docs/MOTOR_TUNING.zh-CN.md)，本轮读取与下载证据见 [ST-Link诊断](docs/STLINK_RESEARCH_2026-10-02.zh-CN.md)。
 
 先打开：
 - [检查与修改记录](docs/REVIEW.zh-CN.md)：发现的问题、修复方式、测试范围与剩余限制。

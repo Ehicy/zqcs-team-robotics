@@ -15,6 +15,13 @@ void mock_flash_init(void)
     unlocked = 0; mock_flash_programs = mock_flash_erases = mock_flash_begins = 0;
     mock_flash_fail_after = -1; mock_flash_write_check = 0;
 }
+void mock_flash_seed_legacy(void)
+{
+    /* 2026-10-02实板读回的v1序号0、85/100记录，CRC独立核验为F7D9。 */
+    static const uint16_t legacy[8] = {0xC217,1,0,0,0x6455,0x9BAA,0xF7D9,0xA55A};
+    mock_flash_init();
+    memcpy(flash, legacy, sizeof legacy);
+}
 static unsigned index_of(uint32_t address)
 {
     assert(address >= CAL_STORE_BASE && address < CAL_STORE_BASE + CAL_STORE_BYTES);

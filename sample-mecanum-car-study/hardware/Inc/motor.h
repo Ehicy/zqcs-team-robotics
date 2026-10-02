@@ -25,7 +25,10 @@ void motor_set_speed_percent(uint8_t percent);
 uint8_t motor_get_speed_percent(void);
 uint8_t motor_output_above_percent(uint8_t percent);
 uint8_t motor_joystick_is_centered(uint8_t value);
-float motor_joystick_axis(float value); /* 死区后的归一化轴值，训练与驱动共用 */
+float motor_joystick_axis(float value); /* 死区后的线性归一化轴值 */
+/* 驱动和训练共用的曲线映射；三个输出指针均须有效，turn尚未乘O形符号。 */
+void motor_joystick_map(float raw_forward, float raw_sideways, float raw_turn,
+                        float *forward, float *sideways, float *turn);
 /* 0～255 原始值：左杆上下、左杆左右、右杆左右。
  * 小于中心分别表示前进、左移、逆时针转；方向以车头为参照。
  * 出死区后幅度连续调PWM，motor_set_speed_percent 设置允许的输出上限。

@@ -6,6 +6,8 @@
 #define CAL_STORE_BASE       0x0800F800UL
 #define CAL_STORE_PAGE_BYTES 1024U
 #define CAL_STORE_BYTES      (2U * CAL_STORE_PAGE_BYTES)
+/* v1的85/100试验已被用户否定；保留旧记录但不加载，首次启动用新默认值。 */
+#define CAL_STORE_VERSION    2U
 #define CAL_GAIN_MIN         50U
 #define CAL_GAIN_MAX         100U
 typedef struct

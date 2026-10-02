@@ -128,6 +128,27 @@ float motor_joystick_axis(float value)
     return 0.0f;
 }
 
+void motor_joystick_map(float raw_forward, float raw_sideways, float raw_turn,
+                        float *forward, float *sideways, float *turn)
+{
+    float f = motor_joystick_axis(raw_forward);
+    float s = motor_joystick_axis(raw_sideways);
+    float t = motor_joystick_axis(raw_turn);
+    float radius_squared = f * f + s * s;
+    float left_expo = (float)MOTOR_TRANSLATION_EXPO_PERCENT / 100.0f;
+    float turn_expo = (float)MOTOR_TURN_EXPO_PERCENT / 100.0f;
+    float left_gain;
+    if (forward == 0 || sideways == 0 || turn == 0) return;
+    /* 左杆统一缩放，避免分别立方扭曲斜向；超出单位圆保持原混合限幅。
+     * r<=1时幅度为(1-k)*r+k*r^3，无log/pow/sqrt计算或额外时间滤波。
+     */
+    if (radius_squared > 1.0f) radius_squared = 1.0f;
+    left_gain = 1.0f - left_expo + left_expo * radius_squared;
+    *forward = f * left_gain;
+    *sideways = s * left_gain;
+    *turn = t * (1.0f - turn_expo + turn_expo * t * t);
+}
+
 void motor_stop(void)
 {
     uint8_t wheel;
@@ -203,12 +224,9 @@ void motor_update(void)
 
 void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
 {
-    float forward = motor_joystick_axis(joystick_forward);
-    float sideways = motor_joystick_axis(joystick_sideways);
-    float turn = motor_joystick_axis(joystick_turn);
+    float forward, sideways, turn;
     float speed = (float)motor_get_speed_percent() / 100.0f;
-    float front_sideways = sideways * (float)strafe_front_percent / 100.0f;
-    float rear_sideways = sideways * (float)strafe_rear_percent / 100.0f;
+    float front_sideways, rear_sideways;
     /* 2026-09-30 实测：正电气输出使两只后轮后退、两只前轮前进。
      * 顺序：1左后(×)、2右后(○)、3左前(□)、4右前(△)。
      */
@@ -218,6 +236,10 @@ void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
     float magnitude;
     uint8_t wheel;
 
+    motor_joystick_map(joystick_forward, joystick_sideways, joystick_turn,
+                       &forward, &sideways, &turn);
+    front_sideways = sideways * (float)strafe_front_percent / 100.0f;
+    rear_sideways = sideways * (float)strafe_rear_percent / 100.0f;
     /* 左杆方向与幅度控制平移，右杆左右与幅度控制旋转；超限统一缩小。 */
     turn *= MOTOR_O_ROTATION_SIGN;
 
@@ -227,7 +249,7 @@ void motor(float joystick_forward, float joystick_sideways, float joystick_turn)
      * 这是开环 PWM 比例，不是编码器测得的轮速，没有 PID。
      */
     /* 试验补偿只作用于横移项；不压低前轮的前进项或旋转项。
-     * 85/100不是测得的轮速比，待用户比较横移圆弧是否减小。
+     * 100/95不是测得的轮速比，待用户比较横移圆弧是否减小。
      */
     output[0] = forward - rear_sideways + turn; /* 左后 */
     output[1] = forward + rear_sideways - turn; /* 右后 */

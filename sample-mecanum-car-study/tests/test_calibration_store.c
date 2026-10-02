@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include "calibration_store.h"
+#include "calibration_flash.h"
 #include "mock_calibration_flash.h"
 static void loaded(uint8_t front, uint8_t rear)
 {
@@ -25,6 +26,17 @@ int main(void)
 {
     unsigned programs, erases, i;
     strafe_calibration_t data = {85,100}, invalid = {49,100};
+    mock_flash_seed_legacy();
+    assert(!calibration_store_load(&data)); /* 有效CRC的旧85/100也不得加载 */
+    data.front_percent=100; data.rear_percent=95;
+    assert(calibration_store_save(&data) == CAL_STORE_SAVED); loaded(100,95);
+    assert(mock_flash_erases == 0);
+    assert(calibration_flash_read(CAL_STORE_BASE + 2U) == 1U);
+    assert(calibration_flash_read(CAL_STORE_BASE + 8U) == 0x6455U);
+    assert(calibration_flash_read(CAL_STORE_BASE + 12U) == 0xF7D9U);
+    assert(calibration_flash_read(CAL_STORE_BASE + 16U + 2U) == 2U);
+    puts("PASS: v1 calibration ignored, v2 appended without erasing legacy record, v2 restored");
+    data.front_percent=85; data.rear_percent=100;
     mock_flash_init();
     assert(!calibration_store_load(&data) && !calibration_store_load(0));
     assert(calibration_store_save(0) == CAL_STORE_ERROR);

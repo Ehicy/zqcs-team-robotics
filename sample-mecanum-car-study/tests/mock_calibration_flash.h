@@ -6,5 +6,6 @@ extern unsigned mock_flash_begins;
 extern int mock_flash_fail_after;
 extern void (*mock_flash_write_check)(void);
 void mock_flash_init(void);
+void mock_flash_seed_legacy(void);
 void mock_flash_flip(uint32_t address, uint16_t bits);
 #endif

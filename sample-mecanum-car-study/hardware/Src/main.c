@@ -195,7 +195,7 @@ int main(void)
 {
     delay_init();
     motor_init(); /* 初始化 TIM2/TIM3，八个输入从低电平启动 */
-    calibration_control_init(); /* 加载CRC有效参数，未保存过则用85/100试验值 */
+    calibration_control_init(); /* 加载本版有效参数，未保存过则用100/95默认值 */
     motor_stop();
     speed_led_init();
     ps2_init();

@@ -1,3 +1,19 @@
+Latest source update 2026-10-02: left/right cubic-blend expo25/50; shared drive/learning mapping; front100/rear95, 200pp/s acceleration (0.5s), 5pp session limit, learning coefficient 2.0, Flash v2
+PASS: all 9 application C files / real STM32 headers / warnings as errors
+PASS: 256-axis monotonic/deadzone/endpoints; 65536 left-stick direction and right-stick independence checks
+PASS: all existing host suites; explicit 490ms 98% / 500ms 100% ramp and new strafe/diagonal/default tests
+PASS: real v1 record fixture ignored at boot; v2 append without erasing legacy; v2 boot restore; no automatic default write
+PASS: Arm GNU 14.3 car target, 10036-byte BIN, 176-byte static RAM
+SHA256: 6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec
+Image: build/strafe-front100-rear95/crtc-motor-front100-rear95.hex
+PASS: VM-off user confirmed; CubeProgrammer 2.23 download Verify/reset/run
+PASS: independent 10036-byte readback matches SHA256; preserved both calibration pages
+PASS: board boot 0x73/ready1, gains100/95, 72MHz, software duties and eight CCR zero
+PASS: old v1 records85/100 and100/100 ignored, loaded0/dirty0; no boot default writes
+PASS: core resumed after readback; evidence backups/strafe-near-baseline-20261002-01
+PENDING: physical strafe improvement and yaw pivot; no claim of measured RPM/current
+
+Earlier 85/100 firmware validation (historical):
 2026-10-02 Windows host verification; SANITIZE=0 (MinGW UBSan library unavailable).
 PASS: all 9 application C files, real STM32 headers, warnings as errors
 PASS: Keil source/include paths exist

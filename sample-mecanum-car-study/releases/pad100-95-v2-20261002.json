@@ -1,0 +1,20 @@
+{
+  "id": "pad100-95-v2-20261002",
+  "tag": "chassis/pad100-95-v2-20261002",
+  "label": "Cubic-blend pad mapping, front100/rear95, 500ms linear startup and Flash v2",
+  "snapshot": "backups/curve-stop-20261002-01/source-before",
+  "parts": [
+    "docs",
+    "hardware",
+    "tests",
+    "build_firmware.py",
+    "README.md"
+  ],
+  "memory": "backups/strafe-near-baseline-20261002-01/PROJECT.md",
+  "binary": "backups/strafe-near-baseline-20261002-01/crtc-motor-front100-rear95.bin",
+  "hex": "backups/strafe-near-baseline-20261002-01/crtc-motor-front100-rear95.hex",
+  "source_note": "Source captured immediately before S-curve/reverse-stop changes.",
+  "bin_bytes": 10036,
+  "sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+  "independent_board_readback_previously_passed": true
+}
