@@ -110,3 +110,16 @@ void pwm_stop_all(void)
     pwm_set3(0.0f);
     pwm_set4(0.0f);
 }
+void pwm_brake_all(void)
+{
+    /* 先撤掉驱动，再将每桥两输入都保持高；TI真值表的Brake/slow decay。 */
+    pwm_stop_all();
+    TIM_SetCompare1(TIM2, PWM_PERIOD_COUNTS);
+    TIM_SetCompare2(TIM2, PWM_PERIOD_COUNTS);
+    TIM_SetCompare3(TIM2, PWM_PERIOD_COUNTS);
+    TIM_SetCompare4(TIM2, PWM_PERIOD_COUNTS);
+    TIM_SetCompare1(TIM3, PWM_PERIOD_COUNTS);
+    TIM_SetCompare2(TIM3, PWM_PERIOD_COUNTS);
+    TIM_SetCompare3(TIM3, PWM_PERIOD_COUNTS);
+    TIM_SetCompare4(TIM3, PWM_PERIOD_COUNTS);
+}

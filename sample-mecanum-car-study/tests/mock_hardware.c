@@ -1,6 +1,7 @@
 /* 仅用于电脑测试：模拟引脚及比较寄存器，不模拟真实 PWM 波形/电流。 */
 #include "mock_hardware.h"
 #include "delay.h"
+#include "pwm.h"
 #include <assert.h>
 #include <string.h>
 
@@ -158,7 +159,8 @@ static void set_compare(TIM_TypeDef *tim, unsigned ch, uint16_t value)
     /* 每次写寄存器后立即验证，包括正反切换的中间步骤。 */
     mock_ccr[index] = value;
     assert(value <= mock_period[timer_index(tim)] + 1U);
-    assert(mock_ccr[index] == 0 || mock_ccr[index ^ 1U] == 0);
+    assert(mock_ccr[index] == 0 || mock_ccr[index ^ 1U] == 0 ||
+           (mock_ccr[index] == PWM_PERIOD_COUNTS && mock_ccr[index ^ 1U] == PWM_PERIOD_COUNTS));
 }
 void TIM_SetCompare1(TIM_TypeDef *t, uint16_t v) { set_compare(t,0,v); }
 void TIM_SetCompare2(TIM_TypeDef *t, uint16_t v) { set_compare(t,1,v); }

@@ -6,10 +6,21 @@
  * 起转/单轮补偿参考：https://github.com/ArminJo/PWMMotorControl
  * 本工程用 C 实现其公开调参方法，没有引入 Arduino 运行库。
  */
-#define MOTOR_ACCEL_PERCENT_PER_SECOND 200U /* 0 -> 100% 约 0.5 秒 */
+#define MOTOR_ACCEL_PERCENT_PER_SECOND 200U /* 行驶中普通增幅；零起步使用下方S曲线 */
 #define MOTOR_DECEL_PERCENT_PER_SECOND 1000U
 #define MOTOR_REVERSAL_COAST_MS         40U /* 零输出等待，不是主动刹车 */
 #define MOTOR_UPDATE_MAX_MS             20U /* 循环卡顿后也不突跳到目标 */
+#define MOTOR_STARTUP_CURVE_MS          500U /* 满幅五次S曲线起步时间 */
+#define MOTOR_STARTUP_MIN_MS            80U  /* 小幅目标按比例缩短，但不小于80ms */
+#define MOTOR_STARTUP_MAX_RATE          375U /* 五次曲线满幅峰值斜率1.875/0.5秒 */
+/* 开环试验：按先前PWM比例反向10%，满幅时最多10%反向占空比。
+ * 无测速/电流反馈，不是PID，也不能证明脉冲结束时转子已停。
+ */
+#define MOTOR_STOP_REVERSE_PERCENT      10U
+#define MOTOR_STOP_REVERSE_MIN_PERCENT  30U /* 低于此前30%输出只用短路制动 */
+#define MOTOR_STOP_COAST_MS             20U
+#define MOTOR_STOP_REVERSE_MS           30U
+#define MOTOR_STOP_BRAKE_MS             100U
 
 /* 曲线混合：0=线性，100=纯三次；保留中心斜率，避免纯三次过黏。
  * 左杆两轴用共同增益保持死区处理后的方向；右杆旋转单独映射。
@@ -49,6 +60,15 @@
 #endif
 #if MOTOR_UPDATE_MAX_MS < 1 || MOTOR_UPDATE_MAX_MS > 1000
 #error Motor update interval must be between 1 and 1000 ms
+#endif
+#if MOTOR_STARTUP_CURVE_MS < 1 || MOTOR_STARTUP_MIN_MS < 1 || \
+    MOTOR_STARTUP_MIN_MS > MOTOR_STARTUP_CURVE_MS || MOTOR_STARTUP_MAX_RATE < 1
+#error Invalid startup curve timing or slope
+#endif
+#if MOTOR_STOP_REVERSE_PERCENT > 20 || MOTOR_STOP_REVERSE_MIN_PERCENT > 100 || \
+    MOTOR_STOP_REVERSE_MS < 1 || MOTOR_STOP_REVERSE_MS > 100 || \
+    MOTOR_STOP_COAST_MS < 1 || MOTOR_STOP_BRAKE_MS < 1 || MOTOR_STOP_BRAKE_MS > 500
+#error Invalid open-loop stopping pulse limits
 #endif
 #if MOTOR_TRANSLATION_EXPO_PERCENT > 100 || MOTOR_TURN_EXPO_PERCENT > 100
 #error Joystick expo percentages must be between 0 and 100

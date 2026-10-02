@@ -16,5 +16,9 @@
   "source_note": "Source captured immediately before S-curve/reverse-stop changes.",
   "bin_bytes": 10036,
   "sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
-  "independent_board_readback_previously_passed": true
+  "independent_board_readback_previously_passed": true,
+  "commit": "acfa46f96b44d872232a052efe2b6b011ea8334d",
+  "reconstructed_source_reproduces_binary": true,
+  "rebuild_sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+  "published_hex": "sample-mecanum-car-study/releases/firmware/pad100-95-v2-20261002.hex"
 }

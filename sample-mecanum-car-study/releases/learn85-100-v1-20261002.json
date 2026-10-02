@@ -18,5 +18,9 @@
   "source_note": "Complete saved application/build snapshot; physical strafe became worse per user.",
   "bin_bytes": 9820,
   "sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
-  "independent_board_readback_previously_passed": true
+  "independent_board_readback_previously_passed": true,
+  "commit": "e35fab5c1bba413b4d43ebe30d2c53e6a220066f",
+  "reconstructed_source_reproduces_binary": true,
+  "rebuild_sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
+  "published_hex": "sample-mecanum-car-study/releases/firmware/learn85-100-v1-20261002.hex"
 }

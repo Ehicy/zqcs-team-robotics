@@ -143,18 +143,21 @@ static void control_update(void)
     control_mode = ps2Data.mode;
     control_loops++;
     /* START在数字/模拟有效帧中都复位控制状态；优先于任何肩键。
-     * 清空运动目标、输出/斜坡和按键历史；恢复默认上限100%。
-     * 必须松键回中后再推杆才能启动；灯在本次step末随零输出立即灭。
+     * 清空运动目标和按键历史；模拟模式启动有限制动，恢复默认上限100%。
+     * 制动结束、松键回中后再推杆才能启动；弱反向脉冲不超过闪灯门槛。
      */
     if (frame_valid && (ps2Data.btn1 & (1U << PS2_BUTTON_START)) != 0U)
     {
+        if (ps2Data.mode==PS2_MODE_ANALOG) motor_quick_stop();
+        else motor_stop(); /* 数字模式/诊断帧不能触发反转脉冲 */
         motor_set_speed_percent(MOTOR_SPEED_INITIAL_PERCENT);
         last_released_button = 255U;
-        calibration_control_reset_feedback(); /* START撤驱动，保留用户已校准参数 */
+        calibration_control_reset_feedback(); /* START停车，保留用户已校准参数 */
+        control_ready=0; buttons_reset(); calibration_control_reset_inputs();
+        return; /* 长按请求不会重新计时，非阻塞制动由motor_update推进 */
     }
-    /* 数字模式只用于诊断，摇杆控制必须有模拟轴数据。START 立即撤驱动。 */
-    if (!frame_valid || ps2Data.mode != PS2_MODE_ANALOG ||
-        (ps2Data.btn1 & (1U << PS2_BUTTON_START)) != 0U)
+    /* 数字模式只用于诊断，摇杆控制必须有模拟轴数据。异常立即撤驱动。 */
+    if (!frame_valid || ps2Data.mode != PS2_MODE_ANALOG)
     {
         motor_stop();
         control_ready = 0;
@@ -164,11 +167,11 @@ static void control_update(void)
     }
     if (!control_ready)
     {
-        motor_stop();
+        if (motor_get_stop_phase()==MOTOR_STOP_IDLE) motor_stop();
         buttons_reset();
         calibration_control_reset_inputs();
         /* 上电/异常恢复后，先松开按键并让三个控制轴回中。 */
-        if (controls_are_neutral(&ps2Data))
+        if (motor_get_stop_phase()==MOTOR_STOP_IDLE && controls_are_neutral(&ps2Data))
         {
             control_ready = 1;
         }
@@ -186,8 +189,8 @@ static void control_update(void)
 static void control_step(void)
 {
     control_update();
-    motor_update(); /* 无效帧/START已清空目标，不会在后续斜坡中重新启动 */
-    /* 指示实际输出，松杆/异常/START撤输出后立即灭。 */
+    motor_update(); /* 推进起步或有限制动；START清空目标且需松键回中 */
+    /* 指示实际PWM；停车脉冲低于60%，另有校准保存提示。 */
     speed_led_step();
 }
 

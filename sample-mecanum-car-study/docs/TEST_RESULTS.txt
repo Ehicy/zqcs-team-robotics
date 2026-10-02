@@ -1,4 +1,21 @@
-Latest source update 2026-10-02: left/right cubic-blend expo25/50; shared drive/learning mapping; front100/rear95, 200pp/s acceleration (0.5s), 5pp session limit, learning coefficient 2.0, Flash v2
+Latest source update 2026-10-02: 500ms full-scale quintic startup; neutral and analog START bounded reverse/short-brake stop
+PASS: all host suites, all 9 application C files / real STM32 headers / warnings as errors
+PASS: quintic timing anchors, monotonicity, common ratios, low-target duration, retarget slope, delayed-loop cap
+PASS: proportional reverse, 20ms coast/30ms reverse window/100ms hold, short-brake truth table, repeat-stop idempotence
+PASS: low-PWM bypass, zero wheels, speed caps, expired-window skip, timer wrap, invalid input cancellation
+PASS: analog START/neutral braking, held START single-shot, rearm gate, digital and invalid hard stop
+PASS: prior joystick mapping, Flash v2 migration/failure/journal, SELECT learning and stationary saves
+PASS: Arm GNU 14.3 car target, 11220-byte BIN, 216-byte static RAM
+Image: build/s-curve-brake/crtc-s-curve-brake.hex
+SHA256: 85176ba39d1296b4b057c45fa87d599adbf466edaceac04dd54cf99cb250b4cd
+PASS: both VM positive lines isolated, user confirmed; 64KiB board backup matches prior 10036-byte PAD image
+PASS: CubeProgrammer 2.23 download Verify/reset/run; independent 11220-byte readback matches BIN
+PASS: calibration pages unchanged, legacy v1 retained/ignored, loaded0/dirty0; front100/rear95, cap100, 72MHz
+PASS: targets/applied duties and eight CCR zero; stop phase idle/startup inactive; core resumed
+NOTE: boot mode0x41/ready0; user subsequently pressed MODE; post-switch HOTPLUG found no probe, 0x73 not independently confirmed
+PENDING: physical reverse-stop current, temperature, stopping time and curve handling
+
+Previous flashed source 2026-10-02: left/right cubic-blend expo25/50; shared drive/learning mapping; front100/rear95, 200pp/s acceleration (0.5s), 5pp session limit, learning coefficient 2.0, Flash v2
 PASS: all 9 application C files / real STM32 headers / warnings as errors
 PASS: 256-axis monotonic/deadzone/endpoints; 65536 left-stick direction and right-stick independence checks
 PASS: all existing host suites; explicit 490ms 98% / 500ms 100% ramp and new strafe/diagonal/default tests

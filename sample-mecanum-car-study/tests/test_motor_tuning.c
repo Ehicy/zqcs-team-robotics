@@ -32,10 +32,10 @@ static void test_ramp(void)
     motor_init(); stopped();
     motor(0,128,128); stopped();
     advance(0); stopped();
-    advance(10); forward(72); /* 200%/s，10ms增加2% */
-    advance(10); forward(144);
+    advance(10); forward(0); /* S曲线前10ms不足1个CCR计数 */
+    advance(10); forward(2);
     for (i = 0; i < 47; i++) advance(10);
-    forward(3528); /* 490ms尚未满幅 */
+    forward(3599); /* 五次曲线490ms尚未满幅 */
     advance(10);
     forward(3600);
     motor(64,128,128); advance(10); forward(3240); /* 减少10% */
@@ -43,12 +43,13 @@ static void test_ramp(void)
     motor(128,128,128); stopped(); /* 松杆立即撤输出，不等减速斜坡 */
     advance(500); stopped();
 
-    motor_init(); motor_set_strafe_percent(85,100); motor(0,0,0); advance(10);
-    assert(abs(output(0) + 25) <= 1 && abs(output(1) + 25) <= 1);
-    assert(abs(output(2) - 72) <= 1 && abs(output(3) + 21) <= 1);
+    motor_init(); motor_set_strafe_percent(85,100); motor(0,0,0);
+    for (i=0; i<10; i++) advance(10);
+    assert(abs(output(0) + 73) <= 1 && abs(output(1) + 73) <= 1);
+    assert(abs(output(2) - 208) <= 1 && abs(output(3) + 62) <= 1);
 
     motor_init(); motor(0,128,128); advance(1000);
-    forward(144); /* 大间隔只按20ms推进，不突然全速 */
+    forward(2); /* 大间隔只按20ms推进曲线，不突然全速 */
     motor_set_speed_percent(0); stopped(); advance(50); stopped();
     puts("PASS: 0.5s full-scale ramp, common four-wheel ratio, immediate stop, delayed-loop cap");
 }
@@ -66,7 +67,7 @@ static void test_reverse(void)
     }
     stopped();
     advance(MOTOR_REVERSAL_COAST_MS - 1); stopped();
-    advance(1);
+    advance(1); advance(20);
     assert(output(0) > 0 && output(1) > 0 && output(2) < 0 && output(3) < 0);
     settle(); forward(-3600);
 
@@ -74,7 +75,7 @@ static void test_reverse(void)
     motor_stop(); advance(10); motor(0,128,128); advance(0); stopped();
     motor_stop(); motor(0,128,128);
     advance(MOTOR_REVERSAL_COAST_MS - 11); stopped();
-    advance(1); assert(output(0) < 0);
+    advance(1); advance(20); assert(output(0) < 0);
     motor_stop(); advance(1000); stopped();
 
     /* 毫秒计数回绕不破坏换向等待。 */
@@ -82,7 +83,7 @@ static void test_reverse(void)
     motor_init(); motor(0,128,128); advance(20);
     motor_stop(); motor(255,128,128);
     advance(MOTOR_REVERSAL_COAST_MS - 1); stopped();
-    advance(1); assert(output(0) > 0);
+    advance(1); advance(20); assert(output(0) > 0);
     puts("PASS: reversal deceleration/coast, neutral bypass prevention, timer wrap");
 }
 
@@ -119,13 +120,13 @@ static void test_strafe_trial(void)
 {
     unsigned wheel;
     int left[4];
-    /* 新默认反向减小补偿：前100/后95，40ms达前8%、后7.6%。 */
+    /* 前100/后95，S曲线40ms约达前0.45%、后0.43%。 */
     motor_init();
     assert(motor_get_strafe_front_percent() == 100 && motor_get_strafe_rear_percent() == 95);
     motor(128,0,128);
     advance(20); advance(20);
-    assert(abs(output(0) - 273) <= 1 && abs(output(1) + 273) <= 1);
-    assert(abs(output(2) - 288) <= 1 && abs(output(3) + 288) <= 1);
+    assert(abs(output(0) - 15) <= 1 && abs(output(1) + 15) <= 1);
+    assert(abs(output(2) - 16) <= 1 && abs(output(3) + 16) <= 1);
     settle();
     assert(abs(output(0) - 3420) <= 1 && abs(output(1) + 3420) <= 1);
     assert(output(2) == 3600 && output(3) == -3600);

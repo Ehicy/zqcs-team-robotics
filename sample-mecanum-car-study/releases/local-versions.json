@@ -1,0 +1,664 @@
+{
+  "date": "2026-10-02",
+  "scope": "local-version-checkpoints",
+  "branch": "local/chassis-tuning-20261002",
+  "current_tag": "chassis/scurve-stop-20261002",
+  "base_tag": "chassis/base-20260930",
+  "base_commit": "31fe7ac76719a40012f6a5025287670614dedf07",
+  "historical_source_rebuilt_byte_for_byte": true,
+  "versions": [
+    {
+      "id": "openloop-20261002",
+      "tag": "chassis/openloop-20261002",
+      "label": "Early open-loop joystick control, 500ms linear startup",
+      "snapshot": "backups/motor-openloop-20261002-01",
+      "parts": [
+        "hardware",
+        "tests"
+      ],
+      "binary": "backups/motor-openloop-20261002-01/crtc-motor.bin",
+      "hex": "backups/motor-openloop-20261002-01/crtc-motor.hex",
+      "source_note": "Hardware/tests snapshot, other files inherited from merged repository base.",
+      "bin_bytes": 7260,
+      "sha256": "7274982c39df1b1ffb018ecd7a099ba4e064fc2c6d57c4344730844dbc9b9ca3",
+      "independent_board_readback_previously_passed": true,
+      "commit": "b2758961b23fd66f18020296b9e0416c1eaac158",
+      "reconstructed_source_reproduces_binary": true,
+      "rebuild_sha256": "7274982c39df1b1ffb018ecd7a099ba4e064fc2c6d57c4344730844dbc9b9ca3",
+      "published_hex": "sample-mecanum-car-study/releases/firmware/openloop-20261002.hex"
+    },
+    {
+      "id": "learn85-100-v1-20261002",
+      "tag": "chassis/learn85-100-v1-20261002",
+      "label": "Driver-assisted strafe learning and Flash v1, front85/rear100 trial",
+      "snapshot": "backups/driver-calibration-flashed-20261002-01/source",
+      "parts": [
+        "docs",
+        "gcc",
+        "hardware",
+        "tests",
+        "user",
+        "build_firmware.py",
+        "README.md"
+      ],
+      "memory": "backups/driver-calibration-flashed-20261002-01/PROJECT.md",
+      "binary": "backups/driver-calibration-flashed-20261002-01/crtc-driver-calibration.bin",
+      "hex": "backups/driver-calibration-flashed-20261002-01/crtc-driver-calibration.hex",
+      "source_note": "Complete saved application/build snapshot; physical strafe became worse per user.",
+      "bin_bytes": 9820,
+      "sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
+      "independent_board_readback_previously_passed": true,
+      "commit": "e35fab5c1bba413b4d43ebe30d2c53e6a220066f",
+      "reconstructed_source_reproduces_binary": true,
+      "rebuild_sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
+      "published_hex": "sample-mecanum-car-study/releases/firmware/learn85-100-v1-20261002.hex"
+    },
+    {
+      "id": "pad100-95-v2-20261002",
+      "tag": "chassis/pad100-95-v2-20261002",
+      "label": "Cubic-blend pad mapping, front100/rear95, 500ms linear startup and Flash v2",
+      "snapshot": "backups/curve-stop-20261002-01/source-before",
+      "parts": [
+        "docs",
+        "hardware",
+        "tests",
+        "build_firmware.py",
+        "README.md"
+      ],
+      "memory": "backups/strafe-near-baseline-20261002-01/PROJECT.md",
+      "binary": "backups/strafe-near-baseline-20261002-01/crtc-motor-front100-rear95.bin",
+      "hex": "backups/strafe-near-baseline-20261002-01/crtc-motor-front100-rear95.hex",
+      "source_note": "Source captured immediately before S-curve/reverse-stop changes.",
+      "bin_bytes": 10036,
+      "sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+      "independent_board_readback_previously_passed": true,
+      "commit": "acfa46f96b44d872232a052efe2b6b011ea8334d",
+      "reconstructed_source_reproduces_binary": true,
+      "rebuild_sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+      "published_hex": "sample-mecanum-car-study/releases/firmware/pad100-95-v2-20261002.hex"
+    },
+    {
+      "date": "2026-10-02",
+      "status": "flashed-and-independently-verified",
+      "image": "D:\\DEVELOP\\CQU_AI\\CRTC2026澶囪禌\\zqcs_repo\\sample-mecanum-car-study\\build\\s-curve-brake\\crtc-s-curve-brake.bin",
+      "bin_bytes": 11220,
+      "static_ram_bytes": 216,
+      "sha256": "85176ba39d1296b4b057c45fa87d599adbf466edaceac04dd54cf99cb250b4cd",
+      "stlink_serial": "37FF71064E57343655231443",
+      "flash_address": "0x08000000",
+      "hex_last_exclusive": "0x8002bd4",
+      "calibration_range_preserved": [
+        "0x0800F800",
+        "0x08010000"
+      ],
+      "host_tests": "passed",
+      "arm_car_build": "passed",
+      "board_programmed": true,
+      "previous_board_bin_bytes": 10036,
+      "previous_board_sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+      "startup_curve_ms": 500,
+      "stop_reverse_percent_of_prior_pwm": 10,
+      "stop_min_prior_pwm_percent": 30,
+      "stop_coast_ms": 20,
+      "stop_reverse_window_ms": 30,
+      "stop_brake_ms": 100,
+      "note": "User pressed MODE after boot readback; subsequent HOTPLUG found no probe. Physical driving pending.",
+      "vm_disconnected_confirmed": true,
+      "cube_download_verified": true,
+      "independent_readback_matches": true,
+      "calibration_pages_preserved": true,
+      "core_resumed": true,
+      "board_boot": {
+        "independent_readback_matches": true,
+        "bin_bytes": 11220,
+        "sha256": "85176ba39d1296b4b057c45fa87d599adbf466edaceac04dd54cf99cb250b4cd",
+        "calibration_pages_unchanged": true,
+        "records": [
+          {
+            "offset": 0,
+            "version": 1,
+            "sequence": 0,
+            "front": 85,
+            "rear": 100,
+            "valid": true
+          },
+          {
+            "offset": 16,
+            "version": 1,
+            "sequence": 1,
+            "front": 100,
+            "rear": 100,
+            "valid": true
+          }
+        ],
+        "mode": "0x41",
+        "ps2_data": [
+          0,
+          0,
+          0,
+          128,
+          128,
+          128,
+          128
+        ],
+        "ready": 0,
+        "loops": 1298,
+        "clock_hz": 72000000,
+        "speed_cap": 100,
+        "front": 100,
+        "rear": 95,
+        "loaded": 0,
+        "dirty": 0,
+        "stop_phase": 0,
+        "startup_active": 0,
+        "applied_duty": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "target_duty": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "timers": {
+          "tim2": {
+            "prescaler": 0,
+            "reload": 3599,
+            "compares": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "tim3": {
+            "prescaler": 0,
+            "reload": 3599,
+            "compares": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "physical_stop_tested": false,
+      "id": "scurve-stop-20261002",
+      "tag": "chassis/scurve-stop-20261002",
+      "branch": "local/chassis-tuning-20261002",
+      "binary": "sample-mecanum-car-study/build/s-curve-brake/crtc-s-curve-brake.bin",
+      "hex": "sample-mecanum-car-study/build/s-curve-brake/crtc-s-curve-brake.hex",
+      "published_hex": "sample-mecanum-car-study/releases/firmware/scurve-stop-20261002.hex"
+    }
+  ],
+  "legacy_archives": [
+    {
+      "directory": "backups/car-flash-20260930-01",
+      "artifacts": [
+        {
+          "file": "board-before-car.bin",
+          "bytes": 65536,
+          "sha256": "9fcf8a480dc1197a24e42d9c7ec6cad9d09e9f12b6faca55702317dde91d6311",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "ps2-led.hex",
+          "bytes": 4556,
+          "sha256": "3cff574b7033db6a1e99becd56954e74c95a32fe62a3aaf5a782d77d11e5027a",
+          "kind": "intel_hex"
+        }
+      ]
+    },
+    {
+      "directory": "backups/chassis-100-reset0-20260930-01",
+      "artifacts": [
+        {
+          "file": "board-before.bin",
+          "bytes": 65536,
+          "sha256": "eb0790e7da68226e59e13c6ec33399bc3cba2ca614817a89fb6cff6ed3819c10",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "previous-speed-led.bin",
+          "bytes": 5932,
+          "sha256": "1b444db74a73d9290223518b7642a557ed90ed5f22346bd577a10eabb43b2c6e",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "previous-speed-led.hex",
+          "bytes": 16751,
+          "sha256": "99148f5d57ad527013b14d4e54eb88d352447f004c419829edfd7c42a49f2bd7",
+          "kind": "intel_hex"
+        }
+      ]
+    },
+    {
+      "directory": "backups/curve-stop-20261002-01",
+      "artifacts": [
+        {
+          "file": "board-before-curve-stop.bin",
+          "bytes": 65536,
+          "sha256": "d97e81187320cbe8edf8d21fe4742578f4ea44baaaf129d0bff9f41e9f6d901a",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "board-curve-stop-readback.bin",
+          "bytes": 11220,
+          "sha256": "85176ba39d1296b4b057c45fa87d599adbf466edaceac04dd54cf99cb250b4cd",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "boot-ram.bin",
+          "bytes": 216,
+          "sha256": "41051d468778d2f4f7966d9e4ed3626a78da0e01d8c0842ff932a01b481ae3b0",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-s-curve-brake.bin",
+          "bytes": 11220,
+          "sha256": "85176ba39d1296b4b057c45fa87d599adbf466edaceac04dd54cf99cb250b4cd",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-s-curve-brake.hex",
+          "bytes": 31617,
+          "sha256": "459e0edb0146403e39b8ce7e3a452f9acc036b935f39062760826619891b8306",
+          "kind": "intel_hex"
+        },
+        {
+          "file": "params-after.bin",
+          "bytes": 2048,
+          "sha256": "7df277ac6b7e5a6843f0f1c3457a806179e3c14fb368d8c314342bc7963b782a",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "params-before.bin",
+          "bytes": 2048,
+          "sha256": "7df277ac6b7e5a6843f0f1c3457a806179e3c14fb368d8c314342bc7963b782a",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "tim2-boot.bin",
+          "bytes": 68,
+          "sha256": "9bf895209ba88a6cdf1a8c0c87056a058a69aa1cb29de2b540293108ee1c4167",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "tim3-boot.bin",
+          "bytes": 68,
+          "sha256": "ede8e698c4bf6a78f7520abb62f7aedbf5c7441cea18fd59c1f5b3ac4848a92c",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    },
+    {
+      "directory": "backups/driver-calibration-20261002-01",
+      "artifacts": [
+        {
+          "file": "crtc-driver-calibration.bin",
+          "bytes": 9820,
+          "sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-driver-calibration.hex",
+          "bytes": 27686,
+          "sha256": "5958149d3c1929e699021f9462c908eded410ea2863548666c0cf2c389553fa1",
+          "kind": "intel_hex"
+        }
+      ]
+    },
+    {
+      "directory": "backups/driver-calibration-flashed-20261002-01",
+      "artifacts": [
+        {
+          "file": "board-before-new.bin",
+          "bytes": 65536,
+          "sha256": "54dfcbfaa415e88fec2e8ef5da80aae387f782bdda605a06f010529b8fab3fca",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "board-new-readback.bin",
+          "bytes": 9820,
+          "sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "calibration-after-reboot.bin",
+          "bytes": 2048,
+          "sha256": "27570766dc36f043b77e0ad3efa29bca71eee9cbfec4d44163eef55425197fd9",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "calibration-after-save.bin",
+          "bytes": 2048,
+          "sha256": "27570766dc36f043b77e0ad3efa29bca71eee9cbfec4d44163eef55425197fd9",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "calibration-before-save.bin",
+          "bytes": 2048,
+          "sha256": "d0ff1b294b5288d1ae1421eadf5b2d38a8752b76d472ff30bed9028e25b1c5b8",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-driver-calibration.bin",
+          "bytes": 9820,
+          "sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-driver-calibration.hex",
+          "bytes": 27686,
+          "sha256": "5958149d3c1929e699021f9462c908eded410ea2863548666c0cf2c389553fa1",
+          "kind": "intel_hex"
+        },
+        {
+          "file": "new-state-01.bin",
+          "bytes": 176,
+          "sha256": "9d808ad0121dfb27090e6089b2684ed310df6d876eda8f6866f3094a2a47017c",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "new-state-after-reboot.bin",
+          "bytes": 176,
+          "sha256": "c5be90191df640b4204844559800258d6d6279999bdacb5110b346921a75d918",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "new-state-after-save.bin",
+          "bytes": 176,
+          "sha256": "6abf380f5e25fdc64577bda190578a6ee9f44bff5e65770b3f8e4eed766a5916",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "new-tim2-01.bin",
+          "bytes": 80,
+          "sha256": "3f7f1ec9e40a2425db6ce0eba0e55b3792eb7b7f81547d619238600009808c51",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "new-tim3-01.bin",
+          "bytes": 80,
+          "sha256": "c9bb28721f464f0d65db0db2cff18eed919d68856afc62bdd998d26bd034e81c",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    },
+    {
+      "directory": "backups/joystick-o-speed-20260930-01",
+      "artifacts": [
+        {
+          "file": "board-before.bin",
+          "bytes": 65536,
+          "sha256": "b33b41668fce5824042ee6958b2f82ac4e5c18aaac394c0d7fd5c10727f9230c",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "previous-motor-buttons.hex",
+          "bytes": 11891,
+          "sha256": "386c139cd3f3f4850fa3089100fa20fb1f95d6e20f480e8599286a98b63d8bfc",
+          "kind": "intel_hex"
+        }
+      ]
+    },
+    {
+      "directory": "backups/joystick-speed-led-20260930-01",
+      "artifacts": [
+        {
+          "file": "board-before.bin",
+          "bytes": 65536,
+          "sha256": "368f1c4b7c01152cccd871817a85282fdd4572c72967c1ca5563819f9f05d57d",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "previous-joystick.bin",
+          "bytes": 5736,
+          "sha256": "be0dd25e10c8d0dd28f5ac63870f8a43fee269bb980fd10b78a132867e276029",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "previous-joystick.hex",
+          "bytes": 16203,
+          "sha256": "b3b4287a42b987e8509ee057dbabc4c3a294be48f6bad2d0772ddfb404ca0e9e",
+          "kind": "intel_hex"
+        }
+      ]
+    },
+    {
+      "directory": "backups/motor-all-full-20260930-01",
+      "artifacts": [
+        {
+          "file": "board-before.bin",
+          "bytes": 6144,
+          "sha256": "eef2c1778a51409b705cf3b7575cf47df77d8f46ffe649495a31923951cf7d80",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    },
+    {
+      "directory": "backups/motor-buttons-20260930-01",
+      "artifacts": [
+        {
+          "file": "board-before.bin",
+          "bytes": 65536,
+          "sha256": "2af4654fc7803fc69e3261cbabf1d68d32f2664e27581e4e2022c7ba9e4af361",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "previous-car.hex",
+          "bytes": 15282,
+          "sha256": "1a10c87a012f152faa620f55a2b5f67865aae82b51113195aff2020680e328a2",
+          "kind": "intel_hex"
+        }
+      ]
+    },
+    {
+      "directory": "backups/motor-independent-full-20260930-01",
+      "artifacts": [
+        {
+          "file": "board-before.bin",
+          "bytes": 6144,
+          "sha256": "847f2e3009173f8017129e2ef3ad1cb6f4a09842e7b04fb43e22455f35e17f60",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    },
+    {
+      "directory": "backups/motor-openloop-20261002-01",
+      "artifacts": [
+        {
+          "file": "board-after.bin",
+          "bytes": 7260,
+          "sha256": "7274982c39df1b1ffb018ecd7a099ba4e064fc2c6d57c4344730844dbc9b9ca3",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "board-before.bin",
+          "bytes": 65536,
+          "sha256": "3eccfde08a3ac97122b8f3adf8359f67af1e75dd50e5ffae2ab061c3ddfac4ad",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "crtc-motor.bin",
+          "bytes": 7260,
+          "sha256": "7274982c39df1b1ffb018ecd7a099ba4e064fc2c6d57c4344730844dbc9b9ca3",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-motor.hex",
+          "bytes": 20486,
+          "sha256": "36fe3c87f852b70e847e03ad7c0f119e2d57e9e36e50c9f9d516f84f5999d140",
+          "kind": "intel_hex"
+        },
+        {
+          "file": "state-a.bin",
+          "bytes": 132,
+          "sha256": "1f8d1fd220b5d85647eb8b114259d00308dd1fa2eb6f4d53b290289fbb7fcfb4",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "state-b.bin",
+          "bytes": 132,
+          "sha256": "58e7ddaac990483628398f813674707abd98de9d9adc31be3ce42f1754fd60af",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    },
+    {
+      "directory": "backups/ps2-live-check-20260930-175621",
+      "artifacts": [
+        {
+          "file": "board-before.bin",
+          "bytes": 131072,
+          "sha256": "35eef9efd53f2659611b3ac7beaa83fd8dd3ed767ba646559c8909a4c229c443",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    },
+    {
+      "directory": "backups/stlink-research-20261002-01",
+      "artifacts": [
+        {
+          "file": "board-current-01.bin",
+          "bytes": 65536,
+          "sha256": "54dfcbfaa415e88fec2e8ef5da80aae387f782bdda605a06f010529b8fab3fca",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "gpiob-02.bin",
+          "bytes": 16,
+          "sha256": "31b9ad6cb3ef80fa85f47ccd148061b384b3314671d44cd8d4165c346937903e",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "ps2-live-a.bin",
+          "bytes": 12,
+          "sha256": "36c5c5b3fb4ae129f59ec2d35369c99f6b9485c693298457405f7b000c714cba",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "ps2-live-b.bin",
+          "bytes": 12,
+          "sha256": "7bfde3d4de84d0abab9127efa8e1189afd340ff4f3e954a727f83d97439c35e7",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "ps2-live-c.bin",
+          "bytes": 12,
+          "sha256": "36c5c5b3fb4ae129f59ec2d35369c99f6b9485c693298457405f7b000c714cba",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "rcc-01.bin",
+          "bytes": 40,
+          "sha256": "84d4cf4efff01687161c13f8ed6c4164729b41fa4e00e16a4c23ddb9e1b8df09",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "state-neutral-01.bin",
+          "bytes": 132,
+          "sha256": "e203cf9729e74eb07b309f24ca19763370fa4bc054f5a98404e4eab5c649ab1b",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "state-neutral-02.bin",
+          "bytes": 132,
+          "sha256": "2a39fb29e8336d72d26f7b1db4cdbacaa1ad76b7d59858080576be371325a987",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "state-paired-04.bin",
+          "bytes": 132,
+          "sha256": "001dc88b7329fcca2514ec555c13d8fc8f53e2ac9b5bad479f12e476abafbbe2",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "state-pairing-03.bin",
+          "bytes": 132,
+          "sha256": "f311c1beb3b101d14b1dbe43603fc42ef34d7bb5e94d9fc09503bc5f169b7848",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "tim2-01.bin",
+          "bytes": 80,
+          "sha256": "8ed6cfa25682e350916106417f15c4f98baf0548e3a69b2d423a3b101bda333c",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "tim3-01.bin",
+          "bytes": 80,
+          "sha256": "0ea8f6b32f2ed6083953f7c0bbec90454f124b07f320160c410a7ea3274032a0",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    },
+    {
+      "directory": "backups/strafe-near-baseline-20261002-01",
+      "artifacts": [
+        {
+          "file": "board-before-pad.bin",
+          "bytes": 65536,
+          "sha256": "5ca17b1c3e6a37b274d61c722d413c3ea548f39b71e6aee0b3c811cdf49d2936",
+          "kind": "flash_dump_64k"
+        },
+        {
+          "file": "board-pad-readback.bin",
+          "bytes": 10036,
+          "sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "calibration-after-pad.bin",
+          "bytes": 2048,
+          "sha256": "7df277ac6b7e5a6843f0f1c3457a806179e3c14fb368d8c314342bc7963b782a",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "calibration-before-pad.bin",
+          "bytes": 2048,
+          "sha256": "7df277ac6b7e5a6843f0f1c3457a806179e3c14fb368d8c314342bc7963b782a",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-motor-front100-rear95.bin",
+          "bytes": 10036,
+          "sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "crtc-motor-front100-rear95.hex",
+          "bytes": 28287,
+          "sha256": "d9abedfbdd1de8addd7bb8961ca6d3620b497067702ac96fd5c27c233fc379b1",
+          "kind": "intel_hex"
+        },
+        {
+          "file": "state-pad-boot.bin",
+          "bytes": 176,
+          "sha256": "950c36e086b12ef66f9d356c7414347c7838c24659d28996e6a2eee65dc4d3a3",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "tim2-pad-boot.bin",
+          "bytes": 68,
+          "sha256": "36ed8657002ec3863076da05f1ebefdadd67b51ab656fd31ab2e17489bbe1979",
+          "kind": "binary_or_memory_capture"
+        },
+        {
+          "file": "tim3-pad-boot.bin",
+          "bytes": 68,
+          "sha256": "f8041e3eb3021916820924d219644259b7fd655905aae9bb1e4857a0a9f84e82",
+          "kind": "binary_or_memory_capture"
+        }
+      ]
+    }
+  ],
+  "diagnostic_targets": [
+    "ps2-led",
+    "motor-buttons"
+  ]
+}

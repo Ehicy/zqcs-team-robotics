@@ -19,6 +19,8 @@
  */
 void pwm_init(void);
 void pwm_stop_all(void);
+/* DRV8833 xIN1=xIN2=1：两电机输出接低端的短路制动，非反向驱动。 */
+void pwm_brake_all(void);
 /* duty 改为带符号的 -1～1：越界限幅，NaN 归零。
  * 正向 PWM/0，反向 0/PWM；0/0 为滑行。仅在主循环调用。
  */

@@ -12,5 +12,9 @@
   "source_note": "Hardware/tests snapshot, other files inherited from merged repository base.",
   "bin_bytes": 7260,
   "sha256": "7274982c39df1b1ffb018ecd7a099ba4e064fc2c6d57c4344730844dbc9b9ca3",
-  "independent_board_readback_previously_passed": true
+  "independent_board_readback_previously_passed": true,
+  "commit": "b2758961b23fd66f18020296b9e0416c1eaac158",
+  "reconstructed_source_reproduces_binary": true,
+  "rebuild_sha256": "7274982c39df1b1ffb018ecd7a099ba4e064fc2c6d57c4344730844dbc9b9ca3",
+  "published_hex": "sample-mecanum-car-study/releases/firmware/openloop-20261002.hex"
 }

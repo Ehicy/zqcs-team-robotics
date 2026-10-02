@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-02",
+  "status": "flashed-and-independently-verified",
+  "image": "D:\\DEVELOP\\CQU_AI\\CRTC2026澶囪禌\\zqcs_repo\\sample-mecanum-car-study\\build\\s-curve-brake\\crtc-s-curve-brake.bin",
+  "bin_bytes": 11220,
+  "static_ram_bytes": 216,
+  "sha256": "85176ba39d1296b4b057c45fa87d599adbf466edaceac04dd54cf99cb250b4cd",
+  "stlink_serial": "37FF71064E57343655231443",
+  "flash_address": "0x08000000",
+  "hex_last_exclusive": "0x8002bd4",
+  "calibration_range_preserved": [
+    "0x0800F800",
+    "0x08010000"
+  ],
+  "host_tests": "passed",
+  "arm_car_build": "passed",
+  "board_programmed": true,
+  "previous_board_bin_bytes": 10036,
+  "previous_board_sha256": "6331dc87e8e58a16d7b2e40e61f22140c0537a79002a1cefb6720b259d5b5fec",
+  "startup_curve_ms": 500,
+  "stop_reverse_percent_of_prior_pwm": 10,
+  "stop_min_prior_pwm_percent": 30,
+  "stop_coast_ms": 20,
+  "stop_reverse_window_ms": 30,
+  "stop_brake_ms": 100,
+  "note": "User pressed MODE after boot readback; subsequent HOTPLUG found no probe. Physical driving pending.",
+  "vm_disconnected_confirmed": true,
+  "cube_download_verified": true,
+  "independent_readback_matches": true,
+  "calibration_pages_preserved": true,
+  "core_resumed": true,
+  "board_boot": {
+    "independent_readback_matches": true,
+    "bin_bytes": 11220,
+    "sha256": "85176ba39d1296b4b057c45fa87d599adbf466edaceac04dd54cf99cb250b4cd",
+    "calibration_pages_unchanged": true,
+    "records": [
+      {
+        "offset": 0,
+        "version": 1,
+        "sequence": 0,
+        "front": 85,
+        "rear": 100,
+        "valid": true
+      },
+      {
+        "offset": 16,
+        "version": 1,
+        "sequence": 1,
+        "front": 100,
+        "rear": 100,
+        "valid": true
+      }
+    ],
+    "mode": "0x41",
+    "ps2_data": [
+      0,
+      0,
+      0,
+      128,
+      128,
+      128,
+      128
+    ],
+    "ready": 0,
+    "loops": 1298,
+    "clock_hz": 72000000,
+    "speed_cap": 100,
+    "front": 100,
+    "rear": 95,
+    "loaded": 0,
+    "dirty": 0,
+    "stop_phase": 0,
+    "startup_active": 0,
+    "applied_duty": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "target_duty": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "timers": {
+      "tim2": {
+        "prescaler": 0,
+        "reload": 3599,
+        "compares": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "tim3": {
+        "prescaler": 0,
+        "reload": 3599,
+        "compares": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "physical_stop_tested": false,
+  "id": "scurve-stop-20261002",
+  "tag": "chassis/scurve-stop-20261002",
+  "branch": "local/chassis-tuning-20261002",
+  "binary": "sample-mecanum-car-study/build/s-curve-brake/crtc-s-curve-brake.bin",
+  "hex": "sample-mecanum-car-study/build/s-curve-brake/crtc-s-curve-brake.hex",
+  "published_hex": "sample-mecanum-car-study/releases/firmware/scurve-stop-20261002.hex"
+}

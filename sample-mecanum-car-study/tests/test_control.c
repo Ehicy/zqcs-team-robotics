@@ -10,11 +10,26 @@
 #include "../hardware/Src/main.c"
 #undef main
 
-static void assert_stopped(void)
+static void assert_stopped_at(unsigned line)
 {
     unsigned i;
-    for (i = 0; i < 8; i++) assert(mock_ccr[i] == 0);
+    for (i = 0; i < 8; i++)
+    {
+        if (mock_ccr[i]!=0) fprintf(stderr,"expected coast at line %u: CCR%u=%u phase=%u\n",
+                                    line,i,mock_ccr[i],motor_get_stop_phase());
+        assert(mock_ccr[i] == 0);
+    }
 
+}
+#define assert_stopped() assert_stopped_at(__LINE__)
+static void assert_no_drive(void)
+{
+    unsigned i;
+    for (i=0; i<4; i++)
+    {
+        assert(mock_ccr[2*i]==mock_ccr[2*i+1]);
+        assert(mock_ccr[2*i]==0 || mock_ccr[2*i]==PWM_PERIOD_COUNTS);
+    }
 }
 static void run_frame(uint8_t forward, uint8_t sideways, uint8_t turn,
                       uint16_t pressed, uint8_t mode, uint8_t marker)
@@ -114,6 +129,7 @@ static void test_motor(void)
     motor(0,64,128); assert_wheels(-655,-1800,1714,740);
     motor(64,96,128); assert_wheels(-390,-977,933,434);
 
+    motor_stop(); /* 死区穷举只测输入目标，不继承上一例的制动过程 */
     for (i = 0; i < 256; i++)
     {
         assert(motor_joystick_is_centered((uint8_t)i) == (i >= 120 && i <= 136));
@@ -235,7 +251,7 @@ static void test_analog_controls(void)
     assert(motor_get_speed_percent() == 100);
     normal(128,128,128,0); assert_stopped();
     normal(128,128,64,0); assert_wheels(-1022,1022,1022,-1022);
-    normal(128,128,128,0); assert_stopped();
+    normal(128,128,128,0); assert_no_drive(); /* 低于30%直接短路制动 */
     run_frame(0,128,128,0x0800,0x41,0x5A); assert_stopped();
     normal(128,128,128,0x0800); assert_stopped(); assert(!control_ready);
     normal(128,128,128,0); assert_stopped(); assert(control_ready);
@@ -283,6 +299,7 @@ static void test_speed_led(void)
 
 int main(void)
 {
+    setbuf(stdout,NULL);
     motor_init(); /* 同时初始化两个定时器和八路输出 */
     assert(mock_af_a == (GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 |
                          GPIO_Pin_6 | GPIO_Pin_7));

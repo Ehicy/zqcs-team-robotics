@@ -19,6 +19,10 @@
 
 void motor_init(void);
 void motor_stop(void);
+/* 硬撤输出用于失联/坏帧/保存；有效松杆和START才请求有限反向制动。 */
+void motor_quick_stop(void);
+enum { MOTOR_STOP_IDLE=0, MOTOR_STOP_COAST, MOTOR_STOP_REVERSE, MOTOR_STOP_HOLD };
+uint8_t motor_get_stop_phase(void);
 /* 每次主循环调用：按实际毫秒时基推进 PWM 斜坡与换向等待。 */
 void motor_update(void);
 void motor_set_speed_percent(uint8_t percent);
@@ -32,7 +36,7 @@ void motor_joystick_map(float raw_forward, float raw_sideways, float raw_turn,
 /* 0～255 原始值：左杆上下、左杆左右、右杆左右。
  * 小于中心分别表示前进、左移、逆时针转；方向以车头为参照。
  * 出死区后幅度连续调PWM，motor_set_speed_percent 设置允许的输出上限。
- * 设置目标；非零输出由 motor_update 推进，零目标立即撤输出。
+ * 设置目标；非零输出由motor_update推进，有效松杆请求有限反向制动。
  */
 void motor(float joystick_forward, float joystick_sideways, float joystick_turn);
 

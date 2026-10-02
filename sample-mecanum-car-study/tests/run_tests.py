@@ -57,6 +57,13 @@ with tempfile.TemporaryDirectory(prefix="mecanum-tests-") as temp:
                    "tests/mock_hardware.c", "hardware/Src/motor.c", "hardware/Src/pwm.c",
                    "-lm", "-o", mapping_exe], check=True)
     subprocess.run([mapping_exe], check=True)
+    motion_exe = str(Path(temp) / ("test_motion_profile.exe" if os.name == "nt" else "test_motion_profile"))
+    subprocess.run(flags + extra + ["-Itests", "tests/test_motion_profile.c",
+                   "tests/mock_hardware.c", "hardware/Src/ps2.c",
+                   "tests/mock_calibration_flash.c", "hardware/Src/calibration_store.c",
+                   "hardware/Src/calibration_control.c", "hardware/Src/motor.c",
+                   "hardware/Src/pwm.c", "-lm", "-o", motion_exe], check=True)
+    subprocess.run([motion_exe], check=True)
     clock_exe = str(Path(temp) / ("test_delay_clock.exe" if os.name == "nt" else "test_delay_clock"))
     subprocess.run(flags + extra + ["tests/test_delay_clock.c", "-o", clock_exe], check=True)
     subprocess.run([clock_exe], check=True)
