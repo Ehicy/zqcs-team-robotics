@@ -1,8 +1,9 @@
-/* STM32F103C8: keep the documented 64 KiB FLASH / 20 KiB RAM limit. */
+/* STM32F103C8: 62 KiB code, last two 1 KiB pages for calibration / 20 KiB RAM. */
 ENTRY(Reset_Handler)
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64K
+  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 62K
+  CALIBRATION (r) : ORIGIN = 0x0800F800, LENGTH = 2K
   RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 20K
 }
 _estack = ORIGIN(RAM) + LENGTH(RAM);

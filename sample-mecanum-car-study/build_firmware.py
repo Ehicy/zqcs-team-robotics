@@ -36,7 +36,7 @@ elif args.target == "motor-buttons":
     sources += [ROOT / "examples/motor-buttons/main.c"]
 sources += [ROOT / "lib/cmsis" / name for name in ("system_stm32f10x.c", "stm32f10x_it.c")]
 sources += [ROOT / "lib/fwlib/src" / name for name in
-            ("misc.c", "stm32f10x_gpio.c", "stm32f10x_rcc.c", "stm32f10x_tim.c")]
+            ("misc.c", "stm32f10x_gpio.c", "stm32f10x_rcc.c", "stm32f10x_tim.c", "stm32f10x_flash.c")]
 sources += [ROOT / "gcc/startup_stm32f103.S"]
 objects = []
 for src in sources:

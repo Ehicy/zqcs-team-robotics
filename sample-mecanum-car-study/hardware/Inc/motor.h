@@ -25,6 +25,7 @@ void motor_set_speed_percent(uint8_t percent);
 uint8_t motor_get_speed_percent(void);
 uint8_t motor_output_above_percent(uint8_t percent);
 uint8_t motor_joystick_is_centered(uint8_t value);
+float motor_joystick_axis(float value); /* 死区后的归一化轴值，训练与驱动共用 */
 /* 0～255 原始值：左杆上下、左杆左右、右杆左右。
  * 小于中心分别表示前进、左移、逆时针转；方向以车头为参照。
  * 出死区后幅度连续调PWM，motor_set_speed_percent 设置允许的输出上限。
@@ -43,4 +44,8 @@ typedef struct
  * 调参通常改 motor_tuning.h 默认表；此接口供运行中校准使用。
  */
 uint8_t motor_set_calibration(uint8_t wheel, const motor_calibration_t *calibration);
+/* 人工反馈校准横移项，50..100；纯前后与纯旋转不受影响。 */
+uint8_t motor_set_strafe_percent(uint8_t front, uint8_t rear);
+uint8_t motor_get_strafe_front_percent(void);
+uint8_t motor_get_strafe_rear_percent(void);
 #endif

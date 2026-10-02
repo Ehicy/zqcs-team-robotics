@@ -86,31 +86,31 @@ static void test_motor(void)
     assert(motor_get_speed_percent() == 100U);
     motor(0,128,128); assert_wheels(-3600,-3600,3600,3600);
     motor(128,128,0); assert_wheels(-3600,3600,3600,-3600);
-    motor(0,0,0); assert_wheels(-1200,-1200,3600,-1200);
+    motor(0,0,0); assert_wheels(-1263,-1263,3600,-1073);
     motor_set_speed_percent(50);
     /* 按实测电气极性与轮位检查：1左后、2右后、3左前、4右前。
      * O 形左移：左前/右后前进，右前/左后后退。
      */
     motor(0,128,128); assert_wheels(-1800,-1800,1800,1800);
     motor(255,128,128); assert_wheels(1800,1800,-1800,-1800);
-    motor(128,0,128); assert_wheels(1800,-1800,1800,-1800);
-    motor(128,255,128); assert_wheels(-1800,1800,-1800,1800);
+    motor(128,0,128); assert_wheels(1800,-1800,1530,-1530);
+    motor(128,255,128); assert_wheels(-1800,1800,-1530,1530);
     motor(128,128,0); assert_wheels(-1800,1800,1800,-1800);
     motor(128,128,255); assert_wheels(1800,-1800,-1800,1800);
-    /* 前左斜移只驱动左前和右后；前右斜移只驱动右前和左后。 */
-    motor(0,0,128); assert_wheels(0,-1800,1800,0);
-    motor(0,255,128); assert_wheels(-1800,0,0,1800);
-    motor(255,0,128); assert_wheels(1800,0,0,-1800);
-    motor(255,255,128); assert_wheels(0,1800,-1800,0);
-    /* 平移与左转混合：电气输出 -1,-1,3,-1，统一除以 3 后乘 50%。 */
-    motor(0,0,0); assert_wheels(-600,-600,1800,-600);
+    /* 横移项前85/后100的试验补偿也改变斜移；原前轮零项变为非零。 */
+    motor(0,0,128); assert_wheels(0,-1800,1665,135);
+    motor(0,255,128); assert_wheels(-1800,0,135,1665);
+    motor(255,0,128); assert_wheels(1800,0,-135,-1665);
+    motor(255,255,128); assert_wheels(0,1800,-1665,-135);
+    /* 混合机械输出1,1,2.85,-0.85，统一限幅后乘50%并补后轮极性。 */
+    motor(0,0,0); assert_wheels(-631,-631,1800,-536);
     /* 死区外连续调速，左杆与右杆都保留幅度。 */
     motor(119,128,128); assert_wheels(-15,-15,15,15);
     motor(137,128,128); assert_wheels(15,15,-15,-15);
-    motor(128,119,128); assert_wheels(15,-15,15,-15);
+    motor(128,119,128); assert_wheels(15,-15,12,-12);
     motor(128,128,119); assert_wheels(-15,15,15,-15);
-    motor(0,64,128); assert_wheels(-655,-1800,1800,655);
-    motor(64,96,128); assert_wheels(-480,-1200,1200,480);
+    motor(0,64,128); assert_wheels(-655,-1800,1714,740);
+    motor(64,96,128); assert_wheels(-480,-1200,1146,534);
 
     for (i = 0; i < 256; i++)
     {
@@ -132,7 +132,7 @@ static void test_motor(void)
                 for (axis = 0; axis < 8; axis++) assert(mock_ccr[axis] <= 3600U);
             }
     motor_stop();
-    puts("PASS: calibrated O wheels, continuous analog amplitude, duty limits, 2197 mixed inputs");
+    puts("PASS: O wheels with front85/rear100 strafe trial, unchanged pure forward/yaw, continuous amplitude, 2197 mixed limits");
 }
 
 static void test_ps2(void)
@@ -191,7 +191,7 @@ static void test_control(void)
     assert_stopped(); /* 斜坡不能恢复被START清掉的目标 */
     normal(128,128,128,(uint16_t)(1U << PS2_BUTTON_START)); assert_stopped();
     normal(128,128,128,0); assert_stopped(); assert(control_ready == 1);
-    normal(128,0,128,0); assert_wheels(3600,-3600,3600,-3600);
+    normal(128,0,128,0); assert_wheels(3600,-3600,3060,-3060);
     normal(128,128,0,0); assert_wheels(-3600,3600,3600,-3600);
     normal(128,128,128,0); assert_stopped();
 

@@ -1,8 +1,36 @@
-2026-09-24 Windows host verification; SANITIZE=0 (MinGW UBSan library unavailable).
-PASS: all 6 application C files, real STM32 headers, warnings as errors
+2026-10-02 Windows host verification; SANITIZE=0 (MinGW UBSan library unavailable).
+PASS: all 9 application C files, real STM32 headers, warnings as errors
 PASS: Keil source/include paths exist
 PASS: four DRV8833 pairs, signed PWM, saturation, NaN/Inf, reversal write order
 PASS: axes, all 256 center checks, deadzone edges, 2197 mixed inputs, ratios
 PASS: LSB-first wire simulation, 256 byte values, frame layout, invalid clearing
-PASS: startup, invalid-frame stop, neutral rearm, 16 buttons, no phantom release
+PASS: continuous joystick PWM, O mixing/polarity, startup zero and neutral rearm
+PASS: START clears targets/output/history, digital START, shoulders no speed binding
+PASS: LED strict actual PWM >60%, off on neutral/START/invalid frame
+PASS: common 500/1000 percentage-points/sec ramp, 40ms reversal coast, neutral reverse guard
+PASS: delayed-loop clamp, millisecond wrap, mechanical gains/minimum PWM limits
+PASS: real delay clock code, 72/8MHz, fractional milliseconds, DWT counter wrap
+PASS: 85/100 strafe component gains, bounded runtime gains; pure forward/yaw unchanged
+PASS: driver-assisted SELECT learning gates, settling, direction, rate and session bounds
+PASS: manual calibration edges/conflicts/bounds, START preserves calibration
+PASS: flash bounds/CRC/journal/page rotation/no duplicate writes and failure injection
+PASS: save only with all eight CCR zero, idle delay, write cooldown, boot load, rearm and LED
+PASS: four-button standalone motor test regression
 All host tests passed (not a hardware or Keil build test).
+PASS: Arm GNU 14.3 Cortex-M3 build: car, ps2-led, motor-buttons
+PASS: latest car Arm GNU build: 9820-byte BIN, 176-byte static RAM, 62KiB code limit
+Historical PASS: earlier open-loop car ST-Link Verify and independent 7260-byte readback
+Latest image: build/driver-calibration/crtc-driver-calibration.hex; FLASHED and independently verified
+Hardware feedback: forward/backward normal; strafe curves; all four strafe directions confirmed
+Initial ST-Link HOTPLUG/NORMAL/UR-HWrst attempts: unable to get core ID
+VM-off confirmed, SWD reseated, NRST not connected: NORMAL/SWrst 100kHz then HOTPLUG succeeded
+PASS: 64KiB current-board backup; matches 7260-byte earlier open-loop BIN, calibration pages erased
+PASS: 72MHz clock, loop mean 12.68ms, enabled TIM2/TIM3 PSC=0 ARR=3599, zero CCR snapshot
+PASS: after power-on pairing, old firmware live frames 0x73, ready 1, centered axes 127/128
+PASS: latest CubeProgrammer download Verify/reset/run, 9820-byte independent BIN match
+PASS: latest boot mode 0x73/ready 1, gains 85/100, clock 72MHz, eight CCR and software duty zero
+PASS: real SELECT+circle save: valid sequence-0 CRC record at 0x0800F800, gains 85/100
+PASS: user observed the two-flash save acknowledgement
+PASS: software reset reloads record, loaded=1 dirty=0, gains retained, output zero
+Pending: physical learning convergence and power interruption during flash writes
+Pending: waveforms, current, temperature, starting thresholds and wheel calibration

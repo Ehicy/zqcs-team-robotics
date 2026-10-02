@@ -32,21 +32,21 @@ static void test_ramp(void)
     motor_init(); stopped();
     motor(0,128,128); stopped();
     advance(0); stopped();
-    advance(10); forward(72); /* 200%/s，10ms仅增加2% */
-    advance(10); forward(144);
+    advance(10); forward(180); /* 500%/s，10ms增加5% */
+    advance(10); forward(360);
     for (i = 0; i < 48; i++) advance(10);
     forward(3600);
-    motor(64,128,128); advance(10); forward(3456); /* 减少4% */
+    motor(64,128,128); advance(10); forward(3240); /* 减少10% */
     settle(); forward(1680);
     motor(128,128,128); stopped(); /* 松杆立即撤输出，不等减速斜坡 */
     advance(500); stopped();
 
     motor_init(); motor(0,0,0); advance(10);
-    assert(abs(output(0) + 24) <= 1 && abs(output(1) + 24) <= 1);
-    assert(output(2) == 72 && abs(output(3) + 24) <= 1);
+    assert(abs(output(0) + 63) <= 1 && abs(output(1) + 63) <= 1);
+    assert(output(2) == 180 && abs(output(3) + 53) <= 1);
 
     motor_init(); motor(0,128,128); advance(1000);
-    forward(144); /* 大间隔只按20ms推进，不突然全速 */
+    forward(360); /* 大间隔只按20ms推进，不突然全速 */
     motor_set_speed_percent(0); stopped(); advance(50); stopped();
     puts("PASS: elapsed-time ramp, common four-wheel ratio, immediate stop, delayed-loop cap");
 }
@@ -55,7 +55,7 @@ static void test_reverse(void)
 {
     unsigned i;
     motor_init(); motor(0,128,128); settle(); forward(3600);
-    motor(255,128,128); advance(10); forward(3456);
+    motor(255,128,128); advance(10); forward(3240);
     for (i = 0; i < 35 && output(0) != 0; i++)
     {
         advance(10);
@@ -112,8 +112,37 @@ static void test_calibration(void)
     puts("PASS: mechanical forward/reverse trim, PWM floor/cap, zero wheel, actual-output LED threshold");
 }
 
+static void test_strafe_trial(void)
+{
+    unsigned wheel;
+    int left[4];
+    /* 从静止起步时保持前85/后100的比例；40ms达后轮20%、前轮17%。 */
+    motor_init(); motor(128,0,128);
+    advance(20); advance(20);
+    assert(output(0) == 720 && output(1) == -720);
+    assert(abs(output(2) - 612) <= 1 && abs(output(3) + 612) <= 1);
+    settle();
+    assert(output(0) == 3600 && output(1) == -3600);
+    assert(abs(output(2) - 3060) <= 1 && abs(output(3) + 3060) <= 1);
+    for (wheel = 0; wheel < 4; wheel++) left[wheel] = output(wheel);
+    motor(128,255,128); settle();
+    for (wheel = 0; wheel < 4; wheel++) assert(abs(output(wheel) + left[wheel]) <= 1);
+    motor_set_speed_percent(50); motor(128,0,128); settle();
+    assert(output(0) == 1800 && output(1) == -1800);
+    assert(abs(output(2) - 1530) <= 1 && abs(output(3) + 1530) <= 1);
+    motor(128,128,128); stopped();
+    /* 该补偿不降低纯前进/后退或纯旋转的前轮分量。 */
+    motor_set_speed_percent(100); motor(0,128,128); settle(); forward(3600);
+    motor(255,128,128); settle(); forward(-3600);
+    motor(128,128,0); settle();
+    assert(output(0) == -3600 && output(1) == 3600);
+    assert(output(2) == 3600 && output(3) == -3600);
+    motor_stop(); stopped(); advance(200); stopped();
+    puts("PASS: strafe trial ramp ratio, left/right symmetry, PWM cap, unchanged forward/back/yaw, stop");
+}
+
 int main(void)
 {
-    test_ramp(); test_reverse(); test_calibration();
+    test_ramp(); test_reverse(); test_calibration(); test_strafe_trial();
     return 0;
 }

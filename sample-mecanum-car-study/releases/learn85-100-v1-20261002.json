@@ -1,0 +1,22 @@
+{
+  "id": "learn85-100-v1-20261002",
+  "tag": "chassis/learn85-100-v1-20261002",
+  "label": "Driver-assisted strafe learning and Flash v1, front85/rear100 trial",
+  "snapshot": "backups/driver-calibration-flashed-20261002-01/source",
+  "parts": [
+    "docs",
+    "gcc",
+    "hardware",
+    "tests",
+    "user",
+    "build_firmware.py",
+    "README.md"
+  ],
+  "memory": "backups/driver-calibration-flashed-20261002-01/PROJECT.md",
+  "binary": "backups/driver-calibration-flashed-20261002-01/crtc-driver-calibration.bin",
+  "hex": "backups/driver-calibration-flashed-20261002-01/crtc-driver-calibration.hex",
+  "source_note": "Complete saved application/build snapshot; physical strafe became worse per user.",
+  "bin_bytes": 9820,
+  "sha256": "e63d2d344055c2d1e3ef1119b3c49d9bdac6eb4b5283ced4ea662627bd730ab8",
+  "independent_board_readback_previously_passed": true
+}

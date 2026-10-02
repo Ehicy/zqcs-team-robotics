@@ -1,5 +1,6 @@
 #include "main.h"
 #include "stm32f10x.h"
+#include "calibration_control.h"
 
 #define CONTROL_LOOP_DELAY_MS  10U
 #define SPEED_LED_PIN          GPIO_Pin_13
@@ -36,6 +37,18 @@ static void speed_led_init(void)
 
 static void speed_led_step(void)
 {
+    uint8_t feedback_on;
+    if (!motor_output_above_percent(0))
+    {
+        if (calibration_control_led(&feedback_on))
+        {
+            if (feedback_on) GPIO_ResetBits(GPIOC, SPEED_LED_PIN);
+            else GPIO_SetBits(GPIOC, SPEED_LED_PIN);
+            speed_led_active = speed_led_steps = speed_led_on = 0;
+            return;
+        }
+    }
+    else calibration_control_reset_feedback();
     if (!motor_output_above_percent(MOTOR_SPEED_LED_THRESHOLD))
     {
         GPIO_SetBits(GPIOC, SPEED_LED_PIN);
@@ -44,7 +57,9 @@ static void speed_led_step(void)
         speed_led_steps = 0;
         return;
     }
-    /* 任一轮实际PWM严格超过60%才闪；不是电流、温度或通信报警。 */
+    /* 行驶时任一轮实际PWM严格超过60%才闪；停车时另有参数保存提示。
+     * 不是电流、温度或通信报警。
+     */
     if (!speed_led_active)
     {
         speed_led_active = 1;
@@ -135,6 +150,7 @@ static void control_update(void)
     {
         motor_set_speed_percent(MOTOR_SPEED_INITIAL_PERCENT);
         last_released_button = 255U;
+        calibration_control_reset_feedback(); /* START撤驱动，保留用户已校准参数 */
     }
     /* 数字模式只用于诊断，摇杆控制必须有模拟轴数据。START 立即撤驱动。 */
     if (!frame_valid || ps2Data.mode != PS2_MODE_ANALOG ||
@@ -143,18 +159,24 @@ static void control_update(void)
         motor_stop();
         control_ready = 0;
         buttons_reset(); /* 丢包/停车不能被当成“用户松开按钮”。 */
+        calibration_control_reset_inputs();
         return;
     }
     if (!control_ready)
     {
         motor_stop();
         buttons_reset();
+        calibration_control_reset_inputs();
         /* 上电/异常恢复后，先松开按键并让三个控制轴回中。 */
         if (controls_are_neutral(&ps2Data))
         {
             control_ready = 1;
         }
         return;
+    }
+    if (calibration_control_poll(&ps2Data))
+    {
+        control_ready = 0; buttons_reset(); return; /* 保存后需松键回中 */
     }
     buttons_process(&ps2Data);
     /* uint8_t 会自动转换为函数需要的 float；这里不做速度换算。 */
@@ -173,6 +195,7 @@ int main(void)
 {
     delay_init();
     motor_init(); /* 初始化 TIM2/TIM3，八个输入从低电平启动 */
+    calibration_control_init(); /* 加载CRC有效参数，未保存过则用85/100试验值 */
     motor_stop();
     speed_led_init();
     ps2_init();

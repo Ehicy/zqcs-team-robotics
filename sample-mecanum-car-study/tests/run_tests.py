@@ -18,7 +18,7 @@ flags = [CC, "-std=c99", "-Wall", "-Wextra", "-Werror",
 # 使用真实的 STM32 头文件，检查所有应用源文件。
 sources = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "hardware/Src").glob("*.c"))
 subprocess.run(flags + ["-fsyntax-only"] + sources, check=True)
-print("PASS: all 6 application C files, real STM32 headers, warnings as errors", flush=True)
+print(f"PASS: all {len(sources)} application C files, real STM32 headers, warnings as errors", flush=True)
 
 project = ET.parse("user/rmcic.uvprojx")
 for node in project.findall(".//FilePath"):
@@ -37,6 +37,8 @@ with tempfile.TemporaryDirectory(prefix="mecanum-tests-") as temp:
         extra = ["-fsanitize=undefined,float-cast-overflow", "-fno-sanitize-recover=all"]
     subprocess.run(flags + extra + ["-Itests", "tests/test_control.c",
                    "tests/mock_hardware.c", "hardware/Src/ps2.c",
+                   "tests/mock_calibration_flash.c", "hardware/Src/calibration_store.c",
+                   "hardware/Src/calibration_control.c",
                    "hardware/Src/motor.c", "hardware/Src/pwm.c", "-lm", "-o", exe],
                    check=True)
     subprocess.run([exe], check=True)
@@ -53,3 +55,15 @@ with tempfile.TemporaryDirectory(prefix="mecanum-tests-") as temp:
     clock_exe = str(Path(temp) / ("test_delay_clock.exe" if os.name == "nt" else "test_delay_clock"))
     subprocess.run(flags + extra + ["tests/test_delay_clock.c", "-o", clock_exe], check=True)
     subprocess.run([clock_exe], check=True)
+    store_exe = str(Path(temp) / ("test_calibration_store.exe" if os.name == "nt" else "test_calibration_store"))
+    subprocess.run(flags + extra + ["-Itests", "tests/test_calibration_store.c",
+                   "tests/mock_calibration_flash.c", "hardware/Src/calibration_store.c",
+                   "-o", store_exe], check=True)
+    subprocess.run([store_exe], check=True)
+    calibration_exe = str(Path(temp) / ("test_calibration_control.exe" if os.name == "nt" else "test_calibration_control"))
+    subprocess.run(flags + extra + ["-Itests", "tests/test_calibration_control.c",
+                   "tests/mock_hardware.c", "tests/mock_calibration_flash.c",
+                   "hardware/Src/calibration_store.c", "hardware/Src/calibration_control.c",
+                   "hardware/Src/ps2.c", "hardware/Src/motor.c", "hardware/Src/pwm.c",
+                   "-o", calibration_exe], check=True)
+    subprocess.run([calibration_exe], check=True)
