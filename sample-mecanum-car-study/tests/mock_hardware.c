@@ -7,6 +7,7 @@
 uint16_t mock_ccr[8];
 uint16_t mock_gpio_a;
 uint16_t mock_gpio_b;
+uint16_t mock_gpio_c;
 uint32_t mock_apb2;
 uint16_t mock_af_a, mock_af_b;
 uint16_t mock_period[2];
@@ -57,13 +58,25 @@ void GPIO_Init(GPIO_TypeDef *port, GPIO_InitTypeDef *gpio)
         else mock_af_b |= gpio->GPIO_Pin;
     }
     if (port == GPIOA) assert(mock_apb2 & RCC_APB2Periph_GPIOA);
-    else assert(port == GPIOB && (mock_apb2 & RCC_APB2Periph_GPIOB));
+    else if (port == GPIOB) assert(mock_apb2 & RCC_APB2Periph_GPIOB);
+    else
+    {
+        assert(port == GPIOC && (mock_apb2 & RCC_APB2Periph_GPIOC));
+        assert(gpio->GPIO_Pin == GPIO_Pin_13 && gpio->GPIO_Mode == GPIO_Mode_Out_PP);
+        assert(gpio->GPIO_Speed == GPIO_Speed_2MHz);
+        assert(mock_gpio_c & GPIO_Pin_13); /* 切输出前已预置灭灯 */
+    }
 }
 void GPIO_SetBits(GPIO_TypeDef *port, uint16_t pins)
 {
     if (port == GPIOA)
     {
         mock_gpio_a |= pins;
+    }
+    else if (port == GPIOC)
+    {
+        assert(pins == GPIO_Pin_13);
+        mock_gpio_c |= pins;
     }
     else
     {
@@ -76,6 +89,11 @@ void GPIO_ResetBits(GPIO_TypeDef *port, uint16_t pins)
     if (port == GPIOA)
     {
         mock_gpio_a &= (uint16_t)~pins;
+    }
+    else if (port == GPIOC)
+    {
+        assert(pins == GPIO_Pin_13);
+        mock_gpio_c &= (uint16_t)~pins;
     }
     else
     {

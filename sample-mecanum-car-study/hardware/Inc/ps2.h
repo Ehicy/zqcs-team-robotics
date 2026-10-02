@@ -4,7 +4,8 @@
 
 /* 与 PROJECT.md 的信号接线图一致。
  * DATA -> PB14（输入）；CMD -> PB15；CS/ATT -> PB12；CLK -> PB13。
- * 只接受 0x73 的 9 字节模拟模式，不支持 0x41 数字/0x79 压感模式。
+ * 摇杆接口 ps2_read 只接受 0x73 的 9 字节模拟模式；
+ * 按键接口 ps2_read_buttons 还接受 0x41。两者不支持 0x79 压感模式。
  */
 #define PS2_MODE_ANALOG  0x73U
 #define PS2_FRAME_SIZE   9U
@@ -36,4 +37,8 @@ void ps2_init(void); /* 仅配置 GPIO；未实现模式协商，请在手柄上
 uint8_t ps2_comm(uint8_t send_data);
 /* 1：本帧模式/标志有效；0：无效，且数据已清成无按键、摇杆回中。 */
 uint8_t ps2_read(ps2_data *data);
+/* 独立按键测试：接受 0x41 数字或 0x73 模拟模式。
+ * 数字模式没有摇杆数据，四个摇杆字段保持回中。
+ */
+uint8_t ps2_read_buttons(ps2_data *data);
 #endif
