@@ -5,6 +5,7 @@
 extern uint16_t mock_ccr[8];
 extern uint16_t mock_gpio_a;
 extern uint16_t mock_gpio_b;
+extern uint16_t mock_gpio_c;
 extern uint32_t mock_apb2;
 extern uint16_t mock_af_a, mock_af_b;
 extern uint16_t mock_period[2];

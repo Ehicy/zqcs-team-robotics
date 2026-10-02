@@ -1,12 +1,84 @@
 #include "main.h"
+#include "stm32f10x.h"
 
 #define CONTROL_LOOP_DELAY_MS  10U
+#define SPEED_LED_PIN          GPIO_Pin_13
+/* 每40次轮询切换一次，约0.5秒；不用阻塞延时影响手柄读取。 */
+#define SPEED_LED_BLINK_STEPS  40U
+static uint8_t speed_led_active = 0;
+static uint8_t speed_led_on = 0;
+static uint8_t speed_led_steps = 0;
 static ps2_data ps2Data;
 static uint8_t control_ready = 0;
 static uint8_t button_was_down[PS2_BUTTON_COUNT] = {0};
 
 /* Keil Watch 可观察；255 表示尚无松开事件。不会控制任何舵机。 */
 volatile uint8_t last_released_button = 255U;
+/* ST-Link/Watch：模式 0x41=数字，0x73=模拟，0=无效；循环数应增加。 */
+volatile uint8_t control_mode = 0;
+volatile uint32_t control_loops = 0;
+
+static void speed_led_init(void)
+{
+    GPIO_InitTypeDef gpio;
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+    /* 核心板PC13用户灯低电平亮，先写高再设输出，上电默认灭。 */
+    GPIO_SetBits(GPIOC, SPEED_LED_PIN);
+    GPIO_StructInit(&gpio);
+    gpio.GPIO_Pin = SPEED_LED_PIN;
+    gpio.GPIO_Mode = GPIO_Mode_Out_PP;
+    gpio.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_Init(GPIOC, &gpio);
+    speed_led_active = 0;
+    speed_led_on = 0;
+    speed_led_steps = 0;
+}
+
+static void speed_led_step(void)
+{
+    if (motor_get_speed_percent() <= MOTOR_SPEED_LED_THRESHOLD)
+    {
+        GPIO_SetBits(GPIOC, SPEED_LED_PIN);
+        speed_led_active = 0;
+        speed_led_on = 0;
+        speed_led_steps = 0;
+        return;
+    }
+    /* 严格超过60%才闪：70/80/90/100%亮灭提示，60%及以下灭。 */
+    if (!speed_led_active)
+    {
+        speed_led_active = 1;
+        speed_led_on = 1;
+        speed_led_steps = 0;
+        GPIO_ResetBits(GPIOC, SPEED_LED_PIN);
+        return;
+    }
+    if (++speed_led_steps >= SPEED_LED_BLINK_STEPS)
+    {
+        speed_led_steps = 0;
+        speed_led_on = (uint8_t)!speed_led_on;
+        if (speed_led_on) GPIO_ResetBits(GPIOC, SPEED_LED_PIN);
+        else GPIO_SetBits(GPIOC, SPEED_LED_PIN);
+    }
+}
+
+static void on_button_pressed(uint8_t button, const ps2_data *data)
+{
+    uint8_t speed = motor_get_speed_percent();
+    /* 原参考包 ax_ps2.h：btn2 bit2=L1、bit3=R1；不是 L2/R2。
+     * 同时按 L1/R1 不改变速度；按下边沿一次调一级，长按不重复。
+     */
+    if ((data->btn2 & 0x0CU) == 0x0CU) return;
+    if (button == PS2_BUTTON_L1)
+    {
+        motor_set_speed_percent(speed >= MOTOR_SPEED_STEP_PERCENT ?
+            (uint8_t)(speed - MOTOR_SPEED_STEP_PERCENT) : 0U);
+    }
+    else if (button == PS2_BUTTON_R1)
+    {
+        motor_set_speed_percent((uint8_t)(speed + MOTOR_SPEED_STEP_PERCENT));
+    }
+}
 
 static void buttons_reset(void)
 {
@@ -50,7 +122,9 @@ static void buttons_process(const ps2_data *data)
         {
             is_down = (uint8_t)((data->btn2 >> (button - 8)) & 1U);
         }
-        /* 沿用原项目：从“按下”变成“松开”时，只执行一次。 */
+        if (!button_was_down[button] && is_down)
+            on_button_pressed(button, data);
+        /* 其他动作沿用原项目：从“按下”变成“松开”时只执行一次。 */
         if (button_was_down[button] && !is_down)
         {
             on_button_released(button);
@@ -68,14 +142,26 @@ static uint8_t controls_are_neutral(const ps2_data *data)
 }
 
 /* 单独写成一步，方便逐次调试，也能在电脑上测试异常/恢复的过程。 */
-static void control_step(void)
+static void control_update(void)
 {
-    uint8_t frame_valid = ps2_read(&ps2Data);
-    if (!frame_valid)
+    uint8_t frame_valid = ps2_read_buttons(&ps2Data);
+    control_mode = ps2Data.mode;
+    control_loops++;
+    /* START在数字/模拟有效帧中都复位控制状态；优先于任何肩键。
+     * 速度回0、输出撤掉、按键历史清除；灯在本次step末随0%立即灭。
+     */
+    if (frame_valid && (ps2Data.btn1 & (1U << PS2_BUTTON_START)) != 0U)
+    {
+        motor_set_speed_percent(MOTOR_SPEED_INITIAL_PERCENT);
+        last_released_button = 255U;
+    }
+    /* 数字模式只用于诊断，摇杆控制必须有模拟轴数据。START 立即撤驱动。 */
+    if (!frame_valid || ps2Data.mode != PS2_MODE_ANALOG ||
+        (ps2Data.btn1 & (1U << PS2_BUTTON_START)) != 0U)
     {
         motor_stop();
         control_ready = 0;
-        buttons_reset(); /* 丢包不能被当成“用户松开按钮”。 */
+        buttons_reset(); /* 丢包/停车不能被当成“用户松开按钮”。 */
         return;
     }
     if (!control_ready)
@@ -94,11 +180,19 @@ static void control_step(void)
     motor(ps2Data.LJoy_UD, ps2Data.LJoy_LR, ps2Data.RJoy_LR);
 }
 
+static void control_step(void)
+{
+    control_update();
+    /* 模式无效/START停车也继续显示速度档，不把灯当通信或运动状态。 */
+    speed_led_step();
+}
+
 int main(void)
 {
     delay_init();
     motor_init(); /* 初始化 TIM2/TIM3，八个输入从低电平启动 */
     motor_stop();
+    speed_led_init();
     ps2_init();
     while (1)
     {

@@ -55,7 +55,7 @@ uint8_t ps2_comm(uint8_t send_data)
     return received;
 }
 
-uint8_t ps2_read(ps2_data *data)
+static uint8_t ps2_read_with_mode(ps2_data *data, uint8_t allow_digital)
 {
     static const uint8_t request[PS2_FRAME_SIZE] =
         {0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -84,16 +84,30 @@ uint8_t ps2_read(ps2_data *data)
     }
     GPIO_SetBits(GPIOB, PS2_CS_PIN | PS2_CMD_PIN);
     /* 第 0 字节是空闲响应；检查模式和固定标志，并非校验和。 */
-    if (received[1] != PS2_MODE_ANALOG || received[2] != 0x5AU)
+    if ((received[1] != PS2_MODE_ANALOG &&
+         !(allow_digital != 0U && received[1] == 0x41U)) || received[2] != 0x5AU)
     {
         return 0;
     }
     data->mode = received[1];
     data->btn1 = (uint8_t)(~received[3]);
     data->btn2 = (uint8_t)(~received[4]);
-    data->RJoy_LR = received[5];
-    data->RJoy_UD = received[6];
-    data->LJoy_LR = received[7];
-    data->LJoy_UD = received[8];
+    if (received[1] == PS2_MODE_ANALOG)
+    {
+        data->RJoy_LR = received[5];
+        data->RJoy_UD = received[6];
+        data->LJoy_LR = received[7];
+        data->LJoy_UD = received[8];
+    }
     return 1;
+}
+
+uint8_t ps2_read(ps2_data *data)
+{
+    return ps2_read_with_mode(data, 0);
+}
+
+uint8_t ps2_read_buttons(ps2_data *data)
+{
+    return ps2_read_with_mode(data, 1);
 }

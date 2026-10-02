@@ -40,3 +40,8 @@ with tempfile.TemporaryDirectory(prefix="mecanum-tests-") as temp:
                    "hardware/Src/motor.c", "hardware/Src/pwm.c", "-lm", "-o", exe],
                    check=True)
     subprocess.run([exe], check=True)
+    button_exe = str(Path(temp) / ("test_motor_buttons.exe" if os.name == "nt" else "test_motor_buttons"))
+    subprocess.run(flags + extra + ["-Itests", "tests/test_motor_buttons.c",
+                   "tests/mock_hardware.c", "hardware/Src/ps2.c", "hardware/Src/pwm.c",
+                   "-o", button_exe], check=True)
+    subprocess.run([button_exe], check=True)
