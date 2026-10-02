@@ -2,6 +2,8 @@
 
 当前开发分支：`local/chassis-tuning-20261002`。当前板内版本：`chassis/scurve-stop-20261002`，已烧录并独立读回校验，可以试车。Git 检查点和标签在本机创建；最新分支用于向主仓库提交PR，主分支保留此前合并状态。
 
+最新 [PR #2](https://github.com/Seroliya/zqcs-team-robotics/pull/2) 已创建，包含当前代码、历史版本索引、四份 HEX 与验证说明，等待审核。当前固件对应源码提交 `c14c55a12e232da9e4421bd50c9f4b458ddf6aa5`；后续文档提交不改变该固件。
+
 ## 四个可以回溯的底盘版本
 
 | Git 标签 | 主要行为 | BIN | 验证及实车状态 |
