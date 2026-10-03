@@ -1,0 +1,242 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="2780" viewBox="0 0 2500 2780">
+<rect width="2500" height="2780" fill="#f7f9fc"/>
+<text x="60" y="75" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="46" font-weight="700" fill="#182338">供电接线图：正负极与每个电源接口</text>
+<text x="60" y="123" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="27" font-weight="400" fill="#596374">同名彩色网标＝接在同一条电源线上；GND全部共地。12V只接驱动VM。</text>
+<rect x="60" y="200" width="440" height="265" rx="12" fill="#ffffff" stroke="#ccd7e6" stroke-width="2"/>
+<text x="87" y="247" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="31" font-weight="700" fill="#182338">2S 18650 电池</text>
+<text x="87" y="292" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="27" font-weight="400" fill="#182338">7.4V 标称／8.4V满电</text>
+<text x="87" y="339" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#596374">原两节保留；四节2S2P可选</text>
+<text x="484" y="390" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#a47313">+（经保险丝／开关）</text>
+<circle cx="500" cy="382" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="484" y="438" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#596374">−</text>
+<circle cx="500" cy="430" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<rect x="850" y="200" width="540" height="265" rx="12" fill="#fff4f4" stroke="#ddb3b6" stroke-width="2"/>
+<text x="876" y="247" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="32" font-weight="700" fill="#bb3540">12V升压：选型待核</text>
+<text x="876" y="291" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#bb3540">单个30W MAX板不足四机</text>
+<text x="876" y="328" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#182338">四机额定工作点52.8W / 4.4A</text>
+<text x="866" y="390" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#a47313">IN+</text>
+<circle cx="850" cy="382" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="866" y="438" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#596374">IN−</text>
+<circle cx="850" cy="430" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="500,382 850,382" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="500" cy="382" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<circle cx="850" cy="382" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="500,430 850,430" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="500" cy="430" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<circle cx="850" cy="430" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="1374" y="390" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#bb3540">OUT+</text>
+<circle cx="1390" cy="382" r="6" fill="#f7f9fc" stroke="#bb3540" stroke-width="2"/>
+<polyline points="1390,382 1428,382" fill="none" stroke="#bb3540" stroke-width="3" stroke-linejoin="round"/>
+<text x="1436" y="389" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#bb3540">12V_MOTOR</text>
+<circle cx="1390" cy="382" r="6" fill="#f7f9fc" stroke="#bb3540" stroke-width="2"/>
+<text x="1374" y="438" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">OUT−</text>
+<circle cx="1390" cy="430" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1390,430 1428,430" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1436" y="437" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1390" cy="430" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<rect x="1800" y="200" width="520" height="265" rx="12" fill="#fffbed" stroke="#dfcea1" stroke-width="2"/>
+<text x="1826" y="247" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="31" font-weight="700" fill="#a47313">控制用5V降压</text>
+<text x="1816" y="318" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">IN+</text>
+<circle cx="1800" cy="310" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="1800,310 1762,310" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<text x="1754" y="317" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">BAT+</text>
+<circle cx="1800" cy="310" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="1816" y="378" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">IN−</text>
+<circle cx="1800" cy="370" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1800,370 1762,370" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1754" y="377" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1800" cy="370" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="2304" y="318" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">OUT+</text>
+<circle cx="2320" cy="310" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="2320,310 2358,310" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<text x="2366" y="317" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">5V_CTRL</text>
+<circle cx="2320" cy="310" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="2304" y="378" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">OUT−</text>
+<circle cx="2320" cy="370" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="2320,370 2358,370" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="2366" y="377" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="2320" cy="370" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="538" y="351" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#a47313">BAT+</text>
+<text x="533" y="457" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#596374">GND</text>
+<rect x="250" y="620" width="500" height="260" rx="12" fill="#f0f5ff" stroke="#ccd7e6" stroke-width="2"/>
+<text x="277" y="668" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="31" font-weight="700" fill="#245cbd">A主控 F103</text>
+<text x="266" y="733" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">5V输入</text>
+<circle cx="250" cy="725" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="250,725 212,725" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<text x="204" y="732" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">5V_CTRL</text>
+<circle cx="250" cy="725" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="266" y="808" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="250" cy="800" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="250,800 212,800" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="204" y="807" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="250" cy="800" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="734" y="733" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">3V3输出</text>
+<circle cx="750" cy="725" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="750,725 788,725" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="796" y="732" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">3V3_A</text>
+<circle cx="750" cy="725" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="276" y="849" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#596374">两核心板3V3输出不互接</text>
+<rect x="1060" y="620" width="540" height="260" rx="12" fill="#f0f5ff" stroke="#ccd7e6" stroke-width="2"/>
+<text x="1087" y="668" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="31" font-weight="700" fill="#245cbd">B底盘 F103</text>
+<text x="1076" y="733" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">5V输入</text>
+<circle cx="1060" cy="725" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="1060,725 1022,725" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<text x="1014" y="732" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">5V_CTRL</text>
+<circle cx="1060" cy="725" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="1076" y="808" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1060" cy="800" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1060,800 1022,800" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1014" y="807" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1060" cy="800" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="1584" y="733" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">3V3输出</text>
+<circle cx="1600" cy="725" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="1600,725 1638,725" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="1646" y="732" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">3V3_B</text>
+<circle cx="1600" cy="725" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="1086" y="849" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#596374">两核心板3V3输出不互接</text>
+<rect x="1950" y="620" width="540" height="260" rx="12" fill="#f0f5ff" stroke="#ccd7e6" stroke-width="2"/>
+<text x="1977" y="668" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="31" font-weight="700" fill="#245cbd">PS2转接板</text>
+<text x="1966" y="733" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">VCC</text>
+<circle cx="1950" cy="725" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="1950,725 1912,725" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<text x="1904" y="732" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">5V_CTRL</text>
+<circle cx="1950" cy="725" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="1966" y="808" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1950" cy="800" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1950,800 1912,800" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1904" y="807" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1950" cy="800" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="1976" y="849" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#596374">现有宽输入转接板接5V</text>
+<rect x="250" y="1060" width="710" height="310" rx="12" fill="#fff7e9" stroke="#dec08b" stroke-width="2"/>
+<text x="280" y="1110" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="33" font-weight="700" fill="#a47313">TB6612 1：后轴</text>
+<text x="266" y="1193" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#bb3540">VM</text>
+<circle cx="250" cy="1185" r="6" fill="#f7f9fc" stroke="#bb3540" stroke-width="2"/>
+<polyline points="250,1185 212,1185" fill="none" stroke="#bb3540" stroke-width="3" stroke-linejoin="round"/>
+<text x="204" y="1192" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#bb3540">12V_MOTOR</text>
+<circle cx="250" cy="1185" r="6" fill="#f7f9fc" stroke="#bb3540" stroke-width="2"/>
+<text x="266" y="1263" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">VCC</text>
+<circle cx="250" cy="1255" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="250,1255 212,1255" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="204" y="1262" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">3V3_B</text>
+<circle cx="250" cy="1255" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="266" y="1333" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="250" cy="1325" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="250,1325 212,1325" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="204" y="1332" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="250" cy="1325" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="280" y="1160" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#596374">控制端与AO/BO动力输出见信号图</text>
+<text x="540" y="1262" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#182338">每个电机独立H桥</text>
+<text x="540" y="1323" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#bb3540">电流／散热仍需升级验证</text>
+<rect x="1320" y="1060" width="710" height="310" rx="12" fill="#fff7e9" stroke="#dec08b" stroke-width="2"/>
+<text x="1350" y="1110" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="33" font-weight="700" fill="#a47313">TB6612 2：前轴</text>
+<text x="1336" y="1193" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#bb3540">VM</text>
+<circle cx="1320" cy="1185" r="6" fill="#f7f9fc" stroke="#bb3540" stroke-width="2"/>
+<polyline points="1320,1185 1282,1185" fill="none" stroke="#bb3540" stroke-width="3" stroke-linejoin="round"/>
+<text x="1274" y="1192" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#bb3540">12V_MOTOR</text>
+<circle cx="1320" cy="1185" r="6" fill="#f7f9fc" stroke="#bb3540" stroke-width="2"/>
+<text x="1336" y="1263" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">VCC</text>
+<circle cx="1320" cy="1255" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="1320,1255 1282,1255" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="1274" y="1262" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">3V3_B</text>
+<circle cx="1320" cy="1255" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="1336" y="1333" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1320" cy="1325" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1320,1325 1282,1325" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1274" y="1332" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1320" cy="1325" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="1350" y="1160" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#596374">控制端与AO/BO动力输出见信号图</text>
+<text x="1610" y="1262" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#182338">每个电机独立H桥</text>
+<text x="1610" y="1323" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#bb3540">电流／散热仍需升级验证</text>
+<rect x="60" y="1520" width="540" height="245" rx="12" fill="#edf8f7" stroke="#9dc6c3" stroke-width="2"/>
+<text x="84" y="1567" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="28" font-weight="700" fill="#087b7c">M1 霍尔编码器供电</text>
+<text x="200" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">VCC</text>
+<circle cx="200" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="200,1765 200,1800" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="200" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">ENC_VCC*</text>
+<circle cx="200" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="450" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="450" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="450,1765 450,1800" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="450" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="450" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="84" y="1621" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#087b7c">A/B → 底盘B计数引脚</text>
+<text x="84" y="1668" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#182338">M+/M− → 对应驱动AO/BO</text>
+<text x="84" y="1709" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#bb3540">不把12V接编码器VCC</text>
+<rect x="645" y="1520" width="540" height="245" rx="12" fill="#edf8f7" stroke="#9dc6c3" stroke-width="2"/>
+<text x="669" y="1567" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="28" font-weight="700" fill="#087b7c">M2 霍尔编码器供电</text>
+<text x="785" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">VCC</text>
+<circle cx="785" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="785,1765 785,1800" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="785" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">ENC_VCC*</text>
+<circle cx="785" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="1035" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1035" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1035,1765 1035,1800" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1035" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1035" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="669" y="1621" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#087b7c">A/B → 底盘B计数引脚</text>
+<text x="669" y="1668" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#182338">M+/M− → 对应驱动AO/BO</text>
+<text x="669" y="1709" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#bb3540">不把12V接编码器VCC</text>
+<rect x="1230" y="1520" width="540" height="245" rx="12" fill="#edf8f7" stroke="#9dc6c3" stroke-width="2"/>
+<text x="1254" y="1567" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="28" font-weight="700" fill="#087b7c">M3 霍尔编码器供电</text>
+<text x="1370" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">VCC</text>
+<circle cx="1370" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="1370,1765 1370,1800" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="1370" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">ENC_VCC*</text>
+<circle cx="1370" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="1620" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1620" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1620,1765 1620,1800" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1620" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1620" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="1254" y="1621" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#087b7c">A/B → 底盘B计数引脚</text>
+<text x="1254" y="1668" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#182338">M+/M− → 对应驱动AO/BO</text>
+<text x="1254" y="1709" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#bb3540">不把12V接编码器VCC</text>
+<rect x="1815" y="1520" width="540" height="245" rx="12" fill="#edf8f7" stroke="#9dc6c3" stroke-width="2"/>
+<text x="1839" y="1567" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="28" font-weight="700" fill="#087b7c">M4 霍尔编码器供电</text>
+<text x="1955" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">VCC</text>
+<circle cx="1955" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<polyline points="1955,1765 1955,1800" fill="none" stroke="#7552a5" stroke-width="3" stroke-linejoin="round"/>
+<text x="1955" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#7552a5">ENC_VCC*</text>
+<circle cx="1955" cy="1765" r="6" fill="#f7f9fc" stroke="#7552a5" stroke-width="2"/>
+<text x="2205" y="1748" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="2205" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="2205,1765 2205,1800" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="2205" y="1828" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="2205" cy="1765" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="1839" y="1621" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#087b7c">A/B → 底盘B计数引脚</text>
+<text x="1839" y="1668" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#182338">M+/M− → 对应驱动AO/BO</text>
+<text x="1839" y="1709" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="23" font-weight="400" fill="#bb3540">不把12V接编码器VCC</text>
+<rect x="850" y="1890" width="700" height="450" rx="12" fill="#f6f2fb" stroke="#ccd7e6" stroke-width="2"/>
+<text x="876" y="1934" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="27" font-weight="700" fill="#7552a5">可选舵机供电：另设合适5V支路</text>
+<text x="866" y="2000" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">IN+</text>
+<circle cx="850" cy="1992" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="850,1992 812,1992" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<text x="804" y="1999" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">BAT+</text>
+<circle cx="850" cy="1992" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="866" y="2056" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">IN−</text>
+<circle cx="850" cy="2048" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="850,2048 812,2048" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="804" y="2055" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="850" cy="2048" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="1534" y="2000" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">OUT+</text>
+<circle cx="1550" cy="1992" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<polyline points="1550,1992 1588,1992" fill="none" stroke="#a47313" stroke-width="3" stroke-linejoin="round"/>
+<text x="1596" y="1999" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#a47313">5V_SERVO</text>
+<circle cx="1550" cy="1992" r="6" fill="#f7f9fc" stroke="#a47313" stroke-width="2"/>
+<text x="1534" y="2056" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">OUT−</text>
+<circle cx="1550" cy="2048" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<polyline points="1550,2048 1588,2048" fill="none" stroke="#596374" stroke-width="3" stroke-linejoin="round"/>
+<text x="1596" y="2055" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="22" font-weight="400" fill="#596374">GND</text>
+<circle cx="1550" cy="2048" r="6" fill="#f7f9fc" stroke="#596374" stroke-width="2"/>
+<text x="876" y="2102" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#a47313">四舵机各自：V+→5V_SERVO</text>
+<text x="876" y="2146" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#245cbd">GND→GND；S→A.PB6/7/8/9</text>
+<text x="876" y="2192" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#596374">电源能力／电压按实际型号确认</text>
+<text x="876" y="2238" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24" font-weight="400" fill="#bb3540">舵机动力不经主控供电排针</text>
+<rect x="60" y="2440" width="2320" height="235" rx="12" fill="#fff1da" stroke="#debd83" stroke-width="2"/>
+<text x="86" y="2490" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="27" font-weight="700" fill="#7552a5">* ENC_VCC：若厂家确认3.3V供电且B稳压器余量足够，接3V3_B；否则核实供电及A/B电平转换。</text>
+<text x="86" y="2538" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26" font-weight="400" fill="#bb3540">新候选单升压30W MAX不足四机；两块各供一驱动板仍需验证26.4W/组持续、低电压、起步和散热。</text>
+<text x="86" y="2586" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26" font-weight="400" fill="#bb3540">双升压输出不得直接并联；原1.5A小板也不足。MG370堵转6.2A超过TB6612瞬时能力。</text>
+<text x="86" y="2634" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26" font-weight="400" fill="#596374">2S2P仅备选，电压仍7.4/8.4V；电池／电池盒能力待核实。动力接线不经面包板或核心板。</text>
+<text x="60" y="2720" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26" font-weight="400" fill="#596374">模块按功能端子连接，非实物排针顺序；所有GND，包括主控、驱动、电机编码器和舵机，必须共地。</text>
+</svg>

@@ -1,0 +1,338 @@
+{
+  "signals": {
+    "ports": [
+      "PS2.DAT",
+      "A.PB14",
+      "PS2.CMD",
+      "A.PB15",
+      "PS2.CS/ATT",
+      "A.PB12",
+      "PS2.CLK",
+      "A.PB13",
+      "PS2.VCC",
+      "PS2.GND",
+      "A.PB6",
+      "SERVO1.S",
+      "SERVO1.V+",
+      "SERVO1.GND",
+      "A.PB7",
+      "SERVO2.S",
+      "SERVO2.V+",
+      "SERVO2.GND",
+      "A.PB8",
+      "SERVO3.S",
+      "SERVO3.V+",
+      "SERVO3.GND",
+      "A.PB9",
+      "SERVO4.S",
+      "SERVO4.V+",
+      "SERVO4.GND",
+      "A.PB10",
+      "A.PB11",
+      "A.PA2",
+      "A.PA3",
+      "A.PA13",
+      "A.PA14",
+      "B.PA3",
+      "B.PA2",
+      "B.PB6",
+      "D1.PWMA",
+      "B.PB0",
+      "D1.AIN1",
+      "B.PB1",
+      "D1.AIN2",
+      "B.PB7",
+      "D1.PWMB",
+      "B.PB3",
+      "D1.BIN1",
+      "B.PB4",
+      "D1.BIN2",
+      "D1.STBY",
+      "B.PB15",
+      "D1.VM",
+      "D1.VCC",
+      "D1.GND",
+      "D1.AO1",
+      "D1.AO2",
+      "D1.BO1",
+      "D1.BO2",
+      "M1.M+",
+      "M1.M−",
+      "M1.A",
+      "M1.B",
+      "M1.VCC",
+      "M1.GND",
+      "B.PA0",
+      "B.PA1",
+      "M2.M+",
+      "M2.M−",
+      "M2.A",
+      "M2.B",
+      "M2.VCC",
+      "M2.GND",
+      "B.PA6",
+      "B.PA7",
+      "B.PB8",
+      "D2.PWMA",
+      "B.PB5",
+      "D2.AIN1",
+      "B.PB12",
+      "D2.AIN2",
+      "B.PB9",
+      "D2.PWMB",
+      "B.PB13",
+      "D2.BIN1",
+      "B.PB14",
+      "D2.BIN2",
+      "D2.STBY",
+      "D2.VM",
+      "D2.VCC",
+      "D2.GND",
+      "D2.AO1",
+      "D2.AO2",
+      "D2.BO1",
+      "D2.BO2",
+      "M3.M+",
+      "M3.M−",
+      "M3.A",
+      "M3.B",
+      "M3.VCC",
+      "M3.GND",
+      "B.PA8",
+      "B.PA9",
+      "M4.M+",
+      "M4.M−",
+      "M4.A",
+      "M4.B",
+      "M4.VCC",
+      "M4.GND",
+      "B.PB10",
+      "B.PB11",
+      "B.PA13",
+      "B.PA14",
+      "ST.SWDIO",
+      "ST.SWCLK",
+      "ST.GND"
+    ],
+    "connections": [
+      {
+        "from": "PS2.DAT",
+        "to": "A.PB14"
+      },
+      {
+        "from": "PS2.CMD",
+        "to": "A.PB15"
+      },
+      {
+        "from": "PS2.CS/ATT",
+        "to": "A.PB12"
+      },
+      {
+        "from": "PS2.CLK",
+        "to": "A.PB13"
+      },
+      {
+        "from": "A.PB6",
+        "to": "SERVO1.S"
+      },
+      {
+        "from": "A.PB7",
+        "to": "SERVO2.S"
+      },
+      {
+        "from": "A.PB8",
+        "to": "SERVO3.S"
+      },
+      {
+        "from": "A.PB9",
+        "to": "SERVO4.S"
+      },
+      {
+        "from": "A.PA2",
+        "to": "B.PA3"
+      },
+      {
+        "from": "B.PA2",
+        "to": "A.PA3"
+      },
+      {
+        "from": "B.PB6",
+        "to": "D1.PWMA"
+      },
+      {
+        "from": "B.PB0",
+        "to": "D1.AIN1"
+      },
+      {
+        "from": "B.PB1",
+        "to": "D1.AIN2"
+      },
+      {
+        "from": "B.PB7",
+        "to": "D1.PWMB"
+      },
+      {
+        "from": "B.PB3",
+        "to": "D1.BIN1"
+      },
+      {
+        "from": "B.PB4",
+        "to": "D1.BIN2"
+      },
+      {
+        "from": "B.PB15",
+        "to": "D1.STBY"
+      },
+      {
+        "from": "D1.AO1",
+        "to": "M1.M+"
+      },
+      {
+        "from": "D1.AO2",
+        "to": "M1.M−"
+      },
+      {
+        "from": "M1.A",
+        "to": "B.PA0"
+      },
+      {
+        "from": "M1.B",
+        "to": "B.PA1"
+      },
+      {
+        "from": "D1.BO1",
+        "to": "M2.M+"
+      },
+      {
+        "from": "D1.BO2",
+        "to": "M2.M−"
+      },
+      {
+        "from": "M2.A",
+        "to": "B.PA6"
+      },
+      {
+        "from": "M2.B",
+        "to": "B.PA7"
+      },
+      {
+        "from": "B.PB8",
+        "to": "D2.PWMA"
+      },
+      {
+        "from": "B.PB5",
+        "to": "D2.AIN1"
+      },
+      {
+        "from": "B.PB12",
+        "to": "D2.AIN2"
+      },
+      {
+        "from": "B.PB9",
+        "to": "D2.PWMB"
+      },
+      {
+        "from": "B.PB13",
+        "to": "D2.BIN1"
+      },
+      {
+        "from": "B.PB14",
+        "to": "D2.BIN2"
+      },
+      {
+        "from": "B.PB15",
+        "to": "D2.STBY"
+      },
+      {
+        "from": "D2.AO1",
+        "to": "M3.M+"
+      },
+      {
+        "from": "D2.AO2",
+        "to": "M3.M−"
+      },
+      {
+        "from": "M3.A",
+        "to": "B.PA8"
+      },
+      {
+        "from": "M3.B",
+        "to": "B.PA9"
+      },
+      {
+        "from": "D2.BO1",
+        "to": "M4.M+"
+      },
+      {
+        "from": "D2.BO2",
+        "to": "M4.M−"
+      },
+      {
+        "from": "M4.A",
+        "to": "B.PB10"
+      },
+      {
+        "from": "M4.B",
+        "to": "B.PB11"
+      },
+      {
+        "from": "B.PA13",
+        "to": "ST.SWDIO"
+      },
+      {
+        "from": "B.PA14",
+        "to": "ST.SWCLK"
+      }
+    ]
+  },
+  "power": {
+    "ports": [
+      "BAT.+",
+      "BAT.-",
+      "BOOST.IN+",
+      "BOOST.IN-",
+      "BOOST.OUT+",
+      "BOOST.OUT-",
+      "CTRL.IN+",
+      "CTRL.IN-",
+      "CTRL.OUT+",
+      "CTRL.OUT-",
+      "A.5V",
+      "A.GND",
+      "A.3V3",
+      "B.5V",
+      "B.GND",
+      "B.3V3",
+      "PS2.5V",
+      "PS2.GND",
+      "D1.VM",
+      "D1.VCC",
+      "D1.GND",
+      "D2.VM",
+      "D2.VCC",
+      "D2.GND",
+      "M1.VCC",
+      "M1.GND",
+      "M2.VCC",
+      "M2.GND",
+      "M3.VCC",
+      "M3.GND",
+      "M4.VCC",
+      "M4.GND",
+      "SERVOPOWER.IN+",
+      "SERVOPOWER.IN-",
+      "SERVOPOWER.OUT+",
+      "SERVOPOWER.OUT-"
+    ],
+    "connections": [
+      {
+        "from": "BAT.+",
+        "to": "BOOST.IN+"
+      },
+      {
+        "from": "BAT.-",
+        "to": "BOOST.IN-"
+      }
+    ]
+  }
+}
