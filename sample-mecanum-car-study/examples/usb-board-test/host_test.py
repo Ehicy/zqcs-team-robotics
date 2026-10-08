@@ -49,7 +49,8 @@ def exchange(conn, command, expected=None):
 
 def identify(conn):
     reply = exchange(conn, 'INFO')
-    if not reply.startswith('INFO firmware=usb-board-test-v1 '):
+    if not reply.startswith(('INFO firmware=usb-board-test-v1 ',
+                             'INFO firmware=usb-slave-test-v1 ')):
         raise ValueError(f'{conn.port}: unexpected firmware: {reply!r}')
     match = re.search(r' uid=([0-9A-F]{24})(?: |$)', reply)
     if not match:
@@ -116,11 +117,15 @@ def main():
         else:
             result['usb'] = usb_check(first)
             if args.peer_port:
+                if 'firmware=usb-board-test-v1 ' not in result['info_before']:
+                    raise ValueError('Raw transfer test needs two bridge boards; use slave_test.py for master/slave')
                 peer = select_port(ports, args.peer_port)
                 if peer.device.casefold() == selected.device.casefold():
                     raise ValueError('The two ports must be different boards')
                 with open_board(peer) as second:
                     peer_uid, peer_info = identify(second)
+                    if 'firmware=usb-board-test-v1 ' not in peer_info:
+                        raise ValueError('Peer is a slave; use slave_test.py for master/slave')
                     if uid == peer_uid:
                         raise ValueError('The two boards returned the same UID')
                     result['peer'] = {'port': peer.device, 'uid': peer_uid, 'info': peer_info}

@@ -1,6 +1,10 @@
 /* Independent bench diagnostic. No motor/servo/PS2/IMU control. */
 #include "stm32f1xx.h"
 #include "tusb.h"
+#include "board_config.h"
+#if USB_TEST_SLAVE
+#include "slave_protocol.h"
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -20,6 +24,13 @@ static char usb_line[128], uart_line[128];
 static uint16_t usb_line_len, uart_line_len;
 static bool usb_line_overflow, uart_line_overflow;
 static bool manual_led, led_on;
+#if USB_TEST_SLAVE
+volatile uint32_t usb_test_uart_requests;
+volatile uint32_t usb_test_uart_bad_frames;
+static bool reply_to_uart, uart_reply_overflow;
+static char uart_reply[128];
+static unsigned uart_reply_len;
+#endif
 
 /* Called before .data/.bss initialization by the existing GNU startup. */
 void SystemInit(void)
@@ -75,9 +86,34 @@ void USART2_IRQHandler(void)
     }
 }
 
+static bool uart_enqueue(const char *text, unsigned length, bool newline)
+{
+    unsigned free = (uart_tx_tail - uart_tx_head - 1U) & 255U;
+    if (length + (newline ? 2U : 0U) > free) return false;
+    for (unsigned i = 0; i < length; ++i) {
+        uart_tx[uart_tx_head] = (uint8_t)text[i];
+        uart_tx_head = (uint16_t)((uart_tx_head + 1U) & 255U);
+    }
+    if (newline) {
+        uart_tx[uart_tx_head] = '\r'; uart_tx_head = (uint16_t)((uart_tx_head + 1U) & 255U);
+        uart_tx[uart_tx_head] = '\n'; uart_tx_head = (uint16_t)((uart_tx_head + 1U) & 255U);
+    }
+    return true;
+}
+
 static void usb_write(const char *text)
 {
     uint32_t length = (uint32_t)strlen(text);
+#if USB_TEST_SLAVE
+    if (reply_to_uart) {
+        if (length > sizeof(uart_reply) - uart_reply_len) uart_reply_overflow = true;
+        else {
+            memcpy(uart_reply + uart_reply_len, text, length);
+            uart_reply_len += length;
+        }
+        return;
+    }
+#endif
     if (tud_cdc_write(text, length) != length) ++usb_test_output_drops;
 }
 
@@ -100,13 +136,28 @@ static void usb_u32(uint32_t value, bool hex)
 
 static void info(void)
 {
-    usb_write("INFO firmware=usb-board-test-v1 uid=");
+    usb_write("INFO firmware=" BOARD_TEST_FIRMWARE);
+#if USB_TEST_SLAVE
+    usb_write(" role=slave");
+#endif
+    usb_write(" uid=");
     const volatile uint32_t *uid = (const volatile uint32_t *)UID_BASE;
     for (unsigned i = 0; i < 3; ++i) usb_u32(uid[i], true);
-    usb_write(" uptime_ms="); usb_u32(usb_test_ticks, false);
-    usb_write(" uart_rx="); usb_u32(usb_test_uart_rx_bytes, false);
-    usb_write(" uart_errors="); usb_u32(usb_test_uart_overruns, false);
-    usb_write(" usb_drops="); usb_u32(usb_test_output_drops, false);
+#if USB_TEST_SLAVE
+    /* Keep UART INFO + RSP header within the original master's 127-byte limit. */
+    if (!reply_to_uart) {
+#endif
+        usb_write(" uptime_ms="); usb_u32(usb_test_ticks, false);
+        usb_write(" uart_rx="); usb_u32(usb_test_uart_rx_bytes, false);
+        usb_write(" uart_errors="); usb_u32(usb_test_uart_overruns, false);
+        usb_write(" usb_drops="); usb_u32(usb_test_output_drops, false);
+#if USB_TEST_SLAVE
+        usb_write(" uart_requests="); usb_u32(usb_test_uart_requests, false);
+        usb_write(" bad_frames="); usb_u32(usb_test_uart_bad_frames, false);
+    } else {
+        usb_write(" uart_errors="); usb_u32(usb_test_uart_overruns, false);
+    }
+#endif
     usb_write(" led="); usb_write(led_on ? "1" : "0");
     usb_write("\r\n");
 }
@@ -127,23 +178,41 @@ static void command(const char *line)
     } else if (!strcmp(line, "LED AUTO")) {
         manual_led = false; usb_write("OK LED AUTO\r\n");
     } else if (!strncmp(line, "UART ", 5)) {
+#if USB_TEST_SLAVE
+        if (reply_to_uart) {
+            usb_write("ERR COMMAND\r\n");
+            return;
+        }
+#endif
         const char *payload = line + 5;
         unsigned length = (unsigned)strlen(payload);
-        unsigned free = (uart_tx_tail - uart_tx_head - 1U) & 255U;
-        if (length + 2U > free) usb_write("ERR UART BUSY\r\n");
-        else {
-            for (unsigned i = 0; i < length; ++i) {
-                uart_tx[uart_tx_head] = (uint8_t)payload[i];
-                uart_tx_head = (uint16_t)((uart_tx_head + 1U) & 255U);
-            }
-            uart_tx[uart_tx_head] = '\r'; uart_tx_head = (uint16_t)((uart_tx_head + 1U) & 255U);
-            uart_tx[uart_tx_head] = '\n'; uart_tx_head = (uint16_t)((uart_tx_head + 1U) & 255U);
-            usb_write("OK UART QUEUED\r\n");
-        }
+        if (!uart_enqueue(payload, length, true)) usb_write("ERR UART BUSY\r\n");
+        else usb_write("OK UART QUEUED\r\n");
     } else if (!strcmp(line, "HELP")) {
         usb_write("PING | INFO | ECHO text | LED ON/OFF/TOGGLE/AUTO | UART text\r\n");
     } else usb_write("ERR COMMAND\r\n");
 }
+
+#if USB_TEST_SLAVE
+static void slave_request(const char *line)
+{
+    uint32_t sequence;
+    const char *payload;
+    if (!slave_parse_request(line, &sequence, &payload)) {
+        ++usb_test_uart_bad_frames;
+        return;
+    }
+    ++usb_test_uart_requests;
+    uart_reply_len = 0;
+    uart_reply_overflow = false;
+    reply_to_uart = true;
+    usb_write("RSP "); usb_u32(sequence, true); usb_write(" ");
+    command(payload);
+    reply_to_uart = false;
+    if (uart_reply_overflow || !uart_enqueue(uart_reply, uart_reply_len, false))
+        ++usb_test_uart_overruns;
+}
+#endif
 
 static void usb_poll(void)
 {
@@ -178,6 +247,13 @@ static void uart_poll(void)
         uart_rx_tail = (uint16_t)((uart_rx_tail + 1U) & 255U);
         if (c == '\r') continue;
         if (c == '\n') {
+#if USB_TEST_SLAVE
+            if (uart_line_overflow) ++usb_test_uart_bad_frames;
+            else if (uart_line_len) {
+                uart_line[uart_line_len] = 0;
+                slave_request(uart_line);
+            }
+#else
             if (tud_cdc_connected()) {
                 if (uart_line_overflow) usb_write("ERR UART LINE TOO LONG\r\n");
                 else if (uart_line_len) {
@@ -185,6 +261,7 @@ static void uart_poll(void)
                     usb_write("UART_RX "); usb_write(uart_line); usb_write("\r\n");
                 }
             }
+#endif
             uart_line_len = 0; uart_line_overflow = false;
         } else if (uart_line_len < sizeof(uart_line) - 1U && c != 0)
             uart_line[uart_line_len++] = c;

@@ -1,6 +1,6 @@
 # 两块 F103 的 USB / 串口台架测试
 
-这份程序用于两块独立的 STM32F103C8T6 测试板。两块可以烧同一个 HEX，各自用芯片唯一编号区分。它提供 USB 虚拟串口、PC13 灯控制和 USART2 转发，不是底盘控制固件。
+这份程序用于两块独立的 STM32F103C8T6 测试板。用户已指定第一块作为主板、下一块作为副板：主板运行已经实测的 USB / 串口转发固件，副板烧录单独的命令应答固件。电脑通过主板控制副板的 PC13 灯，并读取副板芯片编号；两块用各自的芯片唯一编号区分。
 
 ## 1. 先连第一块
 
@@ -47,9 +47,13 @@ python examples/usb-board-test/host_test.py --port COM7 --report build/usb-board
 
 `LED ON/OFF/TOGGLE` 后自动闪灯暂停。单条输入最多 127 字节，不含末尾换行。`OK UART QUEUED` 只代表已排入发送队列，必须在对面收到 `UART_RX hello` 才算链路通过。
 
-## 3. 第二块与双板通信
+## 3. 副板与主副板通信
 
-先把第二块单独烧录、接 USB，验证能识别；两块的 UID 不同，Windows 会为它们分配各自的 COM 口。随后断电接三根信号线：
+副板固件已生成：`build/usb-slave-test/usb-slave-test.hex`。当前只是准备代码、编译和软件测试，**第二块尚未烧录或实测**。主板现有 `usb-board-test-v1` 就能配合，主板 UID 为 `02430207505400113638414E`，当前端口 COM3。
+
+下一步先断电，把 ST-Link 的 SWDIO、SWCLK、GND 接到第二块对应接口；副板可选择 USB 或 ST-Link 3.3V 单独供电。读取第二块 UID，确认不等于上述主板，再备份、下载副板 HEX、校验并复位。接 USB 时移除 ST-Link 的供电线。副板 USB 产品名为 `F103 USB Slave Test`，仍使用 `CAFE:4001`。
+
+烧录后，断电接三根板间信号线：
 
 | 第一块 A | 第二块 B |
 |---|---|
@@ -57,13 +61,31 @@ python examples/usb-board-test/host_test.py --port COM7 --report build/usb-board
 | PA3（RX） | PA2（TX） |
 | GND | GND |
 
-两块分别用自己的 USB 供电；**不要把两块的 3V3 输出相连，也不要把 PA2 接 PA2。** 这里的 USART2 是 3.3V TTL，不能接 RS-232 电平。
+主板用自己的 USB 连接电脑。副板可由自己的 USB 或 ST-Link 3.3V 独立供电，串口指令不依赖副板 USB 连电脑。**不要把两块的 3V3 输出相连，也不要把 PA2 接 PA2。** 这里的 USART2 是 3.3V TTL，不能接 RS-232 电平。
 
 ```powershell
-python examples/usb-board-test/host_test.py --port COM7 --peer-port COM8 --report build/usb-board-test/dual-report.json
+& 'D:/DEVELOP/CQU_AI/tools/usb-test-venv/Scripts/python.exe' examples/usb-board-test/slave_test.py --port COM3 --master-uid 02430207505400113638414E --report build/usb-slave-test/link-report.json
 ```
 
-脚本检查两块 USB，并各方向发送 10 条串口消息。程序把收到的串口行报告给电脑，不会再从串口自动发回，避免循环转发。此测试尚不包含底盘控制、通信失联保护或 PID。
+脚本先查询副板，要求返回副板固件名称及不同于主板的 UID，再检查 100 次请求应答、100 次文本回传、灯状态、无效报文后的恢复，以及两板串口错误计数。正确运行结果为 `PASS`；接线/供电/固件缺失时会超时或报错，`OK UART QUEUED` 不能作为双板通过的依据。
+
+单独控制副板灯：
+
+```powershell
+& 'D:/DEVELOP/CQU_AI/tools/usb-test-venv/Scripts/python.exe' examples/usb-board-test/slave_test.py --port COM3 --command 'LED TOGGLE'
+```
+
+也可以在主板串口工具里发送一行：
+
+```text
+UART REQ 00000001 LED TOGGLE
+```
+
+主板先回复 `OK UART QUEUED`；副板执行后，主板收到并报告 `UART_RX RSP 00000001 OK LED 1`（或 `0`）。没有 `UART REQ ...` 前缀的 `LED TOGGLE` 仍控制主板自己的灯。
+
+板间格式为 `REQ <8位非零十六进制编号> <命令>`，响应为 `RSP <相同编号> <结果>`，每行以回车换行结束。副板接受 PING、INFO/ID、ECHO、LED 命令及 HELP，忽略无效编号、非请求行和过长行。它不会执行收到的响应行，也不会通过请求再次转发 UART 命令。
+
+UART 的 INFO 返回固件、角色、UID、错误计数和灯状态；USB 的 INFO 另含运行时间与收发统计。这个台架协议用于通信和灯控制，尚未连接电机、实现新底盘控制或失联停车。原 `host_test.py --peer-port` 仅用于两块都运行转发固件的测试。
 
 ## 4. 重新编译
 
@@ -80,12 +102,18 @@ python examples/usb-board-test/host_test.py --port COM7 --peer-port COM8 --repor
 python build_usb_test.py --toolchain D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin --tinyusb D:/DEVELOP/CQU_AI/tools/tinyusb-0.18.0 --cmsis-device D:/DEVELOP/CQU_AI/tools/cmsis-device-f1 --cmsis-core D:/DEVELOP/CQU_AI/tools/cmsis-core-5.9.0
 ```
 
-输出 ELF、HEX、BIN、MAP 和包含依赖版本、头文件及固件 SHA256 的 `manifest.json`。构建严格限制在 C8 的 64KiB Flash / 20KiB RAM，并至少留 2KiB 栈；不依赖下载器报告的额外 Flash 容量。构建脚本不操作硬件。
+默认 `--role bridge` 构建主板转发版。构建副板时追加 `--role slave`：
+
+```powershell
+python build_usb_test.py --role slave --toolchain D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin --tinyusb D:/DEVELOP/CQU_AI/tools/tinyusb-0.18.0 --cmsis-device D:/DEVELOP/CQU_AI/tools/cmsis-device-f1 --cmsis-core D:/DEVELOP/CQU_AI/tools/cmsis-core-5.9.0
+```
+
+两种角色分别输出到 `build/usb-board-test/` 和 `build/usb-slave-test/`，各含 ELF、HEX、BIN、MAP 及包含依赖版本、头文件和固件 SHA256 的 `manifest.json`。构建严格限制在 C8 的 64KiB Flash / 20KiB RAM，并至少留 2KiB 栈；不依赖下载器报告的额外 Flash 容量。构建脚本不操作硬件。
 
 下载示例（先核对目标板）：
 
 ```powershell
-& 'D:/programe/stm32/bin/STM32_Programmer_CLI.exe' -c port=SWD freq=240 mode=NORMAL -w build/usb-board-test/usb-board-test.hex -v -rst
+& 'D:/programe/stm32/bin/STM32_Programmer_CLI.exe' -c port=SWD freq=240 mode=NORMAL -w build/usb-slave-test/usb-slave-test.hex -v -rst
 ```
 
 软件用到 PA11/PA12（USB）、PA2/PA3（USART2）、PC13（灯），保留 PA13/PA14 的 SWD。双 F103 规划里也采用 USART2，可复用这三根板间通信线。测试固件不会初始化电机、舵机、PS2 或 IMU。

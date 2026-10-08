@@ -4,6 +4,7 @@
  */
 #include "stm32f1xx.h"
 #include "tusb.h"
+#include "board_config.h"
 #include <string.h>
 
 /* Upstream example identifiers, for local laboratory tests only. */
@@ -45,7 +46,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 {
     static uint16_t descriptor[40];
     static const char *const names[] = {
-        "", "ZQCS Lab", "F103 USB Board Test", "", "USB diagnostics"
+        "", "ZQCS Lab", BOARD_TEST_PRODUCT, "", "USB diagnostics"
     };
     static const char hex[] = "0123456789ABCDEF";
     uint8_t count = 0;

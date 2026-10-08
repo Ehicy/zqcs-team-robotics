@@ -37,3 +37,17 @@ b5a41c3758763bbec72769fab4a2533bf2db0b6312d93d25a695f9e4b9e02260
 本机原始日志与备份位于 `build/usb-test-board1-20261008/`，USB 实测报告为其中的 `usb-report.json`（2026-10-08 23:53:04，UTC+8），构建产物及依赖哈希位于 `build/usb-board-test/manifest.json`，均为本地忽略文件。源代码、命令及接线步骤见[测试教程](../examples/usb-board-test/README.zh-CN.md)。
 
 编译、下载、Flash 一致性、启动及 USB 主机收发均已通过。实际灯状态由用户目测确认；第二块及双板通信需要完成对应接线后验收。
+
+## 主副板测试程序准备
+
+用户后续指定第一块作为主板、第二块作为副板。第一块保留已烧录的 `c41e2e5` 版本；本轮读取 COM3 的 INFO 正常，UID 匹配，错误计数仍为 0。
+
+副板角色通过 `build_usb_test.py --role slave` 构建，固件 `usb-slave-test-v1`，Flash 13248 字节、静态 RAM 3148 字节，符合 64KiB / 20KiB 限制。BIN SHA256：
+
+```text
+a79acd0e0fd941db4efddd16874d5cbb88c6ae7d9a1be2b99a3b296ffe3bf568
+```
+
+主机测试直接编译并调用固件的 `slave_protocol.c`：有效请求、最大/大小写编号、0 编号、错误格式、逐字节截断、非请求响应等测试通过。主板角色也已重新编译验证；本轮未操作下载器、未烧任何板。
+
+现有主板原 Flash 实测读回仍保存在 `build/usb-test-board1-20261008/readback.bin`，上文首次烧录 SHA256 对应此文件。源码扩展后重新构建的主板 BIN 可不同，不能当作本轮已烧录。第二块与 `slave_test.py` 的双板实测结果仍待完成。

@@ -12,8 +12,10 @@ parser.add_argument('--toolchain', type=Path, required=True)
 parser.add_argument('--tinyusb', type=Path, required=True)
 parser.add_argument('--cmsis-device', type=Path, required=True)
 parser.add_argument('--cmsis-core', type=Path, required=True)
+parser.add_argument('--role', choices=['bridge', 'slave'], default='bridge')
 args = parser.parse_args()
-out = ROOT / 'build/usb-board-test'
+basename = 'usb-slave-test' if args.role == 'slave' else 'usb-board-test'
+out = ROOT / 'build' / basename
 out.mkdir(parents=True, exist_ok=True)
 
 def pinned_commit(directory, expected):
@@ -40,6 +42,9 @@ flags = ['-mcpu=cortex-m3', '-mthumb', '-mfloat-abi=soft', '-std=gnu11', '-Os', 
          '-DSTM32F103xB', '-I' + str(app), '-I' + str(args.tinyusb / 'src'),
          '-I' + str(args.cmsis_device / 'Include'), '-I' + str(args.cmsis_core / 'Include')]
 sources = [app / 'main.c', app / 'usb_descriptors.c', ROOT / 'gcc/startup_stm32f103.S']
+if args.role == 'slave':
+    flags += ['-DUSB_TEST_SLAVE=1']
+    sources += [app / 'slave_protocol.c']
 sources += [args.tinyusb / 'src' / x for x in
             ['tusb.c', 'common/tusb_fifo.c', 'device/usbd.c', 'device/usbd_control.c',
              'class/cdc/cdc_device.c', 'portable/st/stm32_fsdev/dcd_stm32_fsdev.c']]
@@ -49,14 +54,15 @@ for i, source in enumerate(sources):
     strict = ['-Werror'] if source.parent == app else []
     subprocess.run([tool('gcc'), *flags, *strict, '-c', str(source), '-o', str(obj)], check=True)
     objects.append(str(obj))
-elf = out / 'usb-board-test.elf'
+elf = out / (basename + '.elf')
 subprocess.run([tool('gcc'), *flags, '-nostdlib', '-T' + str(ROOT / 'gcc/stm32f103c8.ld'),
                 '-Wl,--gc-sections', '-Wl,-Map=' + str(elf.with_suffix('.map')),
                 *objects, '-Wl,--start-group', '-lc', '-lgcc', '-Wl,--end-group', '-o', str(elf)], check=True)
 for fmt, suffix in [('ihex', '.hex'), ('binary', '.bin')]:
     subprocess.run([tool('objcopy'), '-O', fmt, str(elf), str(elf.with_suffix(suffix))], check=True)
 subprocess.run([tool('size'), str(elf)], check=True)
-manifest = {'firmware': 'usb-board-test-v1', 'flash_limit': 65536, 'ram_limit': 20480,
+manifest = {'firmware': basename + '-v1', 'role': args.role,
+            'flash_limit': 65536, 'ram_limit': 20480,
             'tinyusb_commit': tinyusb_commit, 'cmsis_device_commit': cmsis_device_commit,
             'compiler': subprocess.check_output([tool('gcc'), '--version'], text=True).splitlines()[0],
             'cmsis_core_headers': {name: hashlib.sha256(
