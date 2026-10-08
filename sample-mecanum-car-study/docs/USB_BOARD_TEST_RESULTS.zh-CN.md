@@ -51,3 +51,13 @@ a79acd0e0fd941db4efddd16874d5cbb88c6ae7d9a1be2b99a3b296ffe3bf568
 主机测试直接编译并调用固件的 `slave_protocol.c`：有效请求、最大/大小写编号、0 编号、错误格式、逐字节截断、非请求响应等测试通过。主板角色也已重新编译验证；本轮未操作下载器、未烧任何板。
 
 现有主板原 Flash 实测读回仍保存在 `build/usb-test-board1-20261008/readback.bin`，上文首次烧录 SHA256 对应此文件。源码扩展后重新构建的主板 BIN 可不同，不能当作本轮已烧录。第二块与 `slave_test.py` 的双板实测结果仍待完成。
+
+## 主板转发版再次烧录
+
+用户随后要求直接烧好主板，再换接副板；减少重复验证。通过 SWD 读取 UID，确认仍是主板 `02430207505400113638414E` 后，下载提交 `f6f9e7d` 构建的 `usb-board-test-v1` 主板转发版，CubeProgrammer 校验成功并软件复位。BIN 长度 12888 字节，SHA256：
+
+```text
+85e93bcc3683a081a25f180f866a59ab4a2bed14bf62b4fa0b9dfd0e0c474dad
+```
+
+日志位于 `build/usb-test-board1-20261008/master-role-flash.log`。此次仅核对目标板并使用下载器校验，未做新的独立读回或重复大量 USB 测试。副板仍待用户换接后下载及简短实测。
