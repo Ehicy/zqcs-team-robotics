@@ -49,7 +49,7 @@ python examples/usb-board-test/host_test.py --port COM7 --report build/usb-board
 
 ## 3. 副板与主副板通信
 
-副板固件已生成：`build/usb-slave-test/usb-slave-test.hex`。当前只是准备代码、编译和软件测试，**第二块尚未烧录或实测**。主板现有 `usb-board-test-v1` 就能配合，主板 UID 为 `02430207505400113638414E`，当前端口 COM3。
+副板固件为 `build/usb-slave-test/usb-slave-test.hex`，2026-10-09 已烧录并校验成功；UID `02040200505400193638414E`，曾枚举为 COM4。主板 `usb-board-test-v1` 也已烧录并校验，UID 为 `02430207505400113638414E`，已分配端口 COM3。已通过主板 COM3 实测串口 PONG、副板编号查询及副板灯切换，简短测试 PASS；独立副板 USB 收发未单独完成。
 
 下一步先断电，把 ST-Link 的 SWDIO、SWCLK、GND 接到第二块对应接口；副板可选择 USB 或 ST-Link 3.3V 单独供电。读取第二块 UID，确认不等于上述主板，再备份、下载副板 HEX、校验并复位。接 USB 时移除 ST-Link 的供电线。副板 USB 产品名为 `F103 USB Slave Test`，仍使用 `CAFE:4001`。
 
@@ -67,7 +67,9 @@ python examples/usb-board-test/host_test.py --port COM7 --report build/usb-board
 & 'D:/DEVELOP/CQU_AI/tools/usb-test-venv/Scripts/python.exe' examples/usb-board-test/slave_test.py --port COM3 --master-uid 02430207505400113638414E --report build/usb-slave-test/link-report.json
 ```
 
-脚本先查询副板，要求返回副板固件名称及不同于主板的 UID，再检查 100 次请求应答、100 次文本回传、灯状态、无效报文后的恢复，以及两板串口错误计数。正确运行结果为 `PASS`；接线/供电/固件缺失时会超时或报错，`OK UART QUEUED` 不能作为双板通过的依据。
+完整测试脚本先查询副板，要求返回副板固件名称及不同于主板的 UID，再检查 100 次请求应答、100 次文本回传、灯状态、无效报文后的恢复，以及两板串口错误计数。用户当前要求简短验证，优先用下面的 `--command 'LED TOGGLE'`，一次查询编号、灯控和状态即可。正确运行结果为 `PASS`；接线/供电/固件缺失时会超时或报错，`OK UART QUEUED` 不能作为双板通过的依据。
+
+错误计数从上电开始累积，换线时可能留下旧错误。`slave_test.py` 记录前后读数，要求本次 UART / USB 错误不增加；不会把历史计数清零或隐藏。当前简短测试：主板历史 UART 错误2，副板0，本次各项新增错误均0。
 
 单独控制副板灯：
 

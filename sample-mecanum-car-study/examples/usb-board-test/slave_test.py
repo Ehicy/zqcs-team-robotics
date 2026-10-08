@@ -30,6 +30,13 @@ class SlaveLink:
         return reply
 
 
+def counter(info, name):
+    match = re.search(r'(?:^| )' + re.escape(name) + r'=(\d+)(?: |$)', info)
+    if not match:
+        raise ValueError(f'Missing {name} counter: {info}')
+    return int(match.group(1))
+
+
 def identify_slave(link, master_uid, expected_uid):
     reply = link.request('INFO')
     if not reply.startswith('INFO firmware=usb-slave-test-v1 role=slave '):
@@ -92,15 +99,23 @@ def main():
             link, master_uid, args.slave_uid)
         if args.command:
             result['reply'] = link.request(args.command)
+            if result['reply'].startswith('ERR '):
+                raise ValueError('Slave rejected command: ' + result['reply'])
         else:
             result['checks'] = check_slave(link)
         result['slave_info_after'] = link.request('INFO')
         result['master_info_after'] = exchange(master, 'INFO')
-        if ' uart_errors=0 ' not in result['slave_info_after']:
-            raise ValueError('Slave UART errors: ' + result['slave_info_after'])
-        if (' uart_errors=0 ' not in result['master_info_after'] or
-                ' usb_drops=0 ' not in result['master_info_after']):
-            raise ValueError('Master communication errors: ' + result['master_info_after'])
+        # Counters accumulate since boot; hot-plugging can leave earlier errors.
+        # Preserve the before/after readings and require no new errors in this run.
+        result['new_errors'] = {
+            'slave_uart': counter(result['slave_info_after'], 'uart_errors') -
+                          counter(result['slave_info_before'], 'uart_errors'),
+            'master_uart': counter(result['master_info_after'], 'uart_errors') -
+                           counter(result['master_info_before'], 'uart_errors'),
+            'master_usb': counter(result['master_info_after'], 'usb_drops') -
+                          counter(result['master_info_before'], 'usb_drops')}
+        if any(result['new_errors'].values()):
+            raise ValueError('Error counters changed during test: ' + str(result['new_errors']))
         result['status'] = 'PASS'
     output = json.dumps(result, indent=2, ensure_ascii=False) + '\n'
     if args.report:
