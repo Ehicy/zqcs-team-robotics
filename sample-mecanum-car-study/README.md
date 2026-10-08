@@ -22,6 +22,8 @@
 
 新增独立 GNU 构建入口：`python build_firmware.py --toolchain <Arm GNU bin目录>`，输出 `build/crtc-motor.hex`。原 Keil 工程保留。
 
+2026-10-08 新增[独立 USB / 双 F103 串口测试](examples/usb-board-test/README.zh-CN.md)，单独运行 `build_usb_test.py` 构建。第一块已通过 ST-Link 下载、校验、运行检查及 COM3 的 USB 收发实测；第二块与板间串口待接线验收。记录见 [USB 测试烧录记录](docs/USB_BOARD_TEST_RESULTS.zh-CN.md)。
+
 以下保留原项目简介和历史材料清单；末尾引脚表已更新为当前 DRV8833 代码的接线。
 
 ---
