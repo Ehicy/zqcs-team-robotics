@@ -55,7 +55,8 @@ for i, source in enumerate(sources):
     subprocess.run([tool('gcc'), *flags, *strict, '-c', str(source), '-o', str(obj)], check=True)
     objects.append(str(obj))
 elf = out / (basename + '.elf')
-subprocess.run([tool('gcc'), *flags, '-nostdlib', '-T' + str(ROOT / 'gcc/stm32f103c8.ld'),
+linker_script = app / 'stm32f103c8.ld'
+subprocess.run([tool('gcc'), *flags, '-nostdlib', '-T' + str(linker_script),
                 '-Wl,--gc-sections', '-Wl,-Map=' + str(elf.with_suffix('.map')),
                 *objects, '-Wl,--start-group', '-lc', '-lgcc', '-Wl,--end-group', '-o', str(elf)], check=True)
 for fmt, suffix in [('ihex', '.hex'), ('binary', '.bin')]:
@@ -63,6 +64,7 @@ for fmt, suffix in [('ihex', '.hex'), ('binary', '.bin')]:
 subprocess.run([tool('size'), str(elf)], check=True)
 manifest = {'firmware': basename + '-v1', 'role': args.role,
             'flash_limit': 65536, 'ram_limit': 20480,
+            'linker_script_sha256': hashlib.sha256(linker_script.read_bytes()).hexdigest(),
             'tinyusb_commit': tinyusb_commit, 'cmsis_device_commit': cmsis_device_commit,
             'compiler': subprocess.check_output([tool('gcc'), '--version'], text=True).splitlines()[0],
             'cmsis_core_headers': {name: hashlib.sha256(

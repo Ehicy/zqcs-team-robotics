@@ -2,6 +2,8 @@
 
 这份程序用于两块独立的 STM32F103C8T6 测试板。用户已指定第一块作为主板、下一块作为副板：主板运行已经实测的 USB / 串口转发固件，副板烧录单独的命令应答固件。电脑通过主板控制副板的 PC13 灯，并读取副板芯片编号；两块用各自的芯片唯一编号区分。
 
+双机联动、运行接线与 USB 烧录规划见[方案说明](../../docs/DUAL_F103_USB_PROGRAMMING.zh-CN.md)。**当前 USB 是 CDC 通信接口，两板已通过 ST-Link 烧录；经主板 USB 烧录副板及主板 USB 自升级均尚未实现。**
+
 ## 1. 先连第一块
 
 1. 只接 ST-Link：SWDIO→PA13、SWCLK→PA14、GND→GND；板未另行供电时，可由 ST-Link 的 3.3V 接核心板 3V3 供电。不要把 5V 接到 3V3。
@@ -51,7 +53,7 @@ python examples/usb-board-test/host_test.py --port COM7 --report build/usb-board
 
 副板固件为 `build/usb-slave-test/usb-slave-test.hex`，2026-10-09 已烧录并校验成功；UID `02040200505400193638414E`，曾枚举为 COM4。主板 `usb-board-test-v1` 也已烧录并校验，UID 为 `02430207505400113638414E`，已分配端口 COM3。已通过主板 COM3 实测串口 PONG、副板编号查询及副板灯切换，简短测试 PASS；独立副板 USB 收发未单独完成。
 
-下一步先断电，把 ST-Link 的 SWDIO、SWCLK、GND 接到第二块对应接口；副板可选择 USB 或 ST-Link 3.3V 单独供电。读取第二块 UID，确认不等于上述主板，再备份、下载副板 HEX、校验并复位。接 USB 时移除 ST-Link 的供电线。副板 USB 产品名为 `F103 USB Slave Test`，仍使用 `CAFE:4001`。
+首次部署或更换副板时，先断电，把 ST-Link 的 SWDIO、SWCLK、GND 接到第二块对应接口；副板可选择 USB 或 ST-Link 3.3V 单独供电。读取第二块 UID，确认不等于上述主板，再备份、下载副板 HEX、校验并复位。接 USB 时移除 ST-Link 的供电线。副板 USB 产品名为 `F103 USB Slave Test`，仍使用 `CAFE:4001`。
 
 烧录后，断电接三根板间信号线：
 
@@ -110,7 +112,7 @@ python build_usb_test.py --toolchain D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin --
 python build_usb_test.py --role slave --toolchain D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin --tinyusb D:/DEVELOP/CQU_AI/tools/tinyusb-0.18.0 --cmsis-device D:/DEVELOP/CQU_AI/tools/cmsis-device-f1 --cmsis-core D:/DEVELOP/CQU_AI/tools/cmsis-core-5.9.0
 ```
 
-两种角色分别输出到 `build/usb-board-test/` 和 `build/usb-slave-test/`，各含 ELF、HEX、BIN、MAP 及包含依赖版本、头文件和固件 SHA256 的 `manifest.json`。构建严格限制在 C8 的 64KiB Flash / 20KiB RAM，并至少留 2KiB 栈；不依赖下载器报告的额外 Flash 容量。构建脚本不操作硬件。
+两种角色分别输出到 `build/usb-board-test/` 和 `build/usb-slave-test/`，各含 ELF、HEX、BIN、MAP 及包含依赖版本、链接脚本、头文件和固件 SHA256 的 `manifest.json`。台架固件使用本目录独立的 `stm32f103c8.ld`，严格限制在 C8 的 64KiB Flash / 20KiB RAM，并至少留 2KiB 栈；不依赖下载器报告的额外 Flash 容量。原底盘链接脚本仍保留校准页。构建脚本不操作硬件。
 
 下载示例（先核对目标板）：
 

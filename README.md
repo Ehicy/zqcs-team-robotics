@@ -2,6 +2,13 @@
 
 上层车推送黄块，下层车使用翻转臂和夹爪收集、接料。项目背景与当前决策见 [PROJECT.md](PROJECT.md)。
 
+## 电控与双机测试
+
+- [双 F103 硬件分工与接线](sample-mecanum-car-study/docs/DUAL_F103_CHASSIS_WIRING.zh-CN.md)。
+- [双机联动教程与测试代码](sample-mecanum-car-study/examples/usb-board-test/README.zh-CN.md)：主板 USB 通信、USART2 请求应答、副板用户灯控制。
+- [USB 烧录方案及实现状态](sample-mecanum-car-study/docs/DUAL_F103_USB_PROGRAMMING.zh-CN.md)：两板当前经 ST-Link 下载；USB 经主板下载副板与 USB 自升级待实现。
+- [两板下载与通信实测记录](sample-mecanum-car-study/docs/USB_BOARD_TEST_RESULTS.zh-CN.md)。
+
 ## 最新机械设计
 
 ### 翻转臂与料仓 v3（2026-09-21）
