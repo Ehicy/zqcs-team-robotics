@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRTC 下层车 · BLE 遥控台</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+<p id="supportWarning" class="warning" hidden></p>
+
+<header class="topbar">
+  <div class="brand">
+    <h1>CRTC 下层车 · BLE 遥控台</h1>
+    <p class="sub">Web Bluetooth → ESP32-S3 → UART → STM32 · 键盘 WASD 控制</p>
+  </div>
+  <div class="conn">
+    <span id="connectionDot" class="dot" aria-hidden="true"></span>
+    <span id="connectionText" class="conn-text">尚未连接</span>
+    <button id="connectButton" type="button">连接蓝牙</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="card drive">
+    <h2>行驶控制</h2>
+    <div class="badges">
+      <span id="modeBadge" class="badge">已锁定</span>
+      <span id="sessionText" class="muted">会话 —</span>
+    </div>
+
+    <div class="pad" id="drivePad">
+      <button class="key key-w" data-throttle="1000" data-steer="0" type="button" disabled><b>W</b><span>前进</span></button>
+      <button class="key key-a" data-throttle="0" data-steer="-1000" type="button" disabled><b>A</b><span>左转</span></button>
+      <button class="key key-s" data-throttle="-1000" data-steer="0" type="button" disabled><b>S</b><span>后退</span></button>
+      <button class="key key-d" data-throttle="0" data-steer="1000" type="button" disabled><b>D</b><span>右转</span></button>
+    </div>
+
+    <div class="readout">
+      <div><span class="muted">当前意图</span><strong id="intentText">停止</strong></div>
+      <div><span class="muted">预计轮速</span><strong id="mixText">左 0 / 右 0 mm/s</strong></div>
+    </div>
+
+    <label class="limit">
+      <span>速度上限 <b id="speedValue">100</b> mm/s</span>
+      <input id="speedLimit" type="range" min="0" max="300" step="1" value="100">
+    </label>
+
+    <div class="row">
+      <button id="armButton" class="primary" type="button" disabled>解锁控制 ARM</button>
+      <button id="stopButton" class="danger" type="button">停止 STOP</button>
+    </div>
+
+    <p id="armHint" class="hint">四轮配置确认、底盘就绪且停稳后才能解锁。</p>
+    <p id="statusMessage" class="hint">尚未连接</p>
+    <p id="faultMessage" class="hint fault" hidden></p>
+    <p class="hint keys">按住 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 行驶，方向键等效；松开归零，<kbd>空格</kbd> / <kbd>Esc</kbd> 立即停止并锁定。页面失焦或隐藏会自动停止。</p>
+  </section>
+
+  <section class="card telemetry">
+    <h2>状态与遥测</h2>
+    <div class="stats">
+      <div><span class="muted">STM32 链路</span><strong id="uartStatus">—</strong></div>
+      <div><span class="muted">底盘就绪</span><strong id="readyStatus">—</strong></div>
+      <div><span class="muted">已确认轮</span><strong id="calibrationStatus">0 / 4</strong></div>
+      <div><span class="muted">主控左 / 右</span><strong id="trackSpeeds">— / —</strong></div>
+    </div>
+    <table class="wheels">
+      <thead><tr><th>轮位</th><th>原始计数</th><th>实测 / 目标 mm/s</th></tr></thead>
+      <tbody id="telemetryRows"></tbody>
+    </table>
+    <div class="bars" id="wheelBars"></div>
+    <p id="telemetryFreshness" class="muted">等待采样 / 已过期</p>
+  </section>
+
+  <section class="card aux">
+    <h2>辅助</h2>
+    <div class="row">
+      <button id="ledOnButton" type="button" disabled>板载灯 亮</button>
+      <button id="ledOffButton" type="button" disabled>板载灯 灭</button>
+    </div>
+    <div class="row">
+      <button id="clearFaultButton" type="button" disabled>清除故障</button>
+    </div>
+    <p class="hint">灯控用于确认 Web Bluetooth 链路是否真的送达 ESP32；它不驱动电机。</p>
+  </section>
+
+  <section class="card calibration">
+    <h2>四轮校准（只写 STM32 RAM，断电即失效）</h2>
+    <form id="calibrationForm">
+      <div id="calibrationWheels" class="wheel-grid"></div>
+      <div class="row">
+        <button id="saveConfigButton" class="primary" type="submit" disabled>停车后写入四轮配置</button>
+        <button id="rememberButton" type="button">记住本机表单</button>
+        <button id="resetFormButton" type="button">恢复初值</button>
+      </div>
+      <p class="hint">每轮依次发送机械参数与速度环参数，等主控逐包 ACK。未实测核对就不要勾选“已实测”。</p>
+    </form>
+  </section>
+
+  <section class="card logcard">
+    <h2>事件日志</h2>
+    <ol id="log" class="log"></ol>
+  </section>
+</main>
+
+<script type="module" src="dashboard.js"></script>
+</body>
+</html>

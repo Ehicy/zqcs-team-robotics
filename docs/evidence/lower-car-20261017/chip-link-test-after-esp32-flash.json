@@ -1,0 +1,86 @@
+{
+  "port": "COM7",
+  "commands": [
+    {
+      "command": "INFO",
+      "lines": [
+        "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=603D1969 flags=7 encoder_mask=0 parser_errors=0 rejected=1566 rx_bytes=95312 tx_bytes=166011 tx_frames=8890 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=825040 tx_gpio=4 rx_gpio=6"
+      ]
+    },
+    {
+      "command": "LED ON",
+      "lines": [
+        "QUEUED LED=1",
+        "ACK LED=1 seq=8892"
+      ]
+    },
+    {
+      "command": "LED OFF",
+      "lines": [
+        "QUEUED LED=0",
+        "ACK LED=0 seq=8907"
+      ]
+    },
+    {
+      "command": "LED ON",
+      "lines": [
+        "QUEUED LED=1",
+        "ACK LED=1 seq=8921"
+      ]
+    },
+    {
+      "command": "LED OFF",
+      "lines": [
+        "QUEUED LED=0",
+        "ACK LED=0 seq=8937"
+      ]
+    },
+    {
+      "command": "LED ON",
+      "lines": [
+        "QUEUED LED=1",
+        "ACK LED=1 seq=8951"
+      ]
+    },
+    {
+      "command": "LED OFF",
+      "lines": [
+        "QUEUED LED=0",
+        "ACK LED=0 seq=8966"
+      ]
+    },
+    {
+      "command": "INFO",
+      "lines": [
+        "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=0 rejected=1570 rx_bytes=98472 tx_bytes=168536 tx_frames=8981 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=829381 tx_gpio=4 rx_gpio=6"
+      ]
+    }
+  ],
+  "passed": false,
+  "scope": "USB to ESP32, UART LED command and STM32 ACK; no optical or motor validation",
+  "firmware": "crtc-lower-pid-v2",
+  "source": "BLE",
+  "before": {
+    "firmware": "crtc-lower-pid-v2",
+    "source": "BLE",
+    "ps2_state": "0",
+    "ps2_mode": "00",
+    "transport": "1",
+    "connected": "1",
+    "token": "603D1969",
+    "flags": "7",
+    "encoder_mask": "0",
+    "parser_errors": "0",
+    "rejected": "1566",
+    "rx_bytes": "95312",
+    "tx_bytes": "166011",
+    "tx_frames": "8890",
+    "uart_faults": "0",
+    "last_uart_event": "-1",
+    "rx_level": "1",
+    "uptime_ms": "825040",
+    "tx_gpio": "4",
+    "rx_gpio": "6"
+  },
+  "error": "Peer not connected: connected=0"
+}

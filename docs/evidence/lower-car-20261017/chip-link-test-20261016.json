@@ -1,0 +1,99 @@
+{
+  "port": "COM7",
+  "commands": [
+    {
+      "command": "INFO",
+      "lines": [
+        "INFO firmware=crtc-board-link-led-v1 transport=1 connected=1 token=0277B661 flags=7 encoder_mask=0 parser_errors=2977 rejected=49737 rx_bytes=3365200 tx_bytes=1417582 tx_frames=51170 uart_faults=35 last_uart_event=4 rx_level=1 uptime_ms=2834979 tx_gpio=4 rx_gpio=6"
+      ]
+    },
+    {
+      "command": "LED ON",
+      "lines": [
+        "QUEUED LED=1",
+        "ACK LED=1 seq=51172"
+      ]
+    },
+    {
+      "command": "LED OFF",
+      "lines": [
+        "QUEUED LED=0",
+        "ACK LED=0 seq=51187"
+      ]
+    },
+    {
+      "command": "LED ON",
+      "lines": [
+        "QUEUED LED=1",
+        "ACK LED=1 seq=51202"
+      ]
+    },
+    {
+      "command": "LED OFF",
+      "lines": [
+        "QUEUED LED=0",
+        "ACK LED=0 seq=51218"
+      ]
+    },
+    {
+      "command": "LED ON",
+      "lines": [
+        "QUEUED LED=1",
+        "ACK LED=1 seq=51233"
+      ]
+    },
+    {
+      "command": "LED OFF",
+      "lines": [
+        "QUEUED LED=0",
+        "ACK LED=0 seq=51248"
+      ]
+    },
+    {
+      "command": "INFO",
+      "lines": [
+        "INFO firmware=crtc-board-link-led-v1 transport=1 connected=1 token=0277B661 flags=7 encoder_mask=0 parser_errors=2977 rejected=49737 rx_bytes=3368342 tx_bytes=1420213 tx_frames=51263 uart_faults=35 last_uart_event=4 rx_level=1 uptime_ms=2839325 tx_gpio=4 rx_gpio=6"
+      ]
+    }
+  ],
+  "passed": true,
+  "scope": "USB to ESP32, UART LED command and STM32 ACK; no optical or motor validation",
+  "before": {
+    "firmware": "crtc-board-link-led-v1",
+    "transport": "1",
+    "connected": "1",
+    "token": "0277B661",
+    "flags": "7",
+    "encoder_mask": "0",
+    "parser_errors": "2977",
+    "rejected": "49737",
+    "rx_bytes": "3365200",
+    "tx_bytes": "1417582",
+    "tx_frames": "51170",
+    "uart_faults": "35",
+    "last_uart_event": "4",
+    "rx_level": "1",
+    "uptime_ms": "2834979",
+    "tx_gpio": "4",
+    "rx_gpio": "6"
+  },
+  "after": {
+    "firmware": "crtc-board-link-led-v1",
+    "transport": "1",
+    "connected": "1",
+    "token": "0277B661",
+    "flags": "7",
+    "encoder_mask": "0",
+    "parser_errors": "2977",
+    "rejected": "49737",
+    "rx_bytes": "3368342",
+    "tx_bytes": "1420213",
+    "tx_frames": "51263",
+    "uart_faults": "35",
+    "last_uart_event": "4",
+    "rx_level": "1",
+    "uptime_ms": "2839325",
+    "tx_gpio": "4",
+    "rx_gpio": "6"
+  }
+}

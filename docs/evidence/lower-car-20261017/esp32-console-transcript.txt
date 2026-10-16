@@ -1,0 +1,124 @@
+# COM7（ESP32 原生 USB 控制台）关键会话原文
+
+采集方式：.NET `System.IO.Ports.SerialPort('COM7',115200,None,8,One)`，`DtrEnable=false`、`RtsEnable=false`，
+每条命令以 CR LF 结尾，逐条记录回显。**未发送任何 ARM / DRIVE / PWM 指令。**
+
+---
+
+## 1. 烧录 ESP32 之前：板上是旧灯控固件
+
+```text
+--- 静默 2.5s ---
+(无输出)
+
+--- 发送 [INFO] --->
+INFO firmware=crtc-board-link-led-v1 transport=1 connected=1 token=6DCB5C8E flags=7
+     encoder_mask=0 parser_errors=0 rejected=0 rx_bytes=5028 tx_bytes=4135 tx_frames=143
+     uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=7240 tx_gpio=4 rx_gpio=6
+
+--- 发送 [HELP] --->
+INFO | RX | LED ON | LED OFF | HELP
+
+--- 发送 [ENC] --->
+ERR COMMAND
+```
+
+判读：该固件的命令集只有 `INFO/RX/LED ON/LED OFF/HELP`，**没有 `ENC`/`PWM`/`STOP`**，
+镜像里也不含 `CRTC-Lower-Car` 等 BLE 字面量（见 `stm32-register-reads.md` 之外的只读 flash 检查），
+即旧固件既无 BLE 服务也无速度闭环能力。
+
+---
+
+## 2. 烧入 ESP32 `board-link`（2026-10-16 22:48）之后
+
+```text
+--- 发送 [INFO] --->
+INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1
+     token=DD7894FF flags=7 encoder_mask=0 parser_errors=0 rejected=0 rx_bytes=18280
+     tx_bytes=15115 tx_frames=522 uart_faults=0 last_uart_event=-1 rx_level=1
+     uptime_ms=26515 tx_gpio=4 rx_gpio=6
+
+--- 发送 [HELP] --->
+INFO | RX | ENC | PWM token8hex m1 m2 m3 m4 (-250..250) | STOP | LED ON | LED OFF
+```
+
+此时 STM32 仍是烧录前镜像，**链路在线**（`connected=1 flags=7`）。
+
+---
+
+## 3. 烧入 STM32 `lower-motor` 之后（复现点）
+
+```text
+--- 第 1 次 ---  connected=0  flags=0  encoder_mask=0  rx_bytes=212937
+--- 第 2 次 ---  connected=0  flags=0  encoder_mask=0  rx_bytes=212937
+--- 第 3 次 ---  connected=0  flags=0  encoder_mask=0  rx_bytes=212937
+
+--- 发送 [ENC] --->
+ENC mask=0 age_ms=25464 counts=0,0,0,0
+
+--- 发送 [LED ON] --->
+ERR LED LINK_OR_BUSY
+```
+
+`rx_bytes` 三次采样**增量恒为 0**：STM32 一个字节都没发出。`LED ON` 连下发都被拒绝。
+
+---
+
+## 4. 判定链路健康只看 `rx_bytes` 的增长（同一固件、稳定在线）
+
+```text
+t= 0.0s  connected=1  rx_bytes=109968  (+0)      rejected=1586
+t= 1.5s  connected=1  rx_bytes=111200  (+1232)   rejected=1588
+t= 3.0s  connected=1  rx_bytes=112448  (+1248)   rejected=1589
+t= 4.5s  connected=1  rx_bytes=113647  (+1199)   rejected=1591
+t= 6.0s  connected=1  rx_bytes=114883  (+1236)   rejected=1593
+t= 7.5s  connected=1  rx_bytes=116152  (+1269)   rejected=1595
+t= 9.0s  connected=1  rx_bytes=117351  (+1199)   rejected=1596
+t=10.5s  connected=1  rx_bytes=118632  (+1281)   rejected=1597
+t=12.0s  connected=1  rx_bytes=119868  (+1236)   rejected=1599
+t=13.5s  connected=1  rx_bytes=121128  (+1260)   rejected=1599
+t=15.0s  connected=1  rx_bytes=122410  (+1282)   rejected=1599
+t=16.5s  connected=1  rx_bytes=123714  (+1304)   rejected=1599
+t=18.0s  connected=1  rx_bytes=124996  (+1282)   rejected=1599
+```
+
+13 次采样全部 `connected=1`，`rx_bytes` 每 1.5 秒约 +1250 字节。
+
+## 5. 灯控往返（STM32 `board-link`，链路健康时）
+
+```text
+LED ON  -> QUEUED LED=1 | ACK LED=1 seq=8481
+LED OFF -> QUEUED LED=0 | ACK LED=0 seq=8992
+LED ON  -> QUEUED LED=1 | ACK LED=1 seq=8892
+LED OFF -> QUEUED LED=0 | ACK LED=0 seq=8907
+LED ON  -> QUEUED LED=1 | ACK LED=1 seq=8921
+LED OFF -> QUEUED LED=0 | ACK LED=0 seq=8937
+LED ON  -> QUEUED LED=1 | ACK LED=1 seq=8951
+LED OFF -> QUEUED LED=0 | ACK LED=0 seq=8966
+LED OFF -> QUEUED LED=0 | ACK LED=0 seq=16132
+```
+
+序号持续递增，证明确实是 STM32 侧逐条回执，不是 ESP32 本地伪造。
+
+## 6. 目标切换与链路状态的对应（定位关键）
+
+| STM32 目标 | ESP32 观察 | 结论 |
+|---|---|---|
+| 烧录前旧镜像（2026-10-13） | `connected=1 flags=7` | 在线 |
+| `lower-motor` | `connected=0`、`rx_bytes` 冻结 | **不可用** |
+| 烧录前备份原样恢复 | `connected=0`、`rx_bytes` 冻结 | **不可用** |
+| `board-link`（同源重建） | `connected=1`、`LED ACK` 正常 | 在线 |
+| `lower-motor`（含启动顺序修正） | `connected=0`、`rx_bytes` 冻结 | **不可用** |
+
+同一 ESP32、同一接线、同一 USB 线，仅切换 STM32 目标即翻转 → 与物理连接无关。
+
+## 7. 长输出造成的瞬时抖动（不要误判为断链）
+
+```text
+# 现成验证器 6 次 LED 往返全部通过后，末尾那次 INFO：
+INFO ... connected=0 token=00000000 flags=0 ... rejected=1570 rx_bytes=98472 ...
+# 紧接着下一条命令：
+LED OFF -> QUEUED LED=0 | ACK LED=0 seq=8992
+```
+
+控制台长回复会拖过 300ms 对端超时，产生一次性 `connected=0`，下一 HELLO 周期自愈。
