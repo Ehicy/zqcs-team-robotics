@@ -13,9 +13,9 @@
 | 任务 | 推落挂架及中央黄块，交给下层车收集；无夹爪 | 接收上层推落的方块，并通过翻转臂、夹爪收集 |
 | 电机、轮组 | 4 个 TT，麦克纳姆轮 | 4 个 MG370 编码器电机，胶轮 |
 | 电控 | STM32F103、2 块 DRV8833、PS2 | STM32F103C8、ESP32-S3-N16R8、2 块 TB6612 |
-| 操控 | 原 PS2 遥控方案 | 计划手机 BLE 控制；BLE 服务和手机控制面板尚未实现 |
+| 操控 | 原 PS2 遥控方案 | Android 手机＋BLE 网页面板源码已实现，本轮未烧录、实测或发布 |
 | 当前进度 | 原方案已能行驶、横移通过 150mm 桥面；尚未进行新一轮改进 | 用户确认建模、底盘、机械机构及料仓均已完成；5V 支路已装配，12V 支路未完成 |
-| 后续方向 | 以速度为重点，研究提高稳定性 | 中期考核后实现半自动化，重点为路径自动 |
+| 后续方向 | 以速度为重点，研究提高稳定性 | 中期后按“四目标导航＋人工末端调整”实现路径自动 |
 
 上层原车的行驶、横移过桥结果不能套用到下层 MG370 胶轮车。上层当前供电细节本轮未重新核对，下文 2S2P 与 12V/5V 分支专指下层车。
 
@@ -35,7 +35,7 @@
   → 官方无线继电器受控输出 → 并联分支
       ├ 升压至 12V → 两块 TB6612 的 VM → 四个 MG370
       └ 降压至 5V → 分别接 STM32、ESP32 开发板的 5V 输入
-STM32 板载 3V3 → 两块 TB6612 的逻辑 VCC
+STM32 板载 3V3 → 两块 TB6612 的逻辑 VCC、四个编码器 VCC
 各模块 GND 共地；两块主控的 3V3 稳压输出不互并。
 ```
 
@@ -48,20 +48,26 @@ STM32 板载 3V3 → 两块 TB6612 的逻辑 VCC
 
 ### 固件与已验证功能
 
-- 下层车使用独立 `board-link` 目标。UART 协议、校验、超时、重连、命令有效期及状态回传已实现；两端已烧录并有读回一致证据。
+- 已烧录的历史基线为独立 `board-link` 目标：UART 协议、校验、超时、重连、命令有效期及状态回传已实现；两端有读回一致证据。
 - 实测接线：**ESP32 GPIO4 TX→STM32 PA3 RX，GPIO6 RX←PA2 TX，GND 共地；115200、8N1、3.3V 逻辑。**
 - ESP32 控制 STM32 PC13 灯多轮亮灭收到 ACK，用户已目视确认，ESP32 复位后重新握手也已验证。
-- **电机输出固定禁止**：`LINK_ACTUATION_ENABLED=0`，PB15/STBY 和 PB6–PB9/PWM 保持低电平；当前接线完成也不会驱动四轮。
-- 四轮编码器引脚及计数回传接口已预留；真实采样、测速/PID、路径自动化、舵机控制、BLE 服务与手机控制面板尚未实现。
-- 编码器 VCC、A/B 输出电平、六针线序、轮位极性和计数换算仍需核对；不能用无效位下的零计数证明车轮静止。
+- STM32 `board-link` 继续固定禁止电机输出。独立 `lower-motor` 目标已接入 TB6612 开环台架后端和四轮 PI 轮速闭环：TIM4 四路 20kHz PWM，输出限幅 ±250‰（25%）；开环斜坡 1000‰/s，闭环按速度斜坡运行，反转过零后等待至少 50ms。零目标、停止及失效时撤去驱动并滑行，不等于机械瞬停。
+- 启用新电机目标前，两块 TB6612 共用 STBY 必须外接 10kΩ 下拉到 GND，并确认模块未硬接高电平；复位阶段不能依靠固件保持禁止输出。
+- `lower-motor` 采样前三轮 TIM2/3/1 的 4 倍计数、第四轮 EXTI 的 2 倍计数；每 10ms 按实际间隔换算轮速并执行 PI，锁存编码器异常、方向异常、控制周期异常及驱动期间 500ms 无计数进展。该检测不等于电流保护或已验证的堵转能力；里程计、导航与舵机动作尚未实现。
+- 用户商品图确认霍尔编码器标注 13PPR、供电 3.3–5V、输出上拉至 VCC，故四个编码器 VCC 接 STM32 3V3；六针物理线序与方向仍待实测。按用户给出的 34:1、图示轮径 65mm，并假设 13PPR 是电机轴单相周期数，暂取 CPR 1768/1768/1768/884。四轮 `confirmed` 默认 0，必须逐轮验证后显式确认；PI 默认 `kp_milli=1000`、`ki_milli=2000`，加速度 500mm/s²，均待台架调参。
+- ESP32 增加 USB 控制台 `PWM`、`STOP`、`ENC` 和对端能力检查；开环 PWM 与原有 mm/s 速度请求使用不同消息。有效期最长 200ms，缓存输入不续期。STM32 用 1kHz 时基检查主循环，失活 50ms 后锁存关闭 STBY，IWDG 作为后备复位。
+- ESP32 已实现单客户端 BLE GATT，Android 静态网页已实现方向、速度、停止、灯控、逐轮机械参数与 PI 参数配置；手机速度上限 300mm/s。输入保留原到达时间，停止、断连、溢出与过期会锁定新会话，重连不自动解锁；会话令牌不是配对身份认证。
+- STM32 配置只存 RAM，重启后四轮恢复未确认；网页 localStorage 仅保存表单，不自动发送配置或解锁。源码和操作入口见 [速度闭环与手机遥控](docs/08-speed-remote.md)、[网页说明](firmware/web/README.md)。
+- 本轮新固件与网页均未烧录、实板测试或发布，构建与主机测试结果见 [验证记录](docs/04-validation.md)。历史灯控证据不证明闭环或手机遥控通过验收；不能用无效位下的零计数证明车轮静止。
 - 舵机信号仅为代码预留：GPIO5 留给夹爪，翻臂脚尚未分配；GPIO4 已用于 UART。实际机构与型号待核对。
-- 协议测试、旧代码回归和两端构建已通过，2026-10-16 上传前复验通过，构建产物哈希与已烧录版本一致；UBSan 因缺运行库未执行，不能计为通过。实机及构建证据入口见 [固件说明](docs/lower-car-wiring.md)。
+- 2026-10-13 灯控实物记录与 2026-10-16 上传前复验、读回哈希均属于电机禁用的历史基线；新代码产物不能沿用这些哈希。UBSan 因缺运行库未执行，不能计为通过。证据入口见 [验证记录](docs/04-validation.md)。
 
 ## 3. 近期工作与验收
 
-- 下层电控待完成：12V 支路、TB6612 电机后端、编码器采样及手机 BLE 操控。中期展示项按实际完成度提交，分别记录实现状态和实物证据。
+- 下层电控先完成开环电机与编码器台架验收，逐轮确认方向、每圈计数和轮径，再低速调试已实现的 PI 与手机 BLE；12V 支路仍待完成，闭环跟踪、断联停止和网页实际使用均待验证。
 - 上层保留已能行驶、横移过桥的基线，后续改进速度与稳定性；装配或控制改动后复验。
-- 中期后：下层电控从面包板转洞洞板，开展路径自动化。具体定位、传感器及路径控制方案待设计。
+- 中期后：下层电控从面包板转洞洞板，按 [四目标半自动方案](docs/07-semi-auto-plan.md) 实现路径自动：红蓝方地图、小路网、停车转向与直行；先低速跑两个安全点往返，再接四个目标。
+- STM32 负责编码器、轮速闭环、连续里程计和动作执行；ESP32 负责目标、选路、逐段下发和状态显示。手动接管清空自动任务；首次实现要求人工回到附近停靠点并实际对齐后确认位置，重连不续跑。具体坐标、朝向及误差容限待场地与车体测量。
 - 机械资料待最新模型和机械负责人核对，再补充舵机、尺寸、重量、收集与携带能力的实测结果。
 - 每项功能区分源码完成、构建通过、写入校验和实物验收；带载动作同时检查供电、失联停止、温升和机构干涉。
 
@@ -89,10 +95,11 @@ STM32 板载 3V3 → 两块 TB6612 的逻辑 VCC
 | 路径 | 用途 |
 |---|---|
 | [docs/README.md](docs/README.md) | 中期参赛文档目录、规则对照与提交前待办 |
-| [firmware/README.md](firmware/README.md) | 下层完整供电、TB6612/编码器/UART 接线、固件构建、灯控诊断和烧录证据 |
-| [firmware/shared/board_link_config.h](firmware/shared/board_link_config.h) | 下层引脚、协议参数和电机禁用配置的统一入口 |
-| `firmware/shared/`、`firmware/esp32/` | 双板协议/状态机、ESP32 PlatformIO 工程 |
-| `sample-mecanum-car-study/examples/board-link/` | 下层 STM32 UART/PC13/禁用输出入口 |
+| [整车接线说明](docs/lower-car-wiring.md) | 下层供电、TB6612/编码器/UART 接线及历史灯控证据 |
+| [电机与编码器说明](docs/06-lower-motor.md)、[速度闭环与手机遥控](docs/08-speed-remote.md)、[半自动方案](docs/07-semi-auto-plan.md) | 台架校准、闭环/BLE 入口与后续四目标导航计划 |
+| [firmware/shared/board_link_config.h](firmware/shared/board_link_config.h) | 下层引脚、协议参数及开环 PWM 限幅的统一入口 |
+| `firmware/shared/`、`firmware/esp32/`、`firmware/web/` | 双板协议/PI/遥控状态机、ESP32 PlatformIO 工程、Android BLE 静态面板 |
+| `sample-mecanum-car-study/examples/board-link/`、`sample-mecanum-car-study/examples/lower-motor/` | 下层 STM32 禁用输出基线与独立开环/闭环电机目标入口，按构建目标区分输出能力 |
 | `sample-mecanum-car-study/hardware/Src/` | 上层原 TT/DRV8833/PS2 驱动与主循环 |
 | [版本索引](sample-mecanum-car-study/docs/LOCAL_VERSIONS.zh-CN.md)、[S曲线与停车说明](sample-mecanum-car-study/docs/S_CURVE_STOP.zh-CN.md) | 原车固件追溯、构建和操作说明 |
 | `docs/` | 参赛功能文档；旧 V1.4 复核文章只作为历史，不覆盖 V1.5 |
@@ -104,10 +111,11 @@ STM32 板载 3V3 → 两块 TB6612 的逻辑 VCC
 ```text
 python sample-mecanum-car-study/build_firmware.py --target car --toolchain "<Arm GNU bin目录>"
 python sample-mecanum-car-study/build_firmware.py --target board-link --toolchain "<Arm GNU bin目录>"
+python sample-mecanum-car-study/build_firmware.py --target lower-motor --toolchain "<Arm GNU bin目录>"
 pio run -d firmware/esp32 -e board-link
 ```
 
-上层、下层主机测试入口分别为 `sample-mecanum-car-study/tests/run_tests.py`、`firmware/tests/run_tests.py`。若因缺 UBSan 设 `SANITIZE=0`，报告应注明。下载前核对目标板、对应产物和供电状态，按各工程说明保留备份并校验。
+上层、下层协议主机测试入口分别为 `sample-mecanum-car-study/tests/run_tests.py`、`firmware/tests/run_tests.py`；PI 与遥控核心另见 `firmware/tests/run_speed_tests.py`、`firmware/tests/run_remote_tests.py`，集成验证见验证记录。若因缺 UBSan 设 `SANITIZE=0`，报告应注明；本轮 UBSan 未运行。下载前核对目标板、对应产物和供电状态，按各工程说明保留备份并校验。
 
 ## 6. 维护原则
 

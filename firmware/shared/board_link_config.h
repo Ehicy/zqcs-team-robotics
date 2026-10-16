@@ -21,9 +21,12 @@
 #define LINK_STATUS_PERIOD_MS      100U
 #define LINK_HELLO_PERIOD_MS       100U
 #define LINK_TARGET_LIMIT_MM_S    1000
-#define LINK_ACTUATION_ENABLED       0
+#define LINK_PWM_LIMIT_PERMILLE    250 /* first open-loop bench firmware: 25% */
+#define LINK_ACTUATION_ENABLED       0 /* legacy board-link target invariant;
+                                       use the separate lower-motor target for PWM */
 /* Resource reservation for the confirmed two TB6612 boards and four MG370s.
- * GPIO port index: 0=A, 1=B. These lists DO NOT initialize motor/encoder I/O.
+ * GPIO port index: 0=A, 1=B. board-link keeps outputs inhibited; the separate
+ * lower-motor target implements these pins and raw encoder sampling.
  * TIM1/2/3 encoder multipliers=4; M4 A dual-edge EXTI10 multiplier=2.
  * PPR definition, levels, direction and counts/rev require actual verification. */
 #define LINK_STM_ENCODER_PORTS      {0,0,0,1}
@@ -40,6 +43,6 @@
 #define LINK_ESP_ARM_SERVO_GPIO      -1 /* unassigned: former GPIO4 now UART TX */
 #define LINK_ESP_GRIP_SERVO_GPIO      5 /* reserved, not initialized */
 #if LINK_ACTUATION_ENABLED != 0
-#error This communication-only firmware has no motor/encoder/PID backend
+#error Do not enable board-link this way: build the separate lower-motor target
 #endif
 #endif

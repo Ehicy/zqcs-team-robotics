@@ -6,7 +6,7 @@
 
 上层车推送黄块，下层车使用翻转臂和夹爪收集、接料。项目背景与当前决策见 [PROJECT.md](PROJECT.md)。
 
-下层车 STM32＋ESP32 双板通信及四轮编码器接口开发见 [通信与接线说明](docs/lower-car-wiring.md)。新 `board-link` 目标支持有线通信与 STM32 板载灯诊断，电机输出禁止；烧录和实机验证状态见说明。上层原 TT/PS2 工程继续使用，不能混用接线。手机/BLE、真实编码器采样与闭环控制尚未实现。
+下层车 STM32＋ESP32 双板 UART 与灯控已验证，见 [通信与接线说明](docs/lower-car-wiring.md)。独立 [电机与编码器目标](docs/06-lower-motor.md) 已实现开环台架输出、四轮 PI 轮速闭环及故障锁存；[ESP32 BLE 与 Android 网页面板](docs/08-speed-remote.md) 已实现源码，手机限速 300mm/s、输出限幅 25%。本轮新固件与网页尚未烧录、实物验收或发布，四轮校准默认未确认；STM32 `board-link` 仍禁用电机。后续按 [四目标半自动方案](docs/07-semi-auto-plan.md) 开发里程计和路径，舵机动作仍未实现。上层原 TT/PS2 工程继续使用，不能混用接线。
 
 ## 历史机械设计与试验资料
 

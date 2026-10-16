@@ -1,4 +1,5 @@
 #include "board_link.h"
+#include "motor_command.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -352,6 +353,112 @@ static void test_led_expiry_and_reset(void)
 }
 static void reserve(uint8_t used[2][16],unsigned port,unsigned pin)
 { assert(port<2 && pin<16 && !used[port][pin]); used[port][pin]=1; }
+static void test_pwm_capability_and_lease(void)
+{
+    link_node_t c,s; link_frame_t f; uint32_t token,accepted;
+    int16_t pwm[4]={250,-250,0,120};
+    connect(&c,&s,0);
+    assert(!link_node_submit_pwm(&c,1,pwm,1,200,1)); /* old firmware */
+    f=control(s.token,1,200); f.type=LINK_PWM; f.payload[2]=1;
+    link_put_u16(f.payload+4,100); send_frame(&s,&f,2);
+    assert(!s.command_valid); /* no backend, even if client bypasses capability */
+    link_node_set_motor_state(&s,1,1);
+    assert(transfer(&s,&c,100)); assert(c.remote_flags&LINK_FLAG_PWM_SUPPORTED);
+    assert(link_node_submit_pwm(&c,1,pwm,1,200,101));
+    assert(transfer(&c,&s,101));
+    assert(s.command_valid && s.requested_mode==LINK_PWM && s.requested_enable);
+    assert(!memcmp(s.requested_pwm,pwm,sizeof(pwm)) && s.requested_mm_s[0]==0);
+    assert(s.command_ms+s.command_ttl_ms==301);
+    assert(transfer(&c,&s,151)); assert(s.command_ms+s.command_ttl_ms==301);
+    accepted=s.accepted_controls;
+    f=control(s.token,s.peer_sequence+1U,200); f.type=LINK_PWM; f.payload[2]=1;
+    link_put_u16(f.payload+4,251); send_frame(&s,&f,160);
+    assert(s.accepted_controls==accepted && s.command_ms+s.command_ttl_ms==301);
+    link_put_u16(f.payload+4,(uint16_t)-251); send_frame(&s,&f,161);
+    assert(s.accepted_controls==accepted);
+    assert(!link_node_submit_pwm(&c,1,pwm,1,200,162)); /* no input replay */
+    pwm[0]=251; assert(!link_node_submit_pwm(&c,2,pwm,1,200,163)); pwm[0]=250;
+    link_node_set_motor_state(&s,1,0); assert(transfer(&s,&c,200));
+    assert(!(c.remote_flags&LINK_FLAG_OUTPUT_INHIBITED));
+    assert(transfer(&c,&s,201)); assert(s.command_ms+s.command_ttl_ms==301);
+    token=s.token; link_node_tick(&s,301);
+    assert(!s.command_valid && !s.requested_enable && s.requested_mode==0 && s.token!=token);
+    assert(s.requested_pwm[0]==0);
+    assert(transfer(&s,&c,301)); assert(!c.connected && !c.input_valid && c.remote_flags==0);
+    assert(transfer(&c,&s,302)); assert(transfer(&s,&c,302));
+    assert(!link_node_submit_pwm(&c,2,pwm,1,200,303)); /* new capability awaited */
+    assert(transfer(&c,&s,352)); assert(!s.requested_enable && s.requested_mode==LINK_CONTROL);
+    assert(transfer(&s,&c,402));
+    assert(link_node_submit_pwm(&c,2,pwm,1,200,403)); assert(transfer(&c,&s,403));
+    assert(s.requested_mode==LINK_PWM);
+    /* Switching out of a driving PWM session revokes it, never reinterprets units. */
+    token=s.token;
+    assert(link_node_submit_input(&c,3,pwm,1,200,404)); assert(transfer(&c,&s,453));
+    assert(s.token!=token && !s.command_valid && !s.requested_enable && s.requested_pwm[0]==0);
+    puts("PASS PWM capability gate, 25% bounds, unchanged input expiry, mode isolation and no reconnect replay");
+}
+static void test_pwm_stop_and_same_boot_reconnect(void)
+{
+    link_node_t c,s; link_frame_t pwm,stop,hello; uint32_t token,accepted;
+    int16_t values[4]={100,0,0,0};
+    connect(&c,&s,0); link_node_set_motor_state(&s,1,1);
+    assert(transfer(&s,&c,100)); token=s.token;
+    /* Even STOP before the first PWM revokes that token and blocks the client. */
+    link_node_request_stop(&c);
+    assert(!link_node_submit_pwm(&c,1,values,1,200,101));
+    stop=transmit_frame(&c,101);
+    assert(stop.type==LINK_PWM && stop.payload[2]==0 && !c.stop_pending);
+    send_frame(&s,&stop,101); assert(s.token!=token && !s.command_valid);
+    pwm=control(token,stop.sequence+1,200); pwm.type=LINK_PWM; pwm.payload[2]=1;
+    link_put_u16(pwm.payload+4,100); accepted=s.accepted_controls;
+    send_frame(&s,&pwm,102); assert(s.accepted_controls==accepted && !s.requested_enable);
+    assert(!link_node_submit_pwm(&c,2,values,1,200,103)); /* latch persists after send */
+    assert(transfer(&s,&c,200)); assert(!c.connected);
+    assert(transfer(&c,&s,201)); assert(transfer(&s,&c,201));
+    assert(!c.pwm_stop_latched && !c.input_valid);
+    assert(transfer(&s,&c,301));
+    assert(link_node_submit_pwm(&c,2,values,1,200,302)); assert(transfer(&c,&s,302));
+    assert(s.command_valid && s.requested_enable); token=s.token;
+    /* ESP RX fault: same boot_id, new HELLO, controller never timed out. */
+    link_node_transport_error(&c,303); c.last_tx_ms=203;
+    hello=transmit_frame(&c,303); assert(hello.type==LINK_HELLO && hello.session==s.peer_id);
+    send_frame(&s,&hello,303); assert(s.token!=token && !s.command_valid && !s.requested_enable);
+    token=s.token; send_frame(&s,&hello,304); assert(s.token==token); /* replay cannot reset again */
+    assert(transfer(&s,&c,304)); assert(c.connected && !c.input_valid);
+    /* XOR on EVERY HELLO would have a fixed point at this boot/token value. */
+    s.token=s.peer_id=0x9e3779b9UL;
+    hello.session=s.peer_id; hello.sequence=s.peer_sequence+1U;
+    send_frame(&s,&hello,305); assert(s.token!=0x9e3779b9UL);
+    /* A dropped explicit stop is retried, never replaced by a lease-renewing
+     * disabled CONTROL heartbeat that could leave the client stop-latched. */
+    connect(&c,&s,0); link_node_set_motor_state(&s,1,1);
+    link_node_request_stop(&c); /* before first capability STATUS */
+    stop=transmit_frame(&c,1); assert(stop.type==LINK_PWM && !stop.payload[2]);
+    stop=transmit_frame(&c,51); assert(stop.type==LINK_PWM && !stop.payload[2]);
+    send_frame(&s,&stop,51); assert(!s.command_valid && s.token!=c.token);
+    puts("PASS explicit STOP barrier before/after drive, old queued PWM rejection, same-boot fast reconnect reset");
+}
+static void test_pwm_console_parser(void)
+{
+    int16_t p[4]={7,7,7,7}; uint32_t token=99;
+    const char *invalid[]={"PWM", "PWM 12345678 1 2 3", "PWM 12345678 1 2 3 4 5",
+        "PWM 12345678 251 0 0 0", "PWM 12345678 -251 0 0 0",
+        "PWM 12345678 999999999999999999999 0 0 0", "PWM 12345678 --1 0 0 0",
+        "PWM 12345678 1x 0 0 0", "PWM 12345678 1.0 0 0 0", "PWM 12345678 0 0 0 0junk",
+        "PWM 12345678 0 0 0 -", "PWM 00000000 1 2 3 4", "PWM abcd 1 2 3 4",
+        "PWM 123456789 1 2 3 4", "PWM z2345678 1 2 3 4", "PWM 1 2 3 4"};
+    unsigned i;
+    for(i=0;i<sizeof(invalid)/sizeof(invalid[0]);i++) {
+        assert(!motor_command_parse(invalid[i],&token,p)); assert(p[0]==7 && p[3]==7 && token==99);
+    }
+    assert(!motor_command_parse(0,&token,p));
+    assert(!motor_command_parse("PWM 12345678 0 0 0 0",&token,0));
+    assert(!motor_command_parse("PWM 12345678 0 0 0 0",0,p));
+    assert(motor_command_parse("PWM abCDef12 250 -250  0 -1  ",&token,p));
+    assert(token==0xabcdef12UL);
+    assert(p[0]==250 && p[1]==-250 && p[2]==0 && p[3]==-1);
+    puts("PASS PWM console strict parsing, range/overflow rejection and no partial command");
+}
 static void test_resource_allocation(void)
 {
     uint8_t used[2][16]={{0}}, ports[4]=LINK_STM_ENCODER_PORTS;
@@ -373,12 +480,47 @@ static void test_resource_allocation(void)
     assert(LINK_ESP_TX_GPIO!=LINK_ESP_GRIP_SERVO_GPIO && LINK_ESP_RX_GPIO!=LINK_ESP_GRIP_SERVO_GPIO);
     puts("PASS resource map: UART, eight encoder inputs, four PWM, directions, STBY and SWD have no overlap");
 }
+static void test_speed_config_protocol(void)
+{
+    link_node_t c,s; uint8_t p[20]={0},wire[LINK_WIRE_MAX];
+    const int16_t measured[4]={10,-20,30,-40},targets[4]={100,-100,200,-200};
+    link_frame_t f; uint32_t rejected,stamp;
+    connect(&c,&s,0); link_node_set_motor_state(&s,1,1);
+    link_node_publish_speed(&s,measured,targets,15,7,3,100);
+    assert(transfer(&s,&c,100)); assert(c.remote_flags&LINK_FLAG_SPEED_SUPPORTED);
+    assert(transfer(&s,&c,101)); assert(transfer(&s,&c,102));
+    assert(c.remote_speed_valid_mask==15 && c.remote_speed_ready_mask==7 && c.remote_speed_fault==3);
+    assert(c.remote_speed_measured[3]==-40 && c.remote_speed_targets[2]==200);
+    stamp=c.remote_speed_rx_ms;
+    memset(&f,0,sizeof(f)); f.type=LINK_SPEED; f.length=20; f.session=c.token; f.sequence=s.tx_sequence;
+    f.payload[0]=15; f.payload[2]=15; f.payload[3]=20;
+    rejected=c.rejected_frames; send_frame(&c,&f,103); assert(c.rejected_frames==rejected+1 && c.remote_speed_rx_ms==stamp);
+    p[0]=3; p[1]=4; link_put_u16(p+2,650); link_put_u32(p+4,884);
+    link_put_u16(p+8,1000); link_put_u16(p+10,2000); link_put_u16(p+12,300); link_put_u16(p+14,500);
+    p[19]=1; assert(!link_node_request_config(&c,p,0,103)); p[19]=0;
+    assert(link_node_request_config(&c,p,0,103)); assert(!link_node_request_config(&c,p,0,103));
+    assert(transfer(&c,&s,103)); /* mandatory heartbeat still has priority */
+    assert(!link_node_transmit(&c,104,wire,1) && c.config_pending);
+    assert(transfer(&c,&s,104)); assert(s.config_received && s.config_wheel==3 && c.config_waiting);
+    assert(!memcmp(s.config_payload,p,20));
+    memset(&f,0,sizeof(f)); f.type=LINK_CONFIG_ACK; f.length=8; f.session=c.token; f.sequence=s.tx_sequence;
+    link_put_u32(f.payload,c.config_sequence+1); f.payload[4]=3; f.payload[6]=15;
+    send_frame(&c,&f,105); assert(c.config_waiting && !c.remote_config_valid);
+    link_node_finish_config(&s,2,7,3); assert(transfer(&s,&c,105));
+    assert(c.remote_config_valid && c.config_result==2 && !c.config_waiting);
+    assert(link_node_request_config(&c,0,1,106)); assert(transfer(&c,&s,106));
+    assert(s.config_received && s.config_wheel==255);
+    link_node_transport_error(&c,107); assert(!c.config_waiting && !c.remote_config_valid && !c.remote_speed_valid_mask);
+    link_node_tick(&s,300); assert(s.speed_valid_mask==0);
+    puts("PASS speed capability/telemetry freshness, bounded config, ACK correlation/rejection, clear and reset");
+}
 int main(void)
 {
     setvbuf(stdout,NULL,_IONBF,0);
     test_codec(); test_frames_and_order(); test_truncation_and_reconnect();
     test_input_lease_and_status(); test_wraparound_and_reboot(); test_encoder_feedback();
     test_led_roundtrip_and_scheduling(); test_led_rejection(); test_led_expiry_and_reset();
-    test_resource_allocation(); test_fuzz();
+    test_resource_allocation(); test_pwm_capability_and_lease(); test_pwm_stop_and_same_boot_reconnect();
+    test_pwm_console_parser(); test_speed_config_protocol(); test_fuzz();
     puts("PASS all board-link host tests; no hardware or motor calls"); return 0;
 }

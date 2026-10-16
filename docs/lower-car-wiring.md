@@ -1,16 +1,16 @@
 # STM32 + ESP32 双板通信与整车接线（2026-10-16）
 
-本轮用户确认：下层车为 STM32 + ESP32-S3-N16R8、四个胶轮 MG370 编码器电机、两块 TB6612 双路板；2026-10-13 用户已确认两板通信线连接。新方案不用 PS2，后续希望手机蓝牙控制。上层 `sample-mecanum-car-study` 的 TT/DRV8833/PS2 工程继续使用，新目标 `board-link` 独立构建，不能混用接线或烧录文件。
+下层车为 STM32 + ESP32-S3-N16R8、四个胶轮 MG370 编码器电机、两块 TB6612 双路板；2026-10-13 用户已确认两板通信线连接。新方案不用 PS2，Android＋BLE 静态网页面板已实现源码，本轮未烧录、实测或发布。上层 `sample-mecanum-car-study` 的 TT/DRV8833/PS2 工程继续使用；下层 `board-link` 与 `lower-motor` 独立构建，不能混用接线或烧录文件。
 
-**当前已实现有线 UART 双向通信、错误恢复、命令有效期、会话和序号检查、状态回传、PC13 板载灯命令及确认，以及带明确有效位的编码器计数传输接口。当前固件禁止电机输出，未实现编码器采样、测速/PID、导航、舵机动作、BLE 服务或手机应用。** UART 和灯光验证不能代替电机、编码器或电源验收。
+**已烧录的 `board-link` 基线已验证 UART 与 PC13 灯控，固定禁止电机输出。新 `lower-motor` 源码已实现 TB6612 开环、四轮编码器与 10ms PI 闭环，尚未烧录或实板动作。** 两个目标保留会话、序号、有效期和错误恢复；闭环增加编码器/方向/周期异常与驱动期间 500ms 无计数进展锁存，手机上限 300mm/s、PWM 上限 25%。里程计、导航和舵机动作尚未实现。新后端构建与主机测试见 [验证记录](04-validation.md)，操作入口见 [电机与编码器说明](06-lower-motor.md)、[速度闭环与手机遥控](08-speed-remote.md)。UART 和灯光验证不能代替电机、编码器或电源验收；UBSan 未运行。
 
 ## 2026-10-13 实机复检与烧录状态
 
-用户已授权两端烧录及 ESP32 控制 STM32 板载灯的实机验证。当前结果如下：
+以下全部为 **2026-10-13 电机禁用灯控基线的历史记录**，2026-10-16 上传前重新核对了测试与哈希；不能作为新增电机代码的烧录或实物证据。该次用户授权两端烧录及 ESP32 控制 STM32 板载灯，结果如下：
 
 - 协议主机测试、旧代码回归和两端重新编译均通过。主机测试使用 `SANITIZE=0`；再次尝试 UBSan 仍在链接阶段报 `cannot find -lubsan`，不能计为通过。
-- ESP32-S3 rev 0.2（MAC `C0:4E:30:2B:D9:A4`，Quad Flash 16MB、PSRAM 8MB）已写入 LED 诊断版，并独立读回应用区一致。当前含串口线路诊断的应用 BIN 为 289760 字节，SHA256 `7403d83eb69d8f5bc8611f8e44003bca0cd8963597f4f7d116f97b7f24c10149`。当前使用 CH343 的 COM8（USB 序列号 `5C93062224`）；另一原生 USB 接口曾为 COM4。端口号可变，每次下载须重新核对设备身份。
-- STM32 UID `02430207505400113638414E` 的旧 USB 程序已确认来自 [PR #4](https://github.com/Seroliya/zqcs-team-robotics/pull/4)，版本 `0d2aea5f350d8ab311e5ea441ac17eb240691139`。原 `F103 USB Board Test` / `usb-board-test-v1` 是诊断程序，该 PR 明确尚未实现 USB bootloader/二进制烧录桥。SWD 备份的前 12888 字节与 PR 中旧固件 SHA256 一致；下载路径采用 ST-Link，不依赖旧 USB 串口。
+- ESP32-S3 rev 0.2（MAC `C0:4E:30:2B:D9:A4`，Quad Flash 16MB、PSRAM 8MB）已写入 LED 诊断版，并独立读回应用区一致。当时含串口线路诊断的应用 BIN 为 289760 字节，SHA256 `7403d83eb69d8f5bc8611f8e44003bca0cd8963597f4f7d116f97b7f24c10149`。当时使用 CH343 的 COM8（USB 序列号 `5C93062224`）；另一原生 USB 接口曾为 COM4。端口号可变，每次下载须重新核对设备身份。
+- STM32 UID `02430207505400113638414E` 的旧 USB 程序已确认来自 [PR #4](https://github.com/Seroliya/zuiqiangchusheng/pull/4)，版本 `0d2aea5f350d8ab311e5ea441ac17eb240691139`。原 `F103 USB Board Test` / `usb-board-test-v1` 是诊断程序，该 PR 明确尚未实现 USB bootloader/二进制烧录桥。SWD 备份的前 12888 字节与 PR 中旧固件 SHA256 一致；下载路径采用 ST-Link，不依赖旧 USB 串口。该 PR 不作为现行方案复用。
 - ST-Link `37FF71064E57343655231443` 已核对上述 UID，并备份 128KiB 原 Flash。新版 STM32 BIN 为 5376 字节，SHA256 `b56641de24ed48b9aa50830fbf04984fd336244e3423139bd8361cbe6b3c43f8`，链接地址 `0x08000000`；已通过 ST-Link 写入并通过下载工具校验，第二次完整独立读回与 BIN 一致。第一次独立读回有字节差异，随后 SWD 又间歇出现无法读取 core ID；记录保留，连接稳定性仍需排查。
 - 原始 Flash 完整备份在 `backups/board-link-20261013-01/`，当前 LED 版源码/产物、下载与读回证据在其 `led/` 子目录。2026-10-16 已清理被替代的诊断固件和早期副本，保留文件索引见 `led/manifest.json`。ESP32 原 Flash SHA256：`7c6d5c1b77f27982108adf2ce1394a09e5065c601b72e848d732d60ab5a013b7`；STM32 原 Flash SHA256：`87e4f13e325a8640531afa835e47e86572c274549a37714ed71b04a4a74e6363`。
 
@@ -40,7 +40,8 @@
                  │       │                         │
                M1、M2  M3、M4                  STM32 板载 3V3
                                                   ├─ TB① VCC
-                                                  └─ TB② VCC
+                                                  ├─ TB② VCC
+                                                  └─ 四个编码器 VCC
 
 继电器后另留一组舵机电源支路接口，暂不接负载；舵机稳压/电流待型号确认。
 电池包输出负极、DC-DC IN−/OUT−、两开发板 GND、两 TB GND、编码器 GND 共地。
@@ -59,6 +60,7 @@
 | 降压 OUT+，实测调好 5.0V | STM32 开发板 5V、ESP32 开发板 5V，分别分线 | 两块开发板输入，不是 GPIO 或 3V3 |
 | 降压 OUT− | STM32 GND、ESP32 GND | 控制板电源回流 |
 | STM32 板载 3V3 | TB① VCC、TB② VCC | 驱动逻辑电源，采用 3.3V 逻辑 |
+| STM32 板载 3V3 | 四个编码器 VCC，分别分线 | 用户资料为 3.3–5V、输出上拉至 VCC；采用 3.3V 信号，核对板载稳压总电流余量 |
 | 两 TB 所有引出的 GND | 公共地，动力回路直接回分电点 | 驱动逻辑地/功率地都要连接 |
 
 **一只 5V 稳压源给两板输入分线供电是本方案的正式接法；两板各自的 3V3 稳压输出不互接。** 12V 只进驱动 VM；5V 只进开发板标注且允许的 5V 输入，不能接芯片本体 VDD、3V3 或 UART/编码器信号脚。ESP32 实物为第三方板，5V 端子位置仍按实物丝印核对，不按照片遮挡部分猜针位。
@@ -82,7 +84,7 @@
 | BO1、BO2 | M2 右后电机的两根动力线 | M4 右前电机的两根动力线 |
 | STBY | STM32 PB15 | STM32 PB15，与 TB① 共控 |
 
-电机两根动力线成对接驱动输出，任何一根都不直接接公共地。这里的 M1–M4 是项目轮号，不猜六针插头颜色或方向；实际正转和编码器方向在后续架空逐轮验证。两 STBY 可在共接点增加 10kΩ 下拉到 GND，前提是模块没有将 STBY 硬接高电平；不能同时把它接 3V3 和 PB15。未来启用 PB3/PB4 方向脚时，固件需关闭 JTAG、保留 SWD。
+电机两根动力线成对接驱动输出，任何一根都不直接接公共地。这里的 M1–M4 是项目轮号，不猜六针插头颜色或方向；实际正转和编码器方向在后续架空逐轮验证。**启用 `lower-motor` 前，两 STBY 共接点必须外接 10kΩ 下拉到 GND，并确认模块没有将 STBY 硬接高电平；不能同时把它接 3V3 和 PB15。** 复位阶段引脚状态不能靠固件保证，下拉不能省略。`lower-motor` 使用 PB3/PB4 方向脚，关闭 JTAG 并保留 PA13/PA14 的 SWD。
 
 ### 四个编码器
 
@@ -95,7 +97,9 @@
 | M3 左前 | PA8 | PA9 | 公共地 |
 | M4 右前 | PB10 | PB11 | 公共地 |
 
-**编码器 VCC 与六针物理线序仍待实物型号确认，不能凭 MG370 名称接电。** 若该版本允许 3.3V 供电且总电流允许，可由 STM32 3V3 分配；若要求 5V，则从 5V 分电点供电，并核对 A/B 是否开漏、内部上拉和输出电平，采取合适的 3.3V 电平匹配后再接 STM32。PA0/PA1、PA6/PA7 等含模拟功能的脚不能默认接 5V 推挽输出。编码器 VCC 不接 12V。
+**用户新商品图确认霍尔编码器为 13PPR、供电 3.3–5V、输出上拉至 VCC，故四个编码器 VCC 统一接 STM32 3V3。** 这使 A/B 输出与 STM32 3.3V 逻辑匹配；本接法不把编码器 VCC 接 5V 或 12V。六针插头的物理排列和线色仍未确认，必须先区分两根动力线及 VCC/GND/A/B，不能凭 MG370 名称或颜色猜测。接齐后测量 3V3 电压并核对板载稳压余量，驱动关闭时手转各轮核对计数和方向。
+
+用户给出的减速比为 34:1、轮径图示 65mm。暂按 13PPR 是电机轴单相完整周期计算：前三轮 ×4 为 1768 计数/轮圈，第四轮 ×2 为 884。源码初值 `1768/1768/1768/884`、65mm 只是待验证假设；四轮 `confirmed` 均为 0，须实测整圈计数与正方向后显式确认。STM32 配置只在 RAM，重启恢复未确认；网页保存表单不会自动发配置或解锁。
 
 ### 板间通信与舵机预留
 
@@ -120,7 +124,7 @@
 
 项目此前的 MG370 商品资料为每只额定 1.1A、堵转 6.2A，四只额定点合计 4.4A；这不是日常轻载恒定耗电。TB6612 的每通道 1.2A 属绝对最大平均电流，3.2A 仅为 10ms 单脉冲条件，不能按“3.2A 连续”或承受 MG370 堵转来设计。当前接线关系用于后续逐轮低负载验证，尚未验收整车带载、爬坡或堵转能力。[东芝 TB6612 数据手册](https://toshiba.semicon-storage.com/info/docget.jsp?did=10660&prodName=TB6612FNG)
 
-连接负载前先分别调好并测量 12V、5V 输出。先完成控制板与 UART 灯控，再接驱动逻辑及确认后的编码器；动力初试须等电机驱动实现后逐轮架空进行。**当前已烧录固件仍强制禁止电机输出，接好全部线也不会驱动四轮；真实编码器采样、PID、舵机及 BLE 尚未实现。本次仅更新接线文档，没有改固件或烧录。**
+连接负载前先分别调好并测量 12V、5V 输出。先完成控制板与 UART 灯控，再接驱动逻辑及确认线序后的编码器；动力初试按 [电机与编码器说明](06-lower-motor.md) 逐轮架空进行。**当前已烧录的 `board-link` 仍强制禁止电机输出，接好全部线也不会驱动四轮。新 `lower-motor` 已接入开环、原始计数和 PI 闭环，但本次未烧录、未实板动作。**
 
 ## 本次通信接线
 
@@ -132,28 +136,28 @@
 
 115200 baud、8 数据位、无校验、1 停止位、无 RTS/CTS，3.3V TTL 逻辑。TX/RX 必须交叉，不能接 RS232，也不能给 ESP32 GPIO 输入 5V。
 
-照片视觉依据来自父任务已实际查看的像素（Library `libfile_e69c0977547c8191ae824a22d67907e8`）：ESP32 模块/天线朝左，两个 USB-C 朝右，底边排针可读到 `3V3、3V3、RST、4、5、6、7、15、16、17、18、8、3、46、9、10、11、12、13`，最右端 GND；其余遮挡脚不推断。本执行任务使用这份明确的视觉核对结果，没有自行下载或查看另一张通用板图。上边 TX/RX 排不用于本次接线。当前 GPIO4/6 在许可的下排内；原 GPIO17/18 通信方案已由用户要求改接替代。
+根据队员当时提供的实物照片：ESP32 模块/天线朝左、两个 USB-C 朝右时，底边排针可读到 `3V3、3V3、RST、4、5、6、7、15、16、17、18、8、3、46、9、10、11、12、13`，最右端 GND；其余遮挡脚不推断。上边 TX/RX 排不用于本次接线。当前 GPIO4/6 在该下排内；原 GPIO17/18 通信方案已由用户要求改接替代，实际收发方向另由 UART 收包验证确认。
 
 台架测试时两板各自 USB 供电并共地；整车按上节从同一只 5V 降压输出分别接两板的 5V 输入，两板 3V3 稳压输出不互并。外部 5V 与 USB/ST-Link 供电的隔离要求见上节。电机 VM 和舵机动力支路不能经 UART 排针或核心板串接。
 
 ## 一致的资源分配
 
-轮号沿用仓库：M1 左后、M2 右后、M3 左前、M4 右前。通信/接口常量集中在 `shared/board_link_config.h`。表中“预留”表示资源分配已经安排，但本轮没有启用对应外设驱动或验证实物线序。
+轮号沿用仓库：M1 左后、M2 右后、M3 左前、M4 右前。通信/接口常量集中在 `firmware/shared/board_link_config.h`。下表区分新 `lower-motor` 源码和已烧录的 `board-link` 基线；驱动代码存在不代表实物线序与动作已验收。
 
 | 功能 | STM32F103C8 接口/资源 | 状态 |
 |---|---|---|
-| 板间 UART | PA2 TX / PA3 RX，USART2 | 本轮实现 |
+| 板间 UART | PA2 TX / PA3 RX，USART2 | 两目标沿用；历史灯控基线已实测 |
 | 板载 LED | PC13，低电平亮 | 独立诊断命令；启动/失联熄灭 |
-| M1 编码器 A/B | PA0 / PA1，TIM2 CH1/CH2，4 倍计数 | 八路反馈接口之一，采样预留 |
-| M2 编码器 A/B | PA6 / PA7，TIM3 CH1/CH2，4 倍计数 | 采样预留 |
-| M3 编码器 A/B | PA8 / PA9，TIM1 CH1/CH2，4 倍计数 | 采样预留；PA9 不再占作 UART |
-| M4 编码器 A/B | PB10 / PB11，EXTI10 A 双边沿、读 B 判向，2 倍计数 | 采样预留，须验证最大脉冲率/漏计数 |
-| 四轮 PWM | PB6 / PB7 / PB8 / PB9，TIM4 CH1/2/3/4 | 预留；联调目标固定低电平 |
-| TB① M1 AIN1/AIN2 | PB0 / PB1 | 方向预留 |
-| TB① M2 BIN1/BIN2 | PB3 / PB4 | 方向预留，后续需关 JTAG、保留 SWD |
-| TB② M3 AIN1/AIN2 | PB5 / PB12 | 方向预留 |
-| TB② M4 BIN1/BIN2 | PB13 / PB14 | 方向预留 |
-| 两 TB STBY | PB15 共控 | 固定低；不能与模块硬接高并用 |
+| M1 编码器 A/B | PA0 / PA1，TIM2 CH1/CH2，4 倍计数 | `lower-motor` 原始采样；实板待验 |
+| M2 编码器 A/B | PA6 / PA7，TIM3 CH1/CH2，4 倍计数 | `lower-motor` 原始采样；实板待验 |
+| M3 编码器 A/B | PA8 / PA9，TIM1 CH1/CH2，4 倍计数 | `lower-motor` 原始采样；PA9 不作 UART |
+| M4 编码器 A/B | PB10 / PB11，EXTI10 A 双边沿、读 B 判向，2 倍计数 | `lower-motor` 软件计数；最大脉冲率/漏计数待验 |
+| 四轮 PWM | PB6 / PB7 / PB8 / PB9，TIM4 CH1/2/3/4 | `lower-motor` 20kHz；`board-link` 固定低 |
+| TB① M1 AIN1/AIN2 | PB0 / PB1 | `lower-motor` 方向输出 |
+| TB① M2 BIN1/BIN2 | PB3 / PB4 | `lower-motor` 方向输出，关 JTAG、保留 SWD |
+| TB② M3 AIN1/AIN2 | PB5 / PB12 | `lower-motor` 方向输出 |
+| TB② M4 BIN1/BIN2 | PB13 / PB14 | `lower-motor` 方向输出 |
+| 两 TB STBY | PB15 共控 | `lower-motor` 受有效命令与失活保护控制；`board-link` 固定低，不与模块硬接高并用 |
 | SWD 下载/调试 | PA13 / PA14 | 保留，不重映射为其他功能 |
 | USB | PA11 / PA12 | 保留，本次未启用 |
 | 模拟采样 | PA4 / PA5 | 空闲预留，本次未实现 |
@@ -162,7 +166,7 @@ TIM1/2/3 用于编码器，TIM4 独立用于电机 PWM，USART2 的 PA2/PA3 不�
 
 ESP32 当前使用下排 GPIO4 TX、GPIO6 RX。GPIO4 已用于 UART，因此翻臂舵机脚改为未分配（配置值 -1），后续选脚；GPIO5 仍预留夹爪信号，暂不配置 PWM。原 GPIO17/18 不再用于本次通信；其他可读普通脚仍空闲。GPIO3、GPIO46 是启动配置脚，不用于这版外设；GPIO0/45 同样避开。GPIO19/20 留给 USB，GPIO26–37 存储器相关脚不复用；N16R8 的 Octal PSRAM 尤其占用 GPIO35–37。通用 DevKit 名称不意味着实物板型已逐电路确认。
 
-两块 TB6612 类型已由用户确认，但模块 STBY 是否上拉、六针编码器线序/VCC/输出电平、轮位极性、13PPR 定义和实际减速比仍须核对。四轮编码器 A/B **都需要**；当前不接动力并不取消反馈。前三轮 4 倍、第四轮 2 倍，后续每轮分别配置 `counts_per_rev`，不能共用一个错误倍频常数。仅在确认该版本允许 3.3V 供电且 A/B 电平匹配后连接；需要 5V 的版本须核对上拉和电平转换。两 TB 的承载、电源容量和 MG370 电流余量没有因本次接口分配而获得验证。
+两块 TB6612 类型与编码器 3.3–5V 供电、输出上拉至 VCC 已有用户资料，采用上述 STM32 3V3 接法；模块 STBY 上拉情况、编码器六针线序、轮位极性及 13PPR 的实际整圈计数仍待核对。四轮编码器 A/B **都需要**。前三轮 4 倍、第四轮 2 倍，分别配置 `counts_per_rev`，不能共用一个倍频常数；34:1 与 65mm 是用户提供的初始参数，仍须实测校准。两 TB 的承载、电源容量和 MG370 电流余量没有因本次接口分配而获得验证。
 
 ## 协议与生命期
 
@@ -182,23 +186,28 @@ ESP32 当前使用下排 GPIO4 TX、GPIO6 RX。GPIO4 已用于 UART，因此翻�
 |---|---|---|
 | 1 HELLO | 0 字节 | ESP 发起握手，STM32 接受新序号后回 ACK；本身不延长控制有效期 |
 | 2 HELLO_ACK | 4 字节：STM32 令牌 | ESP 验 boot id 和服务器序号后建立连接；换令牌清除缓存输入 |
-| 3 CONTROL | 12 字节：ttl_ms u16、request_enable u8、reserved u8、4×i16 请求轮速 mm/s | 只保存请求；enable=0 时四目标必须零；ttl 在 1–200ms，范围 ±1000mm/s；从不启用输出 |
-| 4 STATUS | 16 字节：flags/reason/2 reserved、last_control_seq/accepted/rejected 各 u32 | flags bit0 已握手、bit1 有效控制生命期、bit2 输出禁止；没有伪造轮速、位置或 PID 完成标志 |
+| 3 CONTROL | 12 字节：ttl_ms u16、request_enable u8、reserved u8、4×i16 请求轮速 mm/s | `lower-motor` 通过校准/反馈/故障门禁后交给 PI；`board-link` 仅保存、禁止输出。enable=0 时四目标须零；ttl 1–200ms，线协议范围 ±1000mm/s；手机与当前配置上限 300mm/s |
+| 4 STATUS | 16 字节：flags/reason/2 reserved、last_control_seq/accepted/rejected 各 u32 | flags bit0 已握手、bit1 有效控制生命期、bit2 实际 STBY 禁用状态、bit3 支持开环 PWM、bit4 支持速度闭环；`board-link` 固定 bit2=1、bit3/4=0；能力位不是校准或实际运动证据 |
 | 5 ENCODERS | 20 字节：valid_mask u8、reserved u8、sample_age_ms u16、4×i32 原始计数 | bit0–3 分别表示 M1–M4 样本有效；mask=0 表示无采样，任何零计数都不能据此解读为静止 |
 | 6 LED_SET | 1 字节：0 灭 / 1 亮 | 已连接后控制 PC13，不刷新电机控制有效期 |
 | 7 LED_ACK | 5 字节：请求 sequence u32、状态 u8 | 只接受当前会话中等待的请求序号和目标值 |
+| 8 PWM | 12 字节：ttl_ms u16、request_enable u8、reserved u8、4×i16 有符号占空比‰ | 仅支持该能力的 `lower-motor` 执行；ttl 1–200ms，范围 ±250‰；禁用时四目标须零，禁用或全零会撤销会话；与 mm/s 消息独立 |
+| 9 SPEED_CONFIG | 20 字节：wheel/flags、轮径 0.1mm、CPR u32、Kp/Ki 各 u16、max_mm_s/accel_mm_s2 各 u16、4 reserved | 停止时更新一轮 RAM 配置；flags 含电机反向、编码器反向和实测确认；收到 ACK 后才视为接受 |
+| 10 CONFIG_ACK | 8 字节：请求 sequence u32、wheel/result/ready_mask/fault 各 u8 | 匹配当前配置请求；wheel=255 用于清故障；result=0 接受，非零拒绝 |
+| 11 CLEAR_FAULT | 0 字节 | 仅禁用且有效反馈显示近零速度时清除锁存故障，不恢复旧运动请求 |
+| 12 SPEED | 20 字节：ready_mask/fault/valid_mask/age_10ms、4×i16 实测速度、4×i16 斜坡目标速度 | mm/s 遥测；年龄超过限制失效，ready 与有效反馈分别报告 |
 
 LED 一次只允许一个请求，500ms 内未完成即超时；控制/状态心跳优先于 LED 帧，换会话或失联清除待办并使 STM32 灯熄灭。ACK 表示已执行 GPIO 设置，不是光学反馈。
 
 同一连接的序号必须严格更新；按 uint32 半范围规则允许自然回绕，重复/乱序拒绝且不更新控制或通信时间。校验、版本、长度、范围或保留位错误同样不刷新。未知类型拒绝。部分帧闲置 50ms 丢弃，超长噪声丢到下一分隔符，后续完整帧可恢复，粘包按分隔符逐帧处理。
 
-控制每 50ms 一帧，状态/编码器接口各约 100ms，300ms 无有效同伴消息断联。控制有效期届满或串口错误后 STM32 撤销请求并换令牌，**在解析新到帧之前检查超时**，旧令牌的积压包不能恢复控制；重新握手后必须得到新令牌的新命令。HELLO、状态或计数心跳不能延长 CONTROL 生命期。
+控制每 50ms 一帧，状态/编码器接口各约 100ms，300ms 无有效同伴消息断联。控制有效期届满或串口错误后 STM32 撤销请求并换令牌，**在解析新到帧之前检查超时**，旧令牌的积压包不能恢复控制；重新握手后必须得到新令牌的新命令。HELLO、状态、计数或 LED 心跳不能延长 CONTROL/PWM 生命期。
 
-ESP32 的统一输入入口是 `src/control_input.h`：`crtc_submit_control(source_sequence, targets, request_enable, ttl_ms)`、`crtc_cancel_control()`。没有输入适配器时只发送禁用/零目标心跳。有输入时，每次发送只使用原输入剩余有效期，重复 source_sequence 拒绝；输入过期、断联或换连接即清除，不给旧输入自动续期。未来 BLE 回调应将校验后的新事件排队给 `loop()`，不要并发直接改状态机，也不要给缓存旧输入伪造新序号。
+ESP32 的兼容输入入口为 `src/control_input.h`；当前 BLE 通过 `ble_remote` 有界事件队列、`remote_control` 门禁和 `remote_bridge` 接入同一个 owner loop。没有有效输入时只发送禁用/零目标心跳。每次发送只使用原输入剩余有效期，重复 source_sequence 拒绝；输入过期、断联或换连接即清除。回调不并发修改双板状态机，STOP、生命周期变化和溢出优先于队列中的 DRIVE；缓存输入不会伪造新序号续期。
 
-编码器采样适配入口 `link_node_publish_encoders(counts, valid_mask, now)` 已提供；当前 STM32 没有采样驱动、未调用该接口，发出的 mask 始终是 0。未来只有读到真实计数的轮才置对应有效位。样本年龄随帧传输，达到 200ms 自动失效；客户端也独立检查年龄，坏帧/旧序号不能延长样本生命期。原始计数有各自 4x/2x 定义，尚未换算实际 RPM、距离或里程计。
+编码器采样适配入口为 `link_node_publish_encoders(counts, valid_mask, now)`。`board-link` 无采样，mask 始终为 0；`lower-motor` 发布硬件/EXTI 原始 32 位计数，同时按逐轮 CPR 和轮径换算轮速。有效位只说明驱动提供了有效样本，不证明接线、极性、换算或车体运动正确。样本年龄随帧传输，达到 200ms 自动失效；客户端也独立检查年龄，坏帧/旧序号不能延长样本生命期。原始计数仍保留 4x/2x 定义；位姿里程计尚未实现。
 
-令牌用于连接代际隔离，STM32 使用 UID/周期计数及 ESP boot id 混合，不写 Flash；这不是加密认证，也不承诺跨断电的抗恶意重放。未来无线控制需单独设计 BLE 配对、授权、重连与输入序号规则。ESP32-S3 支持 BLE，不支持经典蓝牙 SPP；未来可走 BLE GATT 服务，不使用 `BluetoothSerial`。本轮没有开启 BLE/Wi-Fi。
+令牌用于连接代际隔离，STM32 使用 UID/周期计数及 ESP boot id 混合，不写 Flash；这不是加密认证，也不承诺跨断电的抗恶意重放。当前 ESP32 使用内置 BLE 库的单客户端 GATT，设备名 `CRTC-Lower-Car`，未加入 PIN 或配对身份认证；新连接必须重新读取状态并显式解锁。ESP32-S3 不支持经典蓝牙 SPP，本实现不使用 `BluetoothSerial`，也未开启 Wi-Fi。BLE 与网页协议见 [速度闭环与手机遥控](08-speed-remote.md)。
 
 ## 构建、测试与工程衔接
 
@@ -206,19 +215,26 @@ ESP32 的统一输入入口是 `src/control_input.h`：`crtc_submit_control(sour
 
 ```powershell
 python firmware/tests/run_tests.py
+python firmware/tests/run_speed_tests.py
+python firmware/tests/run_remote_tests.py
 python sample-mecanum-car-study/build_firmware.py --target board-link --toolchain '<Arm GNU bin目录>'
+python sample-mecanum-car-study/build_firmware.py --target lower-motor --toolchain '<Arm GNU bin目录>'
 pio run -d firmware/esp32
 ```
 
-Windows 若 GCC 缺 UBSan 运行库，可设 `$env:SANITIZE='0'`；结果报告须注明。ESP32 使用已有 PlatformIO Espressif32 7.1.3 / Arduino 2.0.17 对应安装包，唯一项目库依赖是本仓库 `shared`。配置覆盖 N16R8 的 16MB Quad flash / Octal PSRAM；本次未下载不明来源依赖。STM32 产物独立放在 `sample-mecanum-car-study/build/board-link/`，ESP32 在 `.pio/build/board-link/`。旧 car/Keil 项目没有替换为新固件，默认 car 构建仍指历史版本；不得据此烧录下层车。
+Windows 若 GCC 缺 UBSan 运行库，可设 `$env:SANITIZE='0'`；结果报告须注明。ESP32 使用已有 PlatformIO Espressif32 7.1.3 / Arduino 2.0.17 对应安装包，唯一项目库依赖是本仓库 `shared`。配置覆盖 N16R8 的 16MB Quad flash / Octal PSRAM。STM32 产物独立放在 `sample-mecanum-car-study/build/board-link/`、`build/lower-motor/`，ESP32 在 `firmware/esp32/.pio/build/board-link/`。旧 car/Keil 项目没有替换为新固件，默认 car 构建仍指历史版本；不得据此烧录下层车。
 
-新 STM32 目标只链接 delay、共享协议、UART 入口与必要标准库，**不链接 motor/pwm/ps2/calibration**。启动即将预留 PB15 STBY 和 PB6–PB9 PWM 拉低，接收请求也不放行；旧 PWM 和弱反转急停不能直接移植到 TB 的 PWM/方向接口。后续主工程可从该入口接入真实 encoder/PID/TB 后端，保持协议层不变；在新主循环内安排固定周期采样、控制和通信，保留 SWD，重新定义 TB 滑行/制动/使能，再单独验证安全门控。
+`board-link` 保持 UART/LED 与禁用输出行为；新 `lower-motor` 使用独立入口和 TB6612/编码器后端。两目标均不链接上层 TT/DRV8833/PS2 电机实现，不把旧弱反转急停移植到 TB6612。
 
-两端必须运行相同版本的 `board-link` 固件才可进行本次 LED 验证；旧 USB 诊断固件不能解析新协议。后续核对编码器电平和线序，接入真实反馈，在驱动禁用状态下验证手动转轮计数；手机/BLE、导航和闭环行驶属于后续任务。
+`lower-motor` 输出限幅 ±250‰；开环斜坡 1000‰/s，PI 闭环每 10ms 更新、速度斜坡默认 500mm/s²，换向先过零并等待 50ms。零目标、STOP、失效和故障时撤去驱动，采用滑行；这不是机械瞬停。1kHz 时基发现主循环失活 50ms 后锁存关闭 STBY，IWDG 后备复位。闭环另锁存编码器、方向、周期异常及驱动期间 500ms 无计数进展；后者不是电流保护。上电不自跑，四轮闭环默认未确认；实际定时、电平、停止距离与负载表现仍需台架验证。
+
+ESP32 根据 STATUS 能力位区分对端；旧禁用输出固件不支持 PWM 或闭环，不能靠更换命令使其驱动。后续先核对编码器线序，在驱动关闭状态手动转轮验证计数，再逐轮台架验证、确认参数并调试闭环与手机遥控。新固件和网页尚未烧录、实物验证或发布；里程计、导航和舵机执行仍待开发，构建与测试结果见 [验证记录](04-validation.md)。
 
 ## ESP32 控制 STM32 板载灯
 
 ESP32 两个 USB 接口均支持 115200 baud 文本诊断：原生 USB 使用 HWCDC，CH343 使用 UART0；板间数据独占 UART1 的 GPIO4 TX/GPIO6 RX。命令以换行结束：`INFO`、`RX`、`HELP`、`LED ON`、`LED OFF`。灯命令先返回 `QUEUED`，收到 STM32 确认后返回 `ACK LED=0/1 seq=...`；失败返回 `ERR`。`INFO` 还包含串口收发字节/发送帧数、传输错误计数、最近错误事件、当前 RX 引脚电平、运行时间和实际 tx_gpio/rx_gpio，便于不依赖 SWD 排查板间链路。发送计数表示数据已提交 UART 驱动，不能代替对物理波形或对端收包的验证。`RX` 以十六进制返回最近最多 128 个接收字节，不清除计数、不发送板间控制命令。GPIO6 保持 UART 输入并显式开启内部上拉，避免未连接时悬空；不能由此保证外部连线正确。已显式启用 UART 帧错误中断，避免默认中断配置漏报错误停止位。
+
+新电机开发版本另有 `PWM <8位十六进制token> <M1> <M2> <M3> <M4>`、`STOP` 和 `ENC`。四值单位为有符号千分比，不是速度；新输入最长有效 200ms，控制台不会给缓存值续期。STOP 以禁用 PWM 优先发送并撤销会话，旧文本 token 随即失效。每次有效握手都撤销旧运动会话，快速重连也不复用旧控制。使用方法和实测前提统一见 [开环电机说明](06-lower-motor.md)。下述历史灯控脚本检查“输出禁止”状态，不能用其成功结果证明电机功能正常。
 
 两板供电、UART 连接并烧录完成后执行（Python 环境需有 pyserial，COM 号和 USB 序列号按实机填写）：
 
@@ -233,7 +249,7 @@ python firmware/tests/test_led_hardware.py --port COM8 --serial 5C93062224 --rep
 - [STM32F103x8/xB 数据手册](https://www.st.com/resource/en/datasheet/stm32f103c8.pdf)：PA2/PA3 USART2、定时器、GPIO/SWD 复用。
 - [Espressif GPIO 约束](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/peripherals/gpio.html)：GPIO 矩阵、启动脚、USB 与 Octal 存储器占用。
 - [ESP32-S3-WROOM-1 模块数据手册](https://www.espressif.com/sites/default/files/documentation/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf)：N16R8 Flash/PSRAM、BLE 与引脚说明。
-- [Espressif 蓝牙架构](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/bt-architecture/overview.html)：S3 仅 BLE，未来采用兼容 GATT 路线。
+- [Espressif 蓝牙架构](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/bt-architecture/overview.html)：S3 仅 BLE，当前采用 GATT 路线。
 
 接收上拉实现依据：[Espressif IDF 4.4.7 uart_set_pin 源码](https://github.com/espressif/esp-idf/blob/v4.4.7/components/driver/uart.c#L633-L665)；原生 IOMUX 路径与 GPIO 矩阵路径的上拉配置不同，本工程在选脚后显式设定接收上拉。
 
