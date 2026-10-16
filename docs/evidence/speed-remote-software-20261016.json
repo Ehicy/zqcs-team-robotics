@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-16",
+  "stage": "software-only closed-loop and BLE remote",
+  "base_commit": "59efc3c5b7110faec67575e32b310cc5e3654160",
+  "hardware_accessed": false,
+  "flashed": false,
+  "readback_verified": false,
+  "physical_calibration_verified": false,
+  "android_ble_connection_tested": false,
+  "web_published": false,
+  "ubsan_run": false,
+  "ubsan_reason": "Host libubsan unavailable; C tests used SANITIZE=0",
+  "toolchains": {
+    "stm32": "Arm GNU 15.2.1",
+    "esp32": "PlatformIO espressif32 7.1.3, Arduino 2.0.17"
+  },
+  "parameters": {
+    "motor": "MG370 Hall",
+    "ratio_user_supplied": 34,
+    "encoder_ppr_user_supplied": 13,
+    "ppr_definition": "Assumed single-channel cycles per motor-shaft revolution; not measured",
+    "diameter_mm_product_image": 65,
+    "counts_per_wheel_rev_provisional": [
+      1768,
+      1768,
+      1768,
+      884
+    ],
+    "encoder_voltage_user_image": "3.3-5V; built-in output pull-up to VCC; use STM32 3V3",
+    "confirmed_default": false
+  },
+  "validation": {
+    "shared_protocol": "PASS, including config ACK/freshness, STOP/mode/session, 100000 noise bytes",
+    "speed_core": "PASS 8 groups including quantized four-wheel plant, load disturbance, saturation recovery and reversal",
+    "remote_input": "PASS 9 groups including 6561 normalized mixes",
+    "remote_uart_bridge": "PASS including config merge/ACK, original TTL, STOP/new-session, fault/readiness, proportional speed cap, physical stop mode guard and wrap",
+    "open_loop": "PASS 8 groups and 50000 transitions",
+    "usb_bench_script": "PASS 12 fake serial tests, no actual serial port opened",
+    "legacy_upper_car": "PASS existing regression suite",
+    "web": "PASS 15 Node tests and both JS syntax checks",
+    "browser": "390x844 IAB viewport: four directions and STOP visible in initial viewport; calibration defaults unchecked; no horizontal overflow or JS warnings/errors; no Bluetooth connected",
+    "builds": "PASS STM lower-motor, STM inhibited board-link and ESP board-link"
+  },
+  "artifacts": [
+    {
+      "path": "sample-mecanum-car-study/build/lower-motor/lower-motor.bin",
+      "bytes": 13528,
+      "sha256": "4a23a0fa7a3ab112f461790a3b51f9554a693e4cc9bd9cc56cfab72f2093843c"
+    },
+    {
+      "path": "sample-mecanum-car-study/build/board-link/board-link.bin",
+      "bytes": 6780,
+      "sha256": "ee4a80345fe0f0bd512b60c874b0e57aa1a7e90cb2fb6bcd376b42288f919c33"
+    },
+    {
+      "path": "firmware/esp32/.pio/build/board-link/firmware.bin",
+      "bytes": 930128,
+      "sha256": "3943c7a8d8e4bec954309aee94bbfb7f265a19dfcc58268fe63e55395367630b"
+    }
+  ],
+  "source_sha256": {
+    "firmware/esp32/src/ble_remote.cpp": "decf49086d6977dc496108493c176843d1ca68b8a8c0b849f63cc96a2b519625",
+    "firmware/esp32/src/ble_remote.h": "a29c176fe2b4c701c77b2270c78877032eb3f366bfee93376dd268f145d69a14",
+    "firmware/esp32/src/control_input.h": "2b606208d6889193a417b299a1a9a91b0212ace1f212a92754c2127695978f75",
+    "firmware/esp32/src/main.cpp": "e049189e9eaf8b3b150fad437531ee41fedb53a46846750f9154f5f8f16a9e11",
+    "firmware/shared/actuation_guard.c": "4e15c0eaa2cd871a0c4b6b60d0357ad914edd83c1f65fdafed15d768ff6706e6",
+    "firmware/shared/actuation_guard.h": "e75e28d847e950d6233a09a1baf2d20056346efe1c05297d2eb6dd0547bb061b",
+    "firmware/shared/board_link.c": "78364ddcf75681c05e7ebe1437cd95104b39ca4ee5c631dc0c6f147cfd0ab5ca",
+    "firmware/shared/board_link.h": "be23a0e0437682ebd5b3931d36d93775d9c6e61ca0d2d4a8d1c6033131b32276",
+    "firmware/shared/board_link_config.h": "8c9ffc09cee54b697bfc30082030253893bff3ad39e46e33b19c5f34bd2a4c0f",
+    "firmware/shared/board_link_node.c": "d7f51a455566bd4c249828786479a2a1775ffa752561db972f7108c10baa9c23",
+    "firmware/shared/motor_command.c": "73741a99541a67147210e280999ec523535370dd4163276a3a3ebaf8a032381e",
+    "firmware/shared/motor_command.h": "0a3157615ac16a253ac5f87af60116f12816017d53b297cdfe52f647fcd7273e",
+    "firmware/shared/motor_control.c": "d7d7f5ff52cb867f1ca81ae07a10b7efa401133a109c4d86b949ff4fc4dadc57",
+    "firmware/shared/motor_control.h": "9d423f73a348dc0ddf27e52caa3c9cbf25dae35261f4c401a887ae6c8eab6f1a",
+    "firmware/shared/remote_bridge.c": "8757fe0d64b057bcbef19080e6a54d18f4fb5892ce4468cc10665b612c5496a8",
+    "firmware/shared/remote_bridge.h": "91bc22fb6f0adb5de32fde754a85f96b39022772c68cda47e0f1d294d19cd6df",
+    "firmware/shared/remote_control.c": "dc90a08d28c5933ee277d5f3a167683a27e7d385b0796a947849361f3f2acdf9",
+    "firmware/shared/remote_control.h": "0f8bd6af36143bb75a9b2c3d1572bcf2701879c153b7ce1906b5c5ab647f378a",
+    "firmware/shared/speed_control.c": "af40c402770ad86d564f7aa9260835ee3614d1c09096262a5640c5c21e8dfff1",
+    "firmware/shared/speed_control.h": "629308f3e00597f11b5fc0b73060342b2637a6cde43b6b2f6e6eebf0aaa16428",
+    "firmware/web/app.js": "6fe9e2fdff4b2b19f3ae4815d7696d86b0a2e1446c10701be23ef3081479529d",
+    "firmware/web/index.html": "637094cb44d478c418ab37d054f2bcf32c83fc085223c4f7cc612f8faa26f69d",
+    "firmware/web/package.json": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428",
+    "firmware/web/protocol.js": "9637b1ce107f9d0cbcae7ad887126afcc79b4bc84af94eec37f7fff808a37749",
+    "firmware/web/README.md": "6309769a40b802ec7708d8d9e16ae04740a5999c00a930deeecb6cbfb405966e",
+    "firmware/web/style.css": "9bee1625604ce642789031fe97d62c18657d8d2f6494c68e823f0941c90c2a16",
+    "sample-mecanum-car-study/examples/lower-motor/interrupts.c": "62bf4baf98ed5ac7a8c4abeec9e3865a4b1178ffcf4ae44a425f5ff0ab2369c7",
+    "sample-mecanum-car-study/examples/lower-motor/main.c": "3cb3851b0d9959f81502a38db4a6dbb94af6f874a652b18080f3a3be78f52acc",
+    "sample-mecanum-car-study/examples/lower-motor/motor_hal.c": "3143aea808834c5eccb02a03aabd95b50f84b13341354879139b073b6ba4c8b2",
+    "sample-mecanum-car-study/examples/lower-motor/motor_hal.h": "f8590f6ab80856a01477239a4f906fdc7b538ffd0ea82e10815b129c4db65d51",
+    "sample-mecanum-car-study/examples/lower-motor/timing.c": "448139217416a9fbb0810df97fe16fd458677a984b5d5f1c939f445d320d23e3"
+  }
+}

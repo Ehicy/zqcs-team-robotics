@@ -6,6 +6,9 @@
 #include "esp_system.h"
 #include "board_link.h"
 #include "control_input.h"
+#include "motor_command.h"
+#include "remote_bridge.h"
+#include "ble_remote.h"
 
 #if !defined(CONFIG_IDF_TARGET_ESP32S3)
 #error This target requires ESP32-S3
@@ -13,16 +16,28 @@
 static const uart_port_t port=static_cast<uart_port_t>(LINK_ESP_UART);
 static QueueHandle_t uart_events;
 static link_node_t client;
+static remote_bridge_t remote_bridge;
+static uint32_t ble_generation, ble_status_ms, owner_loop_ms;
+static uint8_t ble_status_kind;
 static bool transport_ready=false;
 static uint32_t uart_rx_bytes, uart_tx_bytes, uart_tx_frames, uart_faults;
 static uint8_t rx_trace[128];
 static unsigned rx_trace_head, rx_trace_used;
 static int last_uart_event=-1;
-static char console_line[2][32];
+static char console_line[2][64];
 static unsigned console_used[2];
 static bool console_overflow[2], led_operation;
 static uint32_t console_last_byte_ms[2];
 static unsigned led_console;
+static bool console_stop_barrier;
+
+static void stop_control(uint32_t now)
+{
+    remote_bridge_stop(&remote_bridge,REMOTE_REASON_STOP,now);
+    ble_remote_drop_input();
+    console_stop_barrier=true;
+    client.last_tx_ms=now-LINK_COMMAND_PERIOD_MS; /* Send disabled zero immediately. */
+}
 
 /* Native USB diagnostics never waits for a host or blocks the UART owner loop. */
 static void console_reply(const char *text,unsigned which)
@@ -40,7 +55,7 @@ static void console_command(const char *line,uint32_t now,unsigned which)
     char response[384];
     if(!strcmp(line,"INFO")) {
         snprintf(response,sizeof(response),
-            "INFO firmware=crtc-board-link-led-v1 transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
+            "INFO firmware=crtc-lower-speed-ble-v1 transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
             transport_ready?1U:0U,client.connected,static_cast<unsigned long>(client.token),
             client.remote_flags,client.remote_encoder_valid_mask,
             static_cast<unsigned long>(client.parser.errors),
@@ -52,6 +67,34 @@ static void console_command(const char *line,uint32_t now,unsigned which)
             gpio_get_level(static_cast<gpio_num_t>(LINK_ESP_RX_GPIO)),
             static_cast<unsigned long>(now),LINK_ESP_TX_GPIO,LINK_ESP_RX_GPIO);
         console_reply(response,which);
+    } else if(!strcmp(line,"STOP")) {
+        stop_control(now); console_reply("QUEUED STOP\n",which);
+    } else if(!strcmp(line,"ENC")) {
+        snprintf(response,sizeof(response),"ENC mask=%u age_ms=%lu counts=%ld,%ld,%ld,%ld\n",
+            client.remote_encoder_valid_mask,
+            static_cast<unsigned long>(now-client.remote_encoder_rx_ms),
+            static_cast<long>(client.remote_encoder_counts[0]),
+            static_cast<long>(client.remote_encoder_counts[1]),
+            static_cast<long>(client.remote_encoder_counts[2]),
+            static_cast<long>(client.remote_encoder_counts[3]));
+        console_reply(response,which);
+    } else if(!strncmp(line,"PWM",3)) {
+        int16_t pwm[4]; uint32_t session;
+        if(!motor_command_parse(line,&session,pwm)) {
+            stop_control(now); console_reply("ERR PWM RANGE_OR_SYNTAX\n",which);
+        } else if(pwm[0]==0 && pwm[1]==0 && pwm[2]==0 && pwm[3]==0) {
+            stop_control(now); console_reply("QUEUED STOP\n",which);
+        } else if(console_stop_barrier || remote_bridge.control.armed || remote_bridge.control.active ||
+                  session!=client.token || !transport_ready || !link_node_submit_pwm(&client,
+                    client.have_input_sequence?client.input_sequence+1U:1U,
+                    pwm,1,LINK_COMMAND_MAX_TTL_MS,now)) {
+            stop_control(now); console_reply("ERR PWM LINK_OR_UNSUPPORTED\n",which);
+        } else {
+            /* One freshly received line grants at most 200ms. Never renew a
+             * cached console line; a host must send a new line to keep moving. */
+            client.last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
+            console_reply("QUEUED PWM ttl_ms=200\n",which);
+        }
     } else if(!strcmp(line,"RX")) {
         unsigned used=snprintf(response,sizeof(response),"RX bytes=%lu hex=",
                                static_cast<unsigned long>(uart_rx_bytes));
@@ -70,16 +113,18 @@ static void console_command(const char *line,uint32_t now,unsigned which)
             console_reply(on?"QUEUED LED=1\n":"QUEUED LED=0\n",which);
         }
     } else if(!strcmp(line,"HELP")) {
-        console_reply("INFO | RX | LED ON | LED OFF | HELP\n",which);
+        console_reply("INFO | RX | ENC | PWM token8hex m1 m2 m3 m4 (-250..250) | STOP | LED ON | LED OFF\n",which);
     } else {
-        console_reply("ERR COMMAND\n",which);
+        stop_control(now); console_reply("ERR COMMAND\n",which);
     }
 }
 static void console_poll(uint32_t now)
 {
+    console_stop_barrier=false;
     for(unsigned which=0;which<2;which++) {
         if(console_used[which] && static_cast<uint32_t>(now-console_last_byte_ms[which])>=500U) {
             console_used[which]=0; console_overflow[which]=true;
+            stop_control(now);
         }
         for(unsigned budget=0;budget<16;budget++) {
             if(!(which==0?USBSerial.available():Serial.available())) break;
@@ -88,7 +133,7 @@ static void console_poll(uint32_t now)
             console_last_byte_ms[which]=now;
             if(byte=='\r') continue;
             if(byte=='\n') {
-                if(console_overflow[which]) console_reply("ERR LINE\n",which);
+                if(console_overflow[which]) { stop_control(now); console_reply("ERR LINE\n",which); }
                 else if(console_used[which]) {
                     console_line[which][console_used[which]]=0;
                     console_command(console_line[which],now,which);
@@ -98,6 +143,7 @@ static void console_poll(uint32_t now)
                 if(!console_overflow[which]) console_line[which][console_used[which]++]=static_cast<char>(byte);
             } else {
                 console_overflow[which]=true;
+                stop_control(now);
             }
         }
     }
@@ -118,12 +164,21 @@ bool crtc_submit_control(uint32_t seq,const int16_t targets[4],bool enable,uint1
     if(!transport_ready) return false;
     return link_node_submit_input(&client,seq,targets,enable?1:0,ttl,millis())!=0;
 }
-void crtc_cancel_control() { link_node_cancel_input(&client); }
+void crtc_cancel_control() { stop_control(millis()); }
+static void renew_client_identity()
+{
+    /* A new reconnect nonce also invalidates USB lines retained across an STM
+     * reboot whose startup timing could otherwise reproduce its old seed. */
+    uint32_t next=esp_random();
+    if(!next || next==client.boot_id) next=client.boot_id+0x9e3779b9UL;
+    client.boot_id=next?next:1U;
+}
 static void fail_transport(uint32_t now)
 {
     uart_faults++;
     uart_flush_input(port); xQueueReset(uart_events);
     link_node_transport_error(&client,now);
+    renew_client_identity();
 }
 void setup()
 {
@@ -134,6 +189,8 @@ void setup()
     Serial.setTxBufferSize(1024);
     Serial.begin(115200);
     link_node_init(&client,LINK_CLIENT,esp_random(),millis());
+    remote_bridge_init(&remote_bridge,&client,esp_random());
+    ble_remote_begin(); owner_loop_ms=millis();
     config.baud_rate=LINK_BAUD; config.data_bits=UART_DATA_8_BITS;
     config.parity=UART_PARITY_DISABLE; config.stop_bits=UART_STOP_BITS_1;
     config.flow_ctrl=UART_HW_FLOWCTRL_DISABLE; config.source_clk=UART_SCLK_APB;
@@ -149,15 +206,43 @@ void setup()
      * below so malformed stop bits also invalidate the current link. */
     if(uart_enable_intr_mask(port,UART_FRM_ERR_INT_ENA_M)!=ESP_OK) return;
     transport_ready=true;
-    /* No Bluetooth, Wi-Fi, PS2, servo or motor initialization. Native USB
-     * uses its existing pins. Until a future input adapter submits fresh events,
-     * the client sends only disabled zero commands after the handshake. */
+    /* BLE callbacks only queue events. All leases and UART writes remain here. */
+}
+static void remote_poll(uint32_t now)
+{
+    ble_remote_event_t event;
+    now=millis();
+    remote_bridge_tick(&remote_bridge,now);
+    for(unsigned budget=0;budget<12 && ble_remote_poll(&event);budget++) {
+        now=millis(); /* Callback may have arrived after owner-loop entry. */
+        if(event.kind!=BLE_REMOTE_PACKET) {
+            ble_generation=event.generation;
+            remote_bridge_stop(&remote_bridge,event.kind==BLE_REMOTE_OVERFLOW?
+                               REMOTE_REASON_QUEUE:REMOTE_REASON_LINK,now);
+            ble_remote_drop_input();
+        } else if(event.generation==ble_generation && event.generation==ble_remote_generation() &&
+                  ble_remote_connected() && !console_stop_barrier) {
+            remote_bridge_receive(&remote_bridge,event.bytes,event.length,event.received_ms,now);
+        }
+    }
+    if((uint32_t)(now-ble_status_ms)>=30U) {
+        uint8_t packet[20]; remote_bridge_status(&remote_bridge,ble_status_kind,packet);
+        ble_remote_publish(packet); ble_status_ms=now;
+        if(packet[1]!=3) ble_status_kind=(ble_status_kind+1U)%3U;
+    }
 }
 void loop()
 {
     uint32_t now=millis(); uart_event_t event; uint8_t bytes[64], wire[LINK_WIRE_MAX];
-    if(!transport_ready) { console_poll(now); delay(10); return; }
+    console_stop_barrier=false;
+    if((uint32_t)(now-owner_loop_ms)>50U) {
+        remote_bridge_stop(&remote_bridge,REMOTE_REASON_QUEUE,now); ble_remote_drop_input();
+    }
+    owner_loop_ms=now;
+    if(!transport_ready) { console_poll(now); remote_poll(now); delay(1); return; }
+    bool was_connected=client.connected;
     link_node_tick(&client,now);
+    if(was_connected && !client.connected) renew_client_identity();
     while(xQueueReceive(uart_events,&event,0)==pdTRUE) {
         if(event.type==UART_FIFO_OVF || event.type==UART_BUFFER_FULL ||
            event.type==UART_FRAME_ERR || event.type==UART_PARITY_ERR || event.type==UART_BREAK) {
@@ -175,10 +260,14 @@ void loop()
             rx_trace[rx_trace_head]=bytes[i];
             rx_trace_head=(rx_trace_head+1U)%sizeof(rx_trace);
             if(rx_trace_used<sizeof(rx_trace)) rx_trace_used++;
+            was_connected=client.connected;
             link_node_receive(&client,bytes[i],now);
+            if(was_connected && !client.connected) renew_client_identity();
         }
     }
     console_poll(now);
+    remote_poll(millis());
+    now=millis(); remote_bridge_tick(&remote_bridge,now);
     size_t length=link_node_transmit(&client,now,wire,sizeof(wire));
     if(length) {
         int written=uart_write_bytes(port,wire,length);

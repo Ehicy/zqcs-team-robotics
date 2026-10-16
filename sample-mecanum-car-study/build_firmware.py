@@ -8,8 +8,8 @@ import subprocess
 ROOT = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument("--toolchain", type=Path, help="Directory containing arm-none-eabi-gcc")
-parser.add_argument("--target", choices=("car", "ps2-led", "motor-buttons", "board-link"), default="car",
-                    help="car: historical TT firmware; board-link: UART only, motors inhibited")
+parser.add_argument("--target", choices=("car", "ps2-led", "motor-buttons", "board-link", "lower-motor"), default="car",
+                    help="car: historical TT; board-link: inhibited; lower-motor: TB6612 PWM + calibrated speed PI")
 args = parser.parse_args()
 
 def tool(name):
@@ -37,12 +37,16 @@ if args.target == "ps2-led":
 elif args.target == "motor-buttons":
     sources = [ROOT / "hardware/Src" / name for name in ("delay.c", "ps2.c", "pwm.c")]
     sources += [ROOT / "examples/motor-buttons/main.c"]
-elif args.target == "board-link":
+elif args.target in ("board-link", "lower-motor"):
     shared = ROOT.parent / "firmware/shared"
     flags += ["-I" + str(shared)]
     sources = [ROOT / "hardware/Src/delay.c", ROOT / "examples/board-link/main.c"]
     sources += sorted(shared.glob("*.c"))
-sources += [ROOT / "lib/cmsis" / name for name in ("system_stm32f10x.c", "stm32f10x_it.c")]
+    if args.target == "lower-motor":
+        sources = sorted((ROOT / "examples/lower-motor").glob("*.c")) + sorted(shared.glob("*.c"))
+sources += [ROOT / "lib/cmsis/system_stm32f10x.c"]
+if args.target != "lower-motor":
+    sources += [ROOT / "lib/cmsis/stm32f10x_it.c"]
 sources += [ROOT / "lib/fwlib/src" / name for name in
             ("misc.c", "stm32f10x_gpio.c", "stm32f10x_rcc.c", "stm32f10x_tim.c", "stm32f10x_flash.c")]
 sources += [ROOT / "gcc/startup_stm32f103.S"]

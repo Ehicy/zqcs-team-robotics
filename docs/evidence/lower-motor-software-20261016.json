@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-16",
+  "scope": "lower-motor software only",
+  "base_commit": "59efc3c5b7110faec67575e32b310cc5e3654160",
+  "uncommitted_source": true,
+  "hardware_accessed": false,
+  "flashed": false,
+  "ubsan": "not run: existing host toolchain lacks libubsan; C tests used SANITIZE=0",
+  "tests": [
+    "firmware/tests/run_tests.py: passed, including PWM session/STOP/reconnect/TTL/parser coverage",
+    "firmware/tests/run_motor_tests.py: passed, 8 groups and 50000 deterministic transitions",
+    "sample-mecanum-car-study/tests/run_tests.py: passed, existing upper-car regressions",
+    "firmware/tests/test_motor_bench.py -v: 12 fake-port tests passed"
+  ],
+  "builds": [
+    "STM32 lower-motor: Arm GNU 15.2.1",
+    "STM32 board-link: Arm GNU 15.2.1, outputs remain inhibited",
+    "ESP32 board-link: PlatformIO Espressif32 7.1.3 / Arduino 2.0.17"
+  ],
+  "artifacts": [
+    {
+      "path": "sample-mecanum-car-study/build/lower-motor/lower-motor.bin",
+      "bytes": 8872,
+      "sha256": "11ac77ad03c4b3b4b448cd211a9338c641c17353a5bacd812a5d8ca142382638"
+    },
+    {
+      "path": "sample-mecanum-car-study/build/board-link/board-link.bin",
+      "bytes": 5724,
+      "sha256": "d6b5549994b83b0a0ccd034460c0105f860d9cc5c6ea131ff17a6ff6b3db80f1"
+    },
+    {
+      "path": "firmware/esp32/.pio/build/board-link/firmware.bin",
+      "bytes": 291376,
+      "sha256": "d8f1c509899343d9ab26d5e811dc28144d03f01311be2773cbecc2f06d1bf973"
+    }
+  ],
+  "limitations": [
+    "No real motor or encoder test",
+    "No PID, odometry, stall detection or navigation execution",
+    "New binaries do not match historical flashed LED baseline"
+  ]
+}
