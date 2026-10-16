@@ -1,0 +1,29 @@
+{
+  "recorded_on": "2026-10-16",
+  "purpose": "Recompute hashes of retained independent readbacks against current build files; no hardware accessed.",
+  "reports_sha256": {
+    "board-link-led-20261013.json": "9253e8610f450cd778df10055ccf9faa545050e27d3ea42e5ad5f3a18982093e",
+    "board-link-led-repeat-20261013.json": "00b002f8d7e17d66711a362fabfbcbb60f48471438034ac43d152c94b3897760",
+    "board-link-post-reset-20261013.json": "b7d72b5644a4ee5bdd52c07b65e4509672c3343cd69dad2133e64cc849ec30bb",
+    "board-link-unpowered-stm32-20261013.json": "42999f9abf04d5078ba01c7af54bfb43c37cca121352c03162b7767a259f0d1e"
+  },
+  "targets": {
+    "stm32": {
+      "app_bytes": 5376,
+      "build_sha256": "b56641de24ed48b9aa50830fbf04984fd336244e3423139bd8361cbe6b3c43f8",
+      "retained_independent_readback_sha256": "b56641de24ed48b9aa50830fbf04984fd336244e3423139bd8361cbe6b3c43f8",
+      "equal": true,
+      "first_readback_equal": false,
+      "first_readback_sha256": "c2f1e4faeb2d6df6c626c58d0d5be126779450766f0dcca3f7703818d41a2ef5",
+      "known_limitation": "Initial independent readback differed; later matching readback retained. Subsequent SWD core-ID reads were intermittently unsuccessful."
+    },
+    "esp32": {
+      "app_bytes": 289760,
+      "build_sha256": "7403d83eb69d8f5bc8611f8e44003bca0cd8963597f4f7d116f97b7f24c10149",
+      "retained_independent_readback_sha256": "7403d83eb69d8f5bc8611f8e44003bca0cd8963597f4f7d116f97b7f24c10149",
+      "equal": true
+    }
+  },
+  "hardware_test_date": "2026-10-13",
+  "optical_confirmation": "User subsequently confirmed visible blinking in chat; JSON logs themselves do not measure light."
+}

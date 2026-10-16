@@ -1,0 +1,77 @@
+2026-10-16 pre-upload software verification.
+SANITIZE=0: UBSan unavailable on this host (previous linker attempt: cannot find -lubsan).
+No flashing or hardware commands executed in this run.
+
+Host protocol and upper-car regressions
+PASS codec: CRC golden vector, COBS, bounds, version/length/reserved, noise, coalescing
+PASS receiver: duplicate/out-of-order/invalid/old-token frames never refresh control deadline
+PASS truncation, timeout boundary, reconnect, transport fault, client restart
+PASS input API: replay rejection, remaining TTL, no cached-input extension, disabled heartbeat/status
+PASS sequence/time wraparound and controller reboot recovery
+PASS encoder feedback interface: explicit validity, signed counts, sample age and expiry
+PASS LED on/off ACK, one outstanding request, small-buffer retry, CONTROL/STATUS scheduling priority
+PASS LED malformed/CRC/duplicate/old-token/wrong-request/wrong-state rejection and global sequence ordering
+PASS LED 500 ms pending/ACK expiry with clock wrap, no CONTROL lease extension, loss/fault/token cleanup
+PASS resource map: UART, eight encoder inputs, four PWM, directions, STBY and SWD have no overlap
+PASS 100000 deterministic noise bytes (memory/UB sanitizer compatible)
+PASS all board-link host tests; no hardware or motor calls
+PASS: all 9 application C files, real STM32 headers, warnings as errors
+PASS: Keil source/include paths exist
+PASS: four DRV8833 pairs, signed PWM, saturation, NaN/Inf, reversal write order
+PASS: O wheels with front85/rear100 strafe trial, unchanged pure forward/yaw, continuous amplitude, 2197 mixed limits
+PASS: LSB-first wire simulation, 256 byte values, frame layout, invalid clearing
+PASS: zero-output startup, analog-only, START reset/rearm, immediate fault stop, no phantom release
+PASS: continuous left/right stick control, no shoulder speed binding, neutral rearm
+PASS: PC13 actual PWM threshold, blink phase, immediate neutral/START/fault off
+All host tests passed (not a hardware or Keil build test).
+PASS: four independent keys at 100%, hold, independent stop, START priority, digital/analog modes, invalid frame and rearm
+PASS: 0.5s full-scale ramp, common four-wheel ratio, immediate stop, delayed-loop cap
+PASS: reversal deceleration/coast, neutral bypass prevention, timer wrap
+PASS: mechanical forward/reverse trim, PWM floor/cap, zero wheel, actual-output LED threshold
+PASS: front100/rear95 default, strafe/diagonal ratio, bilateral symmetry, cap, unchanged forward/back/yaw
+PASS: joystick cubic-blend anchors, negative symmetry, full throw, joint left-stick direction
+PASS: all 256 axis values monotonic/deadzone/bounded, 65536 direction/independence checks, nonfinite rejection
+PASS: quintic startup timing/anchors/monotonicity, four-wheel ratio, low-target duration, stall cap, retarget slope, abort
+PASS: single proportional reverse window, zero wheels, short-brake truth table, low-speed bypass, caps, late-window skip, wrap, abort
+PASS: analog START and neutral braking, held START single-shot, rearm gate, invalid-frame cancellation, digital hard stop
+PASS: actual DWT clock code, fractional milliseconds, cycle wrap, 72/8 MHz
+PASS: v1 calibration ignored, v2 appended without erasing legacy record, v2 restored
+PASS: calibration flash bounds, CRC, no duplicate write, append journal, page rotation, interrupted write/erase recovery
+PASS: guarded manual trim, hold/conflict/bounds, shoulder-free control, START preserves calibration
+PASS: stationary-only flash save, 2s idle/30s rate limit, boot restore, failure retry, rearm and LED acknowledgement
+PASS: driver-assisted learning gates, settle/rate/session limits, bilateral sign, rear fallback, millisecond wrap
+PASS: firmware upgrade rejects v1, starts front100/rear95, saves v2 only on request, restores on boot
+
+
+STM32 board-link build
+   text	   data	    bss	    dec	    hex	filename
+   5372	      4	    888	   6264	   1878	C:\Users\15300\Documents\codex_repos\CRTC\sample-mecanum-car-study\build\board-link\board-link.elf
+Built: C:\Users\15300\Documents\codex_repos\CRTC\sample-mecanum-car-study\build\board-link\board-link.hex
+
+
+ESP32 board-link build
+Processing board-link (platform: espressif32@7.1.3; board: esp32-s3-devkitc-1; framework: arduino)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/esp32-s3-devkitc-1.html
+PLATFORM: Espressif 32 (7.1.3) > Espressif ESP32-S3-DevKitC-1-N8 (8 MB QD, No PSRAM)
+HARDWARE: ESP32S3 240MHz, 320KB RAM, 16MB Flash
+DEBUG: Current (esp-builtin) On-board (esp-builtin) External (cmsis-dap, esp-bridge, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES:
+ - framework-arduinoespressif32 @ 4.20017.260907+sha.dcc1105b
+ - tool-esptoolpy @ 2.41100.260830 (4.11.0)
+ - toolchain-riscv32-esp @ 8.4.0+2021r2-patch5
+ - toolchain-xtensa-esp32s3 @ 8.4.0+2021r2-patch5
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 34 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- CrtcBoardLink @ 0.1.0
+Building in release mode
+Retrieving maximum program size .pio\build\board-link\firmware.elf
+Checking size .pio\build\board-link\firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [=         ]   6.0% (used 19636 bytes from 327680 bytes)
+Flash: [          ]   4.4% (used 289401 bytes from 6553600 bytes)
+========================= [SUCCESS] Took 4.57 seconds =========================

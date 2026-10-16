@@ -1,18 +1,21 @@
 """Build ELF/HEX/BIN with Arm GNU GCC. Does not flash the board."""
 from pathlib import Path
 import argparse
+import os
 import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument("--toolchain", type=Path, help="Directory containing arm-none-eabi-gcc")
-parser.add_argument("--target", choices=("car", "ps2-led", "motor-buttons"), default="car",
-                    help="car: normal firmware; ps2-led: LED test; motor-buttons: four motor toggles")
+parser.add_argument("--target", choices=("car", "ps2-led", "motor-buttons", "board-link"), default="car",
+                    help="car: historical TT firmware; board-link: UART only, motors inhibited")
 args = parser.parse_args()
 
 def tool(name):
     base = "arm-none-eabi-" + name
+    if os.name == "nt":
+        base += ".exe"
     candidate = str(args.toolchain / base) if args.toolchain else base
     found = shutil.which(candidate)
     if not found:
@@ -34,6 +37,11 @@ if args.target == "ps2-led":
 elif args.target == "motor-buttons":
     sources = [ROOT / "hardware/Src" / name for name in ("delay.c", "ps2.c", "pwm.c")]
     sources += [ROOT / "examples/motor-buttons/main.c"]
+elif args.target == "board-link":
+    shared = ROOT.parent / "firmware/shared"
+    flags += ["-I" + str(shared)]
+    sources = [ROOT / "hardware/Src/delay.c", ROOT / "examples/board-link/main.c"]
+    sources += sorted(shared.glob("*.c"))
 sources += [ROOT / "lib/cmsis" / name for name in ("system_stm32f10x.c", "stm32f10x_it.c")]
 sources += [ROOT / "lib/fwlib/src" / name for name in
             ("misc.c", "stm32f10x_gpio.c", "stm32f10x_rcc.c", "stm32f10x_tim.c", "stm32f10x_flash.c")]
@@ -41,7 +49,7 @@ sources += [ROOT / "gcc/startup_stm32f103.S"]
 objects = []
 for src in sources:
     obj = out / (src.stem + ".o")
-    strict = ["-Werror"] if "hardware" in src.parts or "examples" in src.parts else []
+    strict = ["-Werror"] if any(part in src.parts for part in ("hardware", "examples", "shared")) else []
     subprocess.run([tool("gcc"), *flags, *strict, "-c", str(src), "-o", str(obj)], cwd=ROOT, check=True)
     objects.append(str(obj))
 elf = out / ("crtc-motor.elf" if args.target == "car" else args.target + ".elf")

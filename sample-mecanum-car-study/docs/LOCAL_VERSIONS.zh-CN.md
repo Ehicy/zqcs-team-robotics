@@ -1,5 +1,7 @@
 # 本地固件版本索引（2026-10-02）
 
+以下“当前”描述均指 2026-10-02 当时状态；现行两车方案和开发入口见根目录 [PROJECT.md](../../PROJECT.md)。2026-10-16 已清理过时原始备份，发布 HEX 继续保留；登记表中的 `backups/` 路径仅记录历史来源，不保证文件现仍存在。
+
 当前开发分支：`local/chassis-tuning-20261002`。当前板内版本：`chassis/scurve-stop-20261002`，已烧录并独立读回校验，可以试车。Git 检查点和标签在本机创建；最新分支用于向主仓库提交PR，主分支保留此前合并状态。
 
 最新 [PR #2](https://github.com/Seroliya/zqcs-team-robotics/pull/2) 已创建，包含当前代码、历史版本索引、四份 HEX 与验证说明，等待审核。当前固件对应源码提交 `c14c55a12e232da9e4421bd50c9f4b458ddf6aa5`；后续文档提交不改变该固件。
@@ -28,7 +30,7 @@
 | 按○翻转PC13灯，检查手柄通信 | `examples/ps2-led/main.c`，构建参数 `--target ps2-led` |
 | 四键分别启停四电机，确认轮位 | `examples/motor-buttons/main.c`，构建参数 `--target motor-buttons` |
 
-此前已合并的基础代码标记为 `chassis/base-20260930`，其中包含两种诊断入口。圆圈全轮、肩键调速、初始档位调整等过渡试验的原始 HEX、读回文件和日志仍在各自 `backups/` 目录；登记表的 `legacy_archives` 列出了电控历史目录及文件校验值。原始备份保留，未将64KiB整片读回当作某个单独应用BIN。
+此前已合并的基础代码标记为 `chassis/base-20260930`，其中包含两种诊断入口。圆圈全轮、肩键调速、初始档位调整等过渡试验的历史目录及校验值见登记表 `legacy_archives`，对应过时原始备份现已清理；上表发布的回退 HEX 继续保留。64KiB整片读回与单独应用BIN仍按不同产物记录。
 
 ## 怎么查看或回到旧版
 
@@ -52,4 +54,4 @@ git switch -c trial/pad-linear chassis/pad100-95-v2-20261002
 git switch local/chassis-tuning-20261002
 ```
 
-三版历史重新编译日志和版本恢复记录在 `backups/local-versions-20261002-01/`；当前下载证据在 `backups/curve-stop-20261002-01/`。标签用于明确保存版本，日常修改继续在开发分支提交。
+三版历史重新编译日志、版本恢复与下载证据的原始归档路径见登记表；实际回退使用上表仍保留的发布 HEX。标签用于明确保存版本，日常修改继续在开发分支提交。

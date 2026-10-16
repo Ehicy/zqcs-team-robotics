@@ -1,0 +1,9 @@
+2026-10-16: protocol host tests, upper-car regressions and both board-link builds PASS.
+SANITIZE=0; UBSan unavailable (cannot find -lubsan), NOT counted as passed.
+No flashing or hardware commands run during pre-upload verification.
+
+Full log: docs/evidence/software-validation-20261016.txt
+Readable verification and binary SHA256: docs/04-validation.md
+Prior hardware test/readback evidence: docs/evidence/board-link-*.json
+Both build hashes match the retained independent readbacks of flashed firmware.
+Motor actuation remains disabled; real encoders, BLE and navigation are not implemented.

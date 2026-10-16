@@ -1,8 +1,16 @@
-# CRTC2026 双车机器人项目
+# 最强初生 · CRTC2026 双车机器人项目
+
+队名：**最强初生**；公开仓库：[Seroliya/zuiqiangchusheng](https://github.com/Seroliya/zuiqiangchusheng)。
+
+**参赛文档入口：[docs/README.md](docs/README.md)**。按《2026CRTC参赛手册 V1.5》第 10 页整理，包含功能开发历程、迭代记录、学习笔记摘编、验证记录和开源使用说明。当前状态截至 2026-10-16。
 
 上层车推送黄块，下层车使用翻转臂和夹爪收集、接料。项目背景与当前决策见 [PROJECT.md](PROJECT.md)。
 
-## 最新机械设计
+下层车 STM32＋ESP32 双板通信及四轮编码器接口开发见 [通信与接线说明](docs/lower-car-wiring.md)。新 `board-link` 目标支持有线通信与 STM32 板载灯诊断，电机输出禁止；烧录和实机验证状态见说明。上层原 TT/PS2 工程继续使用，不能混用接线。手机/BLE、真实编码器采样与闭环控制尚未实现。
+
+## 历史机械设计与试验资料
+
+下层车最新建模、底盘、机械机构和料仓已由团队完成，模型文件待补充。以下 v3 是 2026 年 9 月的草案，仅供追溯；当前方案与进度以 [PROJECT.md](PROJECT.md) 为准。
 
 ### 翻转臂与料仓 v3（2026-09-21）
 
@@ -31,7 +39,7 @@
 
 | 目录/文件 | 内容 |
 |---|---|
-| `output/mechanics/flip-arm-sw-v3/` | 当前舵机照片适配版本 |
+| `output/mechanics/flip-arm-sw-v3/` | 历史舵机照片适配草案 |
 | `output/mechanics/flip-arm-sw-v1/`、`flip-arm-sw-v2/` | 历史机械臂版本与生成脚本 |
 | `output/mechanics/bridge-platforms-v2/` | 带高台的桥梁装配 |
 | `output/power/`、`output/signals/` | 供电与信号方案 |
