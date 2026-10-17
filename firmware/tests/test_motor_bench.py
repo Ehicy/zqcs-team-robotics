@@ -208,19 +208,50 @@ class MotorBenchTests(unittest.TestCase):
         self.assertEqual(serial.pwm_count, 2)
         self.assert_final_stop(serial)
 
-    def test_invalid_pair_rejected_before_any_write(self):
-        for pair in ((1, 1), (0, 2), (1, 5), (1,), (1, 2, 3)):
+    def test_invalid_selection_rejected_before_any_write(self):
+        for pair in ((1, 1), (0, 2), (1, 5), (1,), (1, 2, 3, 4),
+                     (1, 2, 2), (0, 2, 3), (1, 2, 5)):
             serial = FakeSerial(Clock())
             with self.assertRaises(ValueError):
                 bench.run_bench(serial, wheel=pair, pwm=150, seconds=.6,
                                 clock=serial.clock, log=lambda line: None)
             self.assertEqual(serial.commands, [])
 
+    def test_triple_only_drives_selected_wheels_and_stops(self):
+        serial = FakeSerial(Clock())
+        result = bench.run_bench(serial, wheel=(1, 2, 3), pwm=150, seconds=5,
+                                 clock=serial.clock, log=lambda line: None)
+        sent = [(when, cmd) for when, cmd in serial.commands if cmd.startswith("PWM ")]
+        self.assertTrue(result.stop_confirmed)
+        self.assertGreater(len(sent), 1)
+        self.assertLess(sent[-1][0] - sent[0][0], 5)
+        self.assertTrue(all(cmd.split()[2:] == ["150", "150", "150", "0"] for _, cmd in sent))
+        self.assert_final_stop(serial)
+
+    def test_triple_disconnect_stops_without_retry(self):
+        serial = FakeSerial(Clock(), mode="disconnect")
+        with self.assertRaisesRegex(bench.BenchError, "Board link disconnected"):
+            bench.run_bench(serial, wheel=(1, 2, 3), pwm=150, seconds=5,
+                            clock=serial.clock, log=lambda line: None)
+        self.assertEqual(serial.pwm_count, 1)
+        self.assert_final_stop(serial)
+
+    def test_cli_triple_passes_exact_selection(self):
+        connection = mock.Mock()
+        with mock.patch.object(bench, "_open_serial", return_value=connection):
+            with mock.patch.object(bench, "run_bench") as runner:
+                self.assertEqual(bench.main(["--port", "FAKE", "--triple", "1", "2", "3",
+                                             "--pwm", "150", "--seconds", "5"]), 0)
+        self.assertEqual(runner.call_args.kwargs["wheel"], (1, 2, 3))
+        connection.close.assert_called_once()
+
     def test_cli_requires_one_explicit_target(self):
         base = ["--port", "FAKE", "--pwm", "150"]
         for extra in ([], ["--wheel", "1", "--all-wheels"],
                       ["--pair", "1", "2", "--all-wheels"],
-                      ["--pair", "1", "2", "--wheel", "1"], ["--pair", "1", "1"]):
+                      ["--pair", "1", "2", "--wheel", "1"], ["--pair", "1", "1"],
+                      ["--triple", "1", "2", "3", "--all-wheels"],
+                      ["--triple", "1", "2", "2"], ["--triple", "1", "2"]):
             with mock.patch.object(bench, "_open_serial") as opener:
                 with contextlib.redirect_stderr(io.StringIO()):
                     with self.assertRaises(SystemExit) as result:

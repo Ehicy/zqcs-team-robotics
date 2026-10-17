@@ -1,4 +1,4 @@
-"""Bounded USB bench input for one wheel, a selected pair, or all four wheels.
+"""Bounded USB bench input for one, two, three, or all four selected wheels.
 
 Requires pyserial only when opening a real port. Keep the tested wheel clear
 of the ground. This sends open-loop duty, not speed or distance commands.
@@ -73,10 +73,11 @@ def parse_info(line: str, expected_firmware: str = FIRMWARE) -> Info:
         raise BenchError(f"Invalid INFO reply: {exc}") from exc
 
 
-def validate_parameters(wheel: int | tuple[int, int] | None, pwm: int, seconds: float) -> None:
+def validate_parameters(wheel: int | tuple[int, ...] | None, pwm: int, seconds: float) -> None:
     if isinstance(wheel, tuple):
-        if len(wheel) != 2 or any(w not in range(1, 5) for w in wheel) or wheel[0] == wheel[1]:
-            raise ValueError("pair must contain two distinct wheels in 1..4")
+        if (len(wheel) not in (2, 3) or any(w not in range(1, 5) for w in wheel) or
+                len(set(wheel)) != len(wheel)):
+            raise ValueError("selection must contain two or three distinct wheels in 1..4")
     elif wheel is not None and wheel not in range(1, 5):
         raise ValueError("wheel must be 1..4")
     if not -250 <= pwm <= 250 or pwm == 0:
@@ -86,7 +87,7 @@ def validate_parameters(wheel: int | tuple[int, int] | None, pwm: int, seconds: 
 
 
 class _Bench:
-    def __init__(self, serial_port, wheel: int | tuple[int, int] | None, pwm: int, seconds: float,
+    def __init__(self, serial_port, wheel: int | tuple[int, ...] | None, pwm: int, seconds: float,
                  clock: Callable[[], float], log: Callable[[str], None],
                  expected_firmware: str = FIRMWARE):
         validate_parameters(wheel, pwm, seconds)
@@ -282,11 +283,11 @@ class _Bench:
         return BenchResult(token, self.pwm_writes, confirmed)
 
 
-def run_bench(serial_port, *, wheel: int | tuple[int, int] | None, pwm: int, seconds: float = 2.0,
+def run_bench(serial_port, *, wheel: int | tuple[int, ...] | None, pwm: int, seconds: float = 2.0,
               clock: Callable[[], float] = time.monotonic,
               log: Callable[[str], None] = print,
               expected_firmware: str = FIRMWARE) -> BenchResult:
-    """Run on an open port; wheel=(1,2) selects a pair, None selects all four.
+    """Run on an open port; a tuple selects two/three wheels, None all four.
 
     Equal electrical polarity does not imply all wheels propel the car forward.
     """
@@ -316,6 +317,8 @@ def main(argv=None) -> int:
     target.add_argument("--wheel", type=int, choices=range(1, 5))
     target.add_argument("--pair", type=int, nargs=2, choices=range(1, 5),
                         help="two distinct wheel numbers at equal electrical duty")
+    target.add_argument("--triple", type=int, nargs=3, choices=range(1, 5),
+                        help="three distinct wheel numbers at equal electrical duty")
     target.add_argument("--all-wheels", action="store_true",
                         help="all four at equal electrical duty; keep all wheels off the ground")
     parser.add_argument("--pwm", required=True, type=int, help="nonzero signed duty, -250..250 permille")
@@ -324,6 +327,8 @@ def main(argv=None) -> int:
                         help="exact verified INFO firmware identifier; does not bypass capability checks")
     args = parser.parse_args(argv)
     selected = tuple(args.pair) if args.pair is not None else args.wheel
+    if args.triple is not None:
+        selected = tuple(args.triple)
     try:
         validate_parameters(selected, args.pwm, args.seconds)
     except ValueError as exc:
