@@ -1,6 +1,6 @@
 # 下层车轮速闭环与 Android BLE 遥控
 
-更新：2026-10-17。STM32 四轮 PI 速度环、ESP32 BLE 服务和 Android 网页面板源码已完成。`lower-motor` 已修复看门狗启动问题并烧录，通信、灯控、故障诊断验证见 [修复记录](11-lower-watchdog-fix.md)；**逐轮架空开环试转通过，四轮同时测试触发编码器异常；闭环调参、四轮编码器校准、手机实连和网页发布仍未验收**。ESP32 保留测试前的 `crtc-lower-pid-v2 source=BLE`，未在本轮重刷。
+更新：2026-10-17。STM32 四轮 PI 速度环、ESP32 BLE 服务和 Android 网页面板源码已完成。`lower-motor` 已修复看门狗启动问题并烧录，通信、灯控、故障诊断验证见 [修复记录](11-lower-watchdog-fix.md)；**逐轮及四轮 20%/25%、各 5s 架空开环试转通过；电脑 BLE 连接和停止状态确认通过，但四轮校准未确认，解锁被拒绝；闭环调参、手机实连和网页发布仍未验收**。ESP32 保留测试前的 `crtc-lower-pid-v2 source=BLE`，未在本轮重刷。
 
 ## 编码器参数与校准入口
 
@@ -40,6 +40,12 @@
 [网页操作说明](../firmware/web/README.md) 与 [页面入口](../firmware/web/index.html) 位于 `firmware/web/`。Android Chrome 需在 HTTPS 页面使用 Web Bluetooth；电脑 `localhost` 可本地预览，手机访问电脑普通局域网 HTTP 不满足该条件。该限制依据 [Chrome 官方文档](https://developer.chrome.com/docs/capabilities/bluetooth)。当前仓库代码上传不代表网页已部署到 HTTPS 站点。
 
 操作顺序：连接→停车校准并等四轮配置 ACK→手动 ARM→按住方向行驶。默认面板上限 100mm/s；四胶轮只提供前进、后退、左转、右转。松手发零速度并保留解锁；大 STOP 锁定并使旧会话失效。失联、页面隐藏/失焦、触控取消或调度中断后均清除动作，回来不能自动续跑。收到新会话只在页面本地锁定，不回发无限 STOP。
+
+## 电脑 BLE 实板检查（2026-10-17）
+
+Windows 通过 BLE 连接 `CRTC-Lower-Car`，收到主状态、编码器和轮速通知。最终一次检查中，STOP 确认锁定，灯亮/灭命令收到 ESP32 的源序号确认（未取得实物灯光确认）；中性 ARM 被固件拒绝，回报 `reason=7`、`ready=false`、校准就绪 `0/4`。随后 10s 主状态保持同一会话、UART 在线、无故障且未解锁。没有发送 DRIVE、修改校准或绕过门禁，蓝牙运动尚未验收。
+
+早先独立供电时曾成功连接，但重连发生 GATT 服务发现超时，广播一度消失；用户切换为 USB 供电后恢复。最终控制命令仍走 BLE，USB 用于 ESP32 供电和先前诊断，不能据此认定独立供电/长期重连已稳定。STOP 会引起 UART 与 BLE 会话更新，诊断脚本须等握手稳定再发下一条命令。详细过程及失败记录见 [电脑 BLE 证据](evidence/ble-pc-connection-20261017.json)。
 
 ## 构建、测试与实板验收
 
