@@ -166,6 +166,36 @@ class MotorBenchTests(unittest.TestCase):
         self.assertEqual(serial.pwm_count, 1)
         self.assert_final_stop(serial)
 
+    def test_all_wheels_share_deadline_and_stop(self):
+        serial = FakeSerial(Clock())
+        result = bench.run_bench(serial, wheel=None, pwm=150, seconds=.6,
+                                 clock=serial.clock, log=lambda line: None)
+        sent = [(when, cmd) for when, cmd in serial.commands if cmd.startswith("PWM ")]
+        self.assertTrue(result.stop_confirmed)
+        self.assertGreater(len(sent), 1)
+        self.assertLess(sent[-1][0] - sent[0][0], .6)
+        for _, cmd in sent:
+            self.assertEqual(cmd.split()[2:], ["150"] * 4)
+        self.assert_final_stop(serial)
+
+    def test_all_wheels_disconnect_stops_without_retry(self):
+        serial = FakeSerial(Clock(), mode="disconnect")
+        with self.assertRaisesRegex(bench.BenchError, "Board link disconnected"):
+            bench.run_bench(serial, wheel=None, pwm=150, seconds=.6,
+                            clock=serial.clock, log=lambda line: None)
+        self.assertEqual(serial.pwm_count, 1)
+        self.assert_final_stop(serial)
+
+    def test_cli_requires_one_explicit_target(self):
+        base = ["--port", "FAKE", "--pwm", "150"]
+        for extra in ([], ["--wheel", "1", "--all-wheels"]):
+            with mock.patch.object(bench, "_open_serial") as opener:
+                with contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as result:
+                        bench.main(base + extra)
+                self.assertEqual(result.exception.code, 2)
+                opener.assert_not_called()
+
     def test_disconnect_during_run_stops(self):
         serial = FakeSerial(Clock(), mode="disconnect")
         with self.assertRaisesRegex(bench.BenchError, "Board link disconnected"):
@@ -207,6 +237,29 @@ class MotorBenchTests(unittest.TestCase):
                     bench.run_bench(serial, wheel=wheel, pwm=pwm, seconds=seconds,
                                     clock=serial.clock, log=lambda line: None)
                 self.assertEqual(serial.commands, [])
+
+    def test_new_firmware_requires_explicit_exact_identity(self):
+        line = ("INFO firmware=crtc-lower-pid-v2 transport=1 connected=1 "
+                "token=10203040 flags=31 uptime_ms=123")
+        with self.assertRaisesRegex(bench.BenchError, "unexpected firmware"):
+            bench.parse_info(line)
+        info = bench.parse_info(line, "crtc-lower-pid-v2")
+        self.assertTrue(bench._Bench._ready(info))
+        for flags in (23, 27):  # Missing PWM support or missing inhibition.
+            info = bench.parse_info(line.replace("flags=31", f"flags={flags}"),
+                                    "crtc-lower-pid-v2")
+            self.assertFalse(bench._Bench._ready(info))
+        with self.assertRaisesRegex(bench.BenchError, "invalid status range"):
+            bench.parse_info(line.replace("flags=31", "flags=63"), "crtc-lower-pid-v2")
+
+    def test_wrong_firmware_never_sends_pwm(self):
+        serial = FakeSerial(Clock())
+        with self.assertRaisesRegex(bench.BenchError, "unexpected firmware"):
+            bench.run_bench(serial, wheel=1, pwm=100, seconds=.25,
+                            clock=serial.clock, log=lambda line: None,
+                            expected_firmware="different-firmware")
+        self.assertEqual(serial.pwm_count, 0)
+        self.assert_final_stop(serial)
 
     def test_dtr_rts_are_false_before_open(self):
         events = []

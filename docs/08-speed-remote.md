@@ -1,6 +1,6 @@
 # 下层车轮速闭环与 Android BLE 遥控
 
-更新：2026-10-17。STM32 四轮 PI 速度环、ESP32 BLE 服务和 Android 网页面板源码已完成。`lower-motor` 已修复看门狗启动问题并烧录，通信、灯控、故障诊断验证见 [修复记录](11-lower-watchdog-fix.md)；**实际电机/闭环调参、四轮编码器校准、手机实连和网页发布仍未验收**。ESP32 保留测试前的 `crtc-lower-pid-v2 source=BLE`，未在本轮重刷。
+更新：2026-10-17。STM32 四轮 PI 速度环、ESP32 BLE 服务和 Android 网页面板源码已完成。`lower-motor` 已修复看门狗启动问题并烧录，通信、灯控、故障诊断验证见 [修复记录](11-lower-watchdog-fix.md)；**逐轮架空开环试转通过，四轮同时测试触发编码器异常；闭环调参、四轮编码器校准、手机实连和网页发布仍未验收**。ESP32 保留测试前的 `crtc-lower-pid-v2 source=BLE`，未在本轮重刷。
 
 ## 编码器参数与校准入口
 

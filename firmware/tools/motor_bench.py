@@ -1,4 +1,4 @@
-"""Bounded, single-wheel USB bench input for the ESP32 motor console.
+"""Bounded USB bench input for one wheel or explicitly all four wheels.
 
 Requires pyserial only when opening a real port. Keep the tested wheel clear
 of the ground. This sends open-loop duty, not speed or distance commands.
@@ -47,10 +47,10 @@ class BenchResult:
     stop_confirmed: bool
 
 
-def parse_info(line: str) -> Info:
+def parse_info(line: str, expected_firmware: str = FIRMWARE) -> Info:
     try:
         fields = dict(part.split("=", 1) for part in line.split()[1:])
-        if fields["firmware"] != FIRMWARE:
+        if fields["firmware"] != expected_firmware:
             raise ValueError("unexpected firmware")
         if fields["transport"] != "1":
             raise ValueError("UART transport unavailable")
@@ -62,7 +62,9 @@ def parse_info(line: str) -> Info:
         connected = fields["connected"] == "1"
         flags = int(fields["flags"], 10)
         uptime = int(fields["uptime_ms"], 10)
-        if not 0 <= flags <= 15 or not 0 <= uptime <= 0xFFFFFFFF:
+        # Bit 4 advertises speed control in newer firmware. It does not
+        # replace the PWM capability or inhibited-state checks below.
+        if not 0 <= flags <= 31 or not 0 <= uptime <= 0xFFFFFFFF:
             raise ValueError("invalid status range")
         if connected and token == "00000000":
             raise ValueError("connected with a zero session token")
@@ -71,8 +73,8 @@ def parse_info(line: str) -> Info:
         raise BenchError(f"Invalid INFO reply: {exc}") from exc
 
 
-def validate_parameters(wheel: int, pwm: int, seconds: float) -> None:
-    if wheel not in range(1, 5):
+def validate_parameters(wheel: int | None, pwm: int, seconds: float) -> None:
+    if wheel is not None and wheel not in range(1, 5):
         raise ValueError("wheel must be 1..4")
     if not -250 <= pwm <= 250 or pwm == 0:
         raise ValueError("pwm must be nonzero and within -250..250 permille")
@@ -81,9 +83,13 @@ def validate_parameters(wheel: int, pwm: int, seconds: float) -> None:
 
 
 class _Bench:
-    def __init__(self, serial_port, wheel: int, pwm: int, seconds: float,
-                 clock: Callable[[], float], log: Callable[[str], None]):
+    def __init__(self, serial_port, wheel: int | None, pwm: int, seconds: float,
+                 clock: Callable[[], float], log: Callable[[str], None],
+                 expected_firmware: str = FIRMWARE):
         validate_parameters(wheel, pwm, seconds)
+        if re.fullmatch(r"[A-Za-z0-9_.-]+", expected_firmware) is None:
+            raise ValueError("expected firmware must be an exact nonempty identifier")
+        self.expected_firmware = expected_firmware
         self.serial = serial_port
         self.serial.timeout = READ_TIMEOUT
         self.serial.write_timeout = WRITE_TIMEOUT
@@ -126,7 +132,7 @@ class _Bench:
                 raise BenchError("Console rejected an operation: " + line)
             if not line.startswith("INFO "):
                 continue
-            info = parse_info(line)
+            info = parse_info(line, self.expected_firmware)
             if self.last_info is not None:
                 delta = (info.uptime_ms - self.last_info.uptime_ms) & 0xFFFFFFFF
                 if delta >= 0x80000000:
@@ -187,8 +193,9 @@ class _Bench:
         raise BenchError("Preparation timed out: no new stable, inhibited PWM-capable session")
 
     def _drive(self, token: str) -> None:
-        values = [0, 0, 0, 0]
-        values[self.wheel - 1] = self.pwm
+        values = [self.pwm] * 4 if self.wheel is None else [0, 0, 0, 0]
+        if self.wheel is not None:
+            values[self.wheel - 1] = self.pwm
         command = "PWM " + token + " " + " ".join(map(str, values))
         end = self.clock() + self.seconds
         next_pwm = self.clock()
@@ -272,11 +279,15 @@ class _Bench:
         return BenchResult(token, self.pwm_writes, confirmed)
 
 
-def run_bench(serial_port, *, wheel: int, pwm: int, seconds: float = 2.0,
+def run_bench(serial_port, *, wheel: int | None, pwm: int, seconds: float = 2.0,
               clock: Callable[[], float] = time.monotonic,
-              log: Callable[[str], None] = print) -> BenchResult:
-    """Run against an already-open port; injectable clock/port support dry tests."""
-    return _Bench(serial_port, wheel, pwm, seconds, clock, log).run()
+              log: Callable[[str], None] = print,
+              expected_firmware: str = FIRMWARE) -> BenchResult:
+    """Run on an open port; wheel=None explicitly drives all four at equal duty.
+
+    Equal electrical polarity does not imply all wheels propel the car forward.
+    """
+    return _Bench(serial_port, wheel, pwm, seconds, clock, log, expected_firmware).run()
 
 
 def _open_serial(port: str):
@@ -298,9 +309,14 @@ def _open_serial(port: str):
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", required=True, help="ESP32 USB serial port, for example COM8")
-    parser.add_argument("--wheel", required=True, type=int, choices=range(1, 5))
+    target = parser.add_mutually_exclusive_group(required=True)
+    target.add_argument("--wheel", type=int, choices=range(1, 5))
+    target.add_argument("--all-wheels", action="store_true",
+                        help="all four at equal electrical duty; keep all wheels off the ground")
     parser.add_argument("--pwm", required=True, type=int, help="nonzero signed duty, -250..250 permille")
     parser.add_argument("--seconds", type=float, default=2.0, help="command interval in (0,5], default 2")
+    parser.add_argument("--expected-firmware", default=FIRMWARE,
+                        help="exact verified INFO firmware identifier; does not bypass capability checks")
     args = parser.parse_args(argv)
     try:
         validate_parameters(args.wheel, args.pwm, args.seconds)
@@ -309,7 +325,8 @@ def main(argv=None) -> int:
     connection = None
     try:
         connection = _open_serial(args.port)
-        run_bench(connection, wheel=args.wheel, pwm=args.pwm, seconds=args.seconds)
+        run_bench(connection, wheel=args.wheel, pwm=args.pwm, seconds=args.seconds,
+                  expected_firmware=args.expected_firmware)
         return 0
     except KeyboardInterrupt:
         print("Bench interrupted; STOP was attempted, with no automatic restart", file=sys.stderr)
