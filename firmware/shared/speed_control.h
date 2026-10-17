@@ -18,7 +18,9 @@ extern "C" {
 enum {
     SPEED_FAULT_NONE=0, SPEED_FAULT_UNCALIBRATED=1,
     SPEED_FAULT_ENCODER=2, SPEED_FAULT_STALL=3,
-    SPEED_FAULT_DIRECTION=4, SPEED_FAULT_TIMING=5
+    SPEED_FAULT_DIRECTION=4, SPEED_FAULT_TIMING=5,
+    /* Published by the STM32 owner, not generated/cleared by the PI core. */
+    SPEED_FAULT_WATCHDOG=6
 };
 
 typedef struct {

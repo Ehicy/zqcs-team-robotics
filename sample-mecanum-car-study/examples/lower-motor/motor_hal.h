@@ -28,8 +28,9 @@ uint8_t lower_motor_is_enabled(void);
 uint8_t lower_encoder_sample(int32_t counts[4]);
 
 /* Main context with interrupts enabled only. clear() succeeds only with all
- * outputs disabled and restarts the software deadline. feed() never releases
- * a latched fault; it refuses to sustain output with interrupts masked. */
+ * outputs disabled and restarts the software deadline. A failed IWDG init
+ * cannot be cleared without a successful reboot/init. feed() keeps diagnostics
+ * alive but never releases a fault; it refuses feeding with interrupts masked. */
 void lower_motor_watchdog_feed(void);
 uint8_t lower_motor_watchdog_fault(void);
 void lower_motor_watchdog_clear(void);

@@ -20,6 +20,7 @@ static link_node_t controller;
 static motor_control_t motors;
 static speed_control_t speeds;
 static actuation_guard_t actuation_guard; /* Retained across STOP/new session. */
+static uint8_t watchdog_fault_seen;
 volatile uint32_t board_link_tx_frames, board_link_transport_errors;
 volatile uint8_t board_link_led_pin_high;
 volatile uint8_t board_link_outputs_inhibited=1;
@@ -87,8 +88,20 @@ static void transport_fault(uint32_t now)
     speed_control_stop(&speeds,now);
     board_link_outputs_inhibited=1;
     link_node_set_motor_state(&controller,1,1);
-    lower_motor_watchdog_clear(); /* Old session was revoked before rearming. */
     led_apply();
+}
+static uint8_t reported_fault(void)
+{
+    return lower_motor_watchdog_fault()?SPEED_FAULT_WATCHDOG:speeds.fault;
+}
+static void check_watchdog(uint32_t now)
+{
+    uint8_t fault=lower_motor_watchdog_fault();
+    /* Revoke an old motion lease ONCE on the fault edge, then let HELLO,
+     * telemetry, LED and stopped-only configuration continue. Persistent
+     * hardware failure must not erase the receive queue every owner pass. */
+    if(fault && !watchdog_fault_seen) transport_fault(now);
+    watchdog_fault_seen=fault;
 }
 static int uart_write(const uint8_t *bytes,size_t count)
 {
@@ -118,7 +131,8 @@ int main(void)
     while(1) {
         size_t length; unsigned budget; int32_t counts[4]; uint8_t enabled, encoder_mask, old_fault;
         now=delay_millis(); link_node_tick(&controller,now);
-        if(rx_fault || lower_motor_watchdog_fault()) transport_fault(now);
+        if(rx_fault) transport_fault(now);
+        check_watchdog(now);
         for(budget=0;budget<RX_RING_SIZE && rx_tail!=rx_head;budget++) {
             uint8_t tail=rx_tail, byte=rx_bytes[tail]; uint32_t arrival=rx_ms[tail];
             uint32_t accepted=controller.accepted_controls;
@@ -154,24 +168,31 @@ int main(void)
         now=delay_millis(); link_node_tick(&controller,now);
         encoder_mask=lower_encoder_sample(counts);
         old_fault=speeds.fault;
-        enabled=controller.connected && controller.command_valid &&
+        enabled=!lower_motor_watchdog_fault() && controller.connected && controller.command_valid &&
             controller.requested_enable && controller.requested_mode==LINK_CONTROL &&
             actuation_guard_allows(&actuation_guard,LINK_CONTROL,now);
         (void)speed_control_update(&speeds,now,counts,encoder_mask,controller.requested_mm_s,
                                   enabled,controller.command_ms,controller.command_ttl_ms);
-        enabled=controller.connected && controller.command_valid &&
+        enabled=!lower_motor_watchdog_fault() && controller.connected && controller.command_valid &&
             controller.requested_enable && controller.requested_mode==LINK_PWM && !speeds.fault &&
             actuation_guard_allows(&actuation_guard,LINK_PWM,now);
         (void)motor_control_update(&motors,now,controller.requested_pwm,enabled,
                                   controller.command_ms,controller.command_ttl_ms);
-        if(motors.fault || (speeds.fault && speeds.fault!=old_fault) || rx_fault || lower_motor_watchdog_fault()) transport_fault(now);
+        if(motors.fault || (speeds.fault && speeds.fault!=old_fault) || rx_fault) transport_fault(now);
+        check_watchdog(now);
         if(controller.config_received) {
             uint8_t result=1;
             /* Counts are sampled above even when disarmed. Never configure
              * while a command/output is enabled or measured wheels move. */
             if(!controller.requested_enable && !motors.active && !speeds.active &&
                actuation_guard_idle(&actuation_guard,now)) {
-                if(controller.config_wheel==255) result=speed_control_clear_fault(&speeds)?0:2;
+                if(controller.config_wheel==255) {
+                    result=2;
+                    if(speed_control_clear_fault(&speeds)) {
+                        lower_motor_watchdog_clear();
+                        if(!lower_motor_watchdog_fault()) result=0;
+                    }
+                }
                 else {
                     const uint8_t *p=controller.config_payload; speed_config_t cfg;
                     cfg.motor_sign=(p[1]&1)?-1:1; cfg.encoder_sign=(p[1]&2)?-1:1;
@@ -182,7 +203,7 @@ int main(void)
                     result=speed_control_configure(&speeds,controller.config_wheel,&cfg)?0:2;
                 }
             }
-            link_node_finish_config(&controller,result,speeds.ready_mask,speeds.fault);
+            link_node_finish_config(&controller,result,speeds.ready_mask,reported_fault());
         }
         if(controller.requested_mode==LINK_CONTROL) lower_motor_write(speeds.pwm_permille,speeds.active);
         else lower_motor_write(motors.output_permille,motors.active);
@@ -192,7 +213,7 @@ int main(void)
         link_node_set_motor_state(&controller,1,board_link_outputs_inhibited);
         link_node_publish_encoders(&controller,counts,encoder_mask,now);
         link_node_publish_speed(&controller,speeds.measured_mm_s,speeds.ramped_mm_s,
-                                speeds.feedback_valid_mask,speeds.ready_mask,speeds.fault,now);
+                                speeds.feedback_valid_mask,speeds.ready_mask,reported_fault(),now);
         led_apply();
         length=link_node_transmit(&controller,now,wire,sizeof(wire));
         if(length) {

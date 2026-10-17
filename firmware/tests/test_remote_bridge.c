@@ -1,5 +1,6 @@
 #include "remote_bridge.h"
 #include "actuation_guard.h"
+#include "speed_control.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -110,6 +111,32 @@ static void test_fault_and_telemetry(void)
     assert(!bridge.control.armed && !stm.requested_enable);
     puts("PASS wheel telemetry, fault/readiness interlock and disconnect lockout");
 }
+static void test_watchdog_fault_diagnostics(void)
+{
+    uint8_t p[20],status[20]; uint32_t token;
+    initialize();
+    fault=SPEED_FAULT_WATCHDOG; cycle(120); token=client.token;
+    assert(client.connected && stm.connected && !bridge.control.drive_ready);
+    assert(client.remote_speed_fault==SPEED_FAULT_WATCHDOG);
+    remote_bridge_status(&bridge,0,status);
+    assert((status[2]&1) && (status[2]&16) && status[19]==SPEED_FAULT_WATCHDOG);
+    packet(p,REMOTE_OPCODE_ARM);
+    assert(!remote_bridge_receive(&bridge,p,20,now,now));
+    assert(!bridge.control.armed && !stm.requested_enable);
+    /* A persistent motor fault must allow actual framed LED transactions,
+     * telemetry and multiple heartbeats without changing the UART session. */
+    assert(link_node_request_led(&client,1,now)); cycle(110);
+    assert(stm.led_on && !client.led_waiting_ack);
+    assert(link_node_request_led(&client,0,now)); cycle(110);
+    assert(!stm.led_on && !client.led_waiting_ack);
+    cycle(500);
+    assert(client.connected && client.token==token);
+    assert(client.remote_speed_fault==SPEED_FAULT_WATCHDOG);
+    assert(!stm.requested_enable && !bridge.control.armed);
+    fault=0; cycle(110);
+    assert(bridge.control.drive_ready && !bridge.control.armed);
+    puts("PASS watchdog fault telemetry keeps UART/LED alive, rejects ARM and never auto-resumes");
+}
 int main(void)
 {
     actuation_guard_t g={0};
@@ -126,5 +153,6 @@ int main(void)
     assert(!actuation_guard_allows(&g,LINK_CONTROL,20));
     assert(actuation_guard_allows(&g,LINK_CONTROL,34));
     puts("PASS physical output mode guard across STOP, new session and clock wrap");
-    test_config_ack(); test_drive_stop_lease(); test_fault_and_telemetry(); return 0;
+    test_config_ack(); test_drive_stop_lease(); test_fault_and_telemetry();
+    test_watchdog_fault_diagnostics(); return 0;
 }
