@@ -477,7 +477,7 @@ static void test_resource_allocation(void)
     }
     assert(LINK_ESP_TX_GPIO==4 && LINK_ESP_RX_GPIO==6);
     assert(LINK_ESP_TX_GPIO!=LINK_ESP_ARM_SERVO_GPIO && LINK_ESP_RX_GPIO!=LINK_ESP_ARM_SERVO_GPIO);
-    assert(LINK_ESP_TX_GPIO!=LINK_ESP_GRIP_SERVO_GPIO && LINK_ESP_RX_GPIO!=LINK_ESP_GRIP_SERVO_GPIO);
+    assert(LINK_ESP_TX_GPIO!=LINK_ESP_FOREARM_SERVO_GPIO && LINK_ESP_RX_GPIO!=LINK_ESP_FOREARM_SERVO_GPIO);
     puts("PASS resource map: UART, eight encoder inputs, four PWM, directions, STBY and SWD have no overlap");
 }
 static void test_speed_config_protocol(void)

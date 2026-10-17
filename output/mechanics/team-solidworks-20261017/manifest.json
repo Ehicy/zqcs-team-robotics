@@ -1,0 +1,91 @@
+{
+  "received": "2026-10-17",
+  "source": "Team mechanical files supplied by the user",
+  "files": [
+    {
+      "file": "板子.SLDPRT",
+      "bytes": 105648,
+      "sha256": "0c8589ac24dc568b510bfa7246d82a5d67c234728cd4d5bc2dc44d4ec04b02f3"
+    },
+    {
+      "file": "底盘.SLDPRT",
+      "bytes": 329998,
+      "sha256": "b875bd76ada4f2064d13419891eb4a5928c45690b10cdc0ce0b8e0f6cf815a24"
+    },
+    {
+      "file": "底盘2.SLDPRT",
+      "bytes": 328652,
+      "sha256": "a29b60a1981d21b6c01c4760ed5561879838bf4335a94ca5b693c06e07f5dadb"
+    },
+    {
+      "file": "底盘3.SLDPRT",
+      "bytes": 427876,
+      "sha256": "6c4a75a92e9180e2c0a224d9f1ab64bbf1d8ee4869e14a91305d449c683133c4"
+    },
+    {
+      "file": "顶板.SLDPRT",
+      "bytes": 226167,
+      "sha256": "71dccb3eae47898bba3a09415d4fb564ec429b7b8abd5f5c478954b256e27d7b"
+    },
+    {
+      "file": "顶板+机械臂底座.SLDPRT",
+      "bytes": 33613,
+      "sha256": "b7c38e6d883f89ace736f5e75fc6b2ecce1110e6a70b8b7b200573765500cc57"
+    },
+    {
+      "file": "顶板+机械臂底座2.SLDPRT",
+      "bytes": 172446,
+      "sha256": "c9dbfb4f2684a47ae244ce34cb2d9163b532fc37e2bbfb8f23a929e6e9edb5d1"
+    },
+    {
+      "file": "顶板+机械臂底座3.SLDPRT",
+      "bytes": 269253,
+      "sha256": "9464e7f1a04242a7682966204611477fc34b467f19c7e2dcfff3b21f3204902d"
+    },
+    {
+      "file": "顶板4.SLDPRT",
+      "bytes": 257876,
+      "sha256": "da152799ab905d351d69fa5dced87a35d08a06e7069c9cc6d483e0acd52f9c58"
+    },
+    {
+      "file": "钩爪.SLDPRT",
+      "bytes": 89168,
+      "sha256": "92c7d15957b5ed35dda92e5d7ac241b1e38c262f8dc6cef2bfaa6f471f72e864"
+    },
+    {
+      "file": "钩爪2.SLDPRT",
+      "bytes": 95180,
+      "sha256": "a0b178b5680e34136c15fdd305305f782d52ea15db77d9f80f96158c16565bdd"
+    },
+    {
+      "file": "钩爪3.SLDPRT",
+      "bytes": 88612,
+      "sha256": "86bd2a69f687aa9e288494e0c451f81b2f6954c8fdf44c3f460afeedabf1a860"
+    },
+    {
+      "file": "机械臂大臂.SLDPRT",
+      "bytes": 147272,
+      "sha256": "069ed105fed404f9898e0f451a4867ab99b2a209998a2912217b4b3a68865dd6"
+    },
+    {
+      "file": "机械臂大臂2.SLDPRT",
+      "bytes": 178207,
+      "sha256": "035c6b6a913de9b502094309affc972c8f70f43978bd9c369ca80f654f99f802"
+    },
+    {
+      "file": "机械臂大臂3.SLDPRT",
+      "bytes": 147254,
+      "sha256": "e077fa51aea014f41bcba9dcb578565ff48630f7164bc3b1b76d3b93ecdc026a"
+    },
+    {
+      "file": "机械臂大臂4.SLDPRT",
+      "bytes": 178892,
+      "sha256": "9a0d980df646a096a484623f1c6276fb338167836a89b8be129f2d0fb759e7c7"
+    },
+    {
+      "file": "装配体1.SLDASM",
+      "bytes": 199578,
+      "sha256": "eeac2c9110839d6bf37495949860dcd29a91e12696599fb4947dcf39a1c949db"
+    }
+  ]
+}

@@ -40,8 +40,8 @@
 #define LINK_STM_MOTOR_IN2_PINS     {1,4,12,14} /* all GPIOB */
 #define LINK_ENCODER_SAMPLE_MAX_AGE_MS 200U
 #define LINK_ENCODER_PERIOD_MS     100U
-#define LINK_ESP_ARM_SERVO_GPIO      -1 /* unassigned: former GPIO4 now UART TX */
-#define LINK_ESP_GRIP_SERVO_GPIO      5 /* reserved, not initialized */
+#define LINK_ESP_ARM_SERVO_GPIO       7 /* reserved DS3128 arm signal, not initialized; GPIO4 is UART TX */
+#define LINK_ESP_FOREARM_SERVO_GPIO   5 /* reserved MG995 forearm signal, not initialized */
 #if LINK_ACTUATION_ENABLED != 0
 #error Do not enable board-link this way: build the separate lower-motor target
 #endif
