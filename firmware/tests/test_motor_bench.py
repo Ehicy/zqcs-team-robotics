@@ -186,9 +186,41 @@ class MotorBenchTests(unittest.TestCase):
         self.assertEqual(serial.pwm_count, 1)
         self.assert_final_stop(serial)
 
+    def test_pair_only_drives_selected_wheels_and_stops(self):
+        for pair, values in (((1, 2), ["150", "150", "0", "0"]),
+                             ((3, 4), ["0", "0", "150", "150"])):
+            with self.subTest(pair=pair):
+                serial = FakeSerial(Clock())
+                result = bench.run_bench(serial, wheel=pair, pwm=150, seconds=.6,
+                                         clock=serial.clock, log=lambda line: None)
+                sent = [(when, cmd) for when, cmd in serial.commands if cmd.startswith("PWM ")]
+                self.assertTrue(result.stop_confirmed)
+                self.assertGreater(len(sent), 1)
+                self.assertLess(sent[-1][0] - sent[0][0], .6)
+                self.assertTrue(all(cmd.split()[2:] == values for _, cmd in sent))
+                self.assert_final_stop(serial)
+
+    def test_pair_token_change_stops_without_retry(self):
+        serial = FakeSerial(Clock(), mode="token_change")
+        with self.assertRaisesRegex(bench.BenchError, "Session token changed"):
+            bench.run_bench(serial, wheel=(1, 2), pwm=150, seconds=.6,
+                            clock=serial.clock, log=lambda line: None)
+        self.assertEqual(serial.pwm_count, 2)
+        self.assert_final_stop(serial)
+
+    def test_invalid_pair_rejected_before_any_write(self):
+        for pair in ((1, 1), (0, 2), (1, 5), (1,), (1, 2, 3)):
+            serial = FakeSerial(Clock())
+            with self.assertRaises(ValueError):
+                bench.run_bench(serial, wheel=pair, pwm=150, seconds=.6,
+                                clock=serial.clock, log=lambda line: None)
+            self.assertEqual(serial.commands, [])
+
     def test_cli_requires_one_explicit_target(self):
         base = ["--port", "FAKE", "--pwm", "150"]
-        for extra in ([], ["--wheel", "1", "--all-wheels"]):
+        for extra in ([], ["--wheel", "1", "--all-wheels"],
+                      ["--pair", "1", "2", "--all-wheels"],
+                      ["--pair", "1", "2", "--wheel", "1"], ["--pair", "1", "1"]):
             with mock.patch.object(bench, "_open_serial") as opener:
                 with contextlib.redirect_stderr(io.StringIO()):
                     with self.assertRaises(SystemExit) as result:

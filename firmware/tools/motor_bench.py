@@ -1,4 +1,4 @@
-"""Bounded USB bench input for one wheel or explicitly all four wheels.
+"""Bounded USB bench input for one wheel, a selected pair, or all four wheels.
 
 Requires pyserial only when opening a real port. Keep the tested wheel clear
 of the ground. This sends open-loop duty, not speed or distance commands.
@@ -73,8 +73,11 @@ def parse_info(line: str, expected_firmware: str = FIRMWARE) -> Info:
         raise BenchError(f"Invalid INFO reply: {exc}") from exc
 
 
-def validate_parameters(wheel: int | None, pwm: int, seconds: float) -> None:
-    if wheel is not None and wheel not in range(1, 5):
+def validate_parameters(wheel: int | tuple[int, int] | None, pwm: int, seconds: float) -> None:
+    if isinstance(wheel, tuple):
+        if len(wheel) != 2 or any(w not in range(1, 5) for w in wheel) or wheel[0] == wheel[1]:
+            raise ValueError("pair must contain two distinct wheels in 1..4")
+    elif wheel is not None and wheel not in range(1, 5):
         raise ValueError("wheel must be 1..4")
     if not -250 <= pwm <= 250 or pwm == 0:
         raise ValueError("pwm must be nonzero and within -250..250 permille")
@@ -83,7 +86,7 @@ def validate_parameters(wheel: int | None, pwm: int, seconds: float) -> None:
 
 
 class _Bench:
-    def __init__(self, serial_port, wheel: int | None, pwm: int, seconds: float,
+    def __init__(self, serial_port, wheel: int | tuple[int, int] | None, pwm: int, seconds: float,
                  clock: Callable[[], float], log: Callable[[str], None],
                  expected_firmware: str = FIRMWARE):
         validate_parameters(wheel, pwm, seconds)
@@ -193,9 +196,9 @@ class _Bench:
         raise BenchError("Preparation timed out: no new stable, inhibited PWM-capable session")
 
     def _drive(self, token: str) -> None:
-        values = [self.pwm] * 4 if self.wheel is None else [0, 0, 0, 0]
-        if self.wheel is not None:
-            values[self.wheel - 1] = self.pwm
+        selected = (1, 2, 3, 4) if self.wheel is None else (
+            self.wheel if isinstance(self.wheel, tuple) else (self.wheel,))
+        values = [self.pwm if wheel in selected else 0 for wheel in range(1, 5)]
         command = "PWM " + token + " " + " ".join(map(str, values))
         end = self.clock() + self.seconds
         next_pwm = self.clock()
@@ -279,11 +282,11 @@ class _Bench:
         return BenchResult(token, self.pwm_writes, confirmed)
 
 
-def run_bench(serial_port, *, wheel: int | None, pwm: int, seconds: float = 2.0,
+def run_bench(serial_port, *, wheel: int | tuple[int, int] | None, pwm: int, seconds: float = 2.0,
               clock: Callable[[], float] = time.monotonic,
               log: Callable[[str], None] = print,
               expected_firmware: str = FIRMWARE) -> BenchResult:
-    """Run on an open port; wheel=None explicitly drives all four at equal duty.
+    """Run on an open port; wheel=(1,2) selects a pair, None selects all four.
 
     Equal electrical polarity does not imply all wheels propel the car forward.
     """
@@ -311,6 +314,8 @@ def main(argv=None) -> int:
     parser.add_argument("--port", required=True, help="ESP32 USB serial port, for example COM8")
     target = parser.add_mutually_exclusive_group(required=True)
     target.add_argument("--wheel", type=int, choices=range(1, 5))
+    target.add_argument("--pair", type=int, nargs=2, choices=range(1, 5),
+                        help="two distinct wheel numbers at equal electrical duty")
     target.add_argument("--all-wheels", action="store_true",
                         help="all four at equal electrical duty; keep all wheels off the ground")
     parser.add_argument("--pwm", required=True, type=int, help="nonzero signed duty, -250..250 permille")
@@ -318,14 +323,15 @@ def main(argv=None) -> int:
     parser.add_argument("--expected-firmware", default=FIRMWARE,
                         help="exact verified INFO firmware identifier; does not bypass capability checks")
     args = parser.parse_args(argv)
+    selected = tuple(args.pair) if args.pair is not None else args.wheel
     try:
-        validate_parameters(args.wheel, args.pwm, args.seconds)
+        validate_parameters(selected, args.pwm, args.seconds)
     except ValueError as exc:
         parser.error(str(exc))
     connection = None
     try:
         connection = _open_serial(args.port)
-        run_bench(connection, wheel=args.wheel, pwm=args.pwm, seconds=args.seconds,
+        run_bench(connection, wheel=selected, pwm=args.pwm, seconds=args.seconds,
                   expected_firmware=args.expected_firmware)
         return 0
     except KeyboardInterrupt:
