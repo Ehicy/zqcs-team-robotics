@@ -5,9 +5,9 @@ export const UUID = Object.freeze({
   status: '2c4b0003-6f1a-4c9e-9b72-3c06f42b7d11',
 });
 export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7 });
-export const WHEELS = Object.freeze(['M1 左后', 'M2 右后', 'M3 左前', 'M4 右前']);
+export const WHEELS = Object.freeze(['M1 右前', 'M2 左前', 'M3 右后', 'M4 左后']);
 export const DEFAULT_CALIBRATION = Object.freeze(WHEELS.map((_, wheel) => Object.freeze({
-  wheel, motorNegative: false, encoderNegative: false, confirmed: false,
+  wheel, motorNegative: wheel % 2 === 1, encoderNegative: wheel % 2 === 0, confirmed: false,
   diameterTenthMm: 650, countsPerRev: wheel === 3 ? 884 : 1768,
   kpMilli: 1000, kiMilli: 2000, maxMmS: 300,
 })));

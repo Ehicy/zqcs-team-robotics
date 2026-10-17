@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { OP, DEFAULT_CALIBRATION, encodeCommand, decodeStatus, validateCalibration, WriteQueue, AckRegistry, RemoteController } from '../web/protocol.js';
+import { OP, WHEELS, DEFAULT_CALIBRATION, encodeCommand, decodeStatus, validateCalibration, WriteQueue, AckRegistry, RemoteController } from '../web/protocol.js';
+
+test('measured wheel directions retain the explicit calibration safety gate', () => {
+  assert.deepEqual(WHEELS, ['M1 右前', 'M2 左前', 'M3 右后', 'M4 左后']);
+  assert.deepEqual(DEFAULT_CALIBRATION.map(c => c.motorNegative), [false, true, false, true]);
+  assert.deepEqual(DEFAULT_CALIBRATION.map(c => c.encoderNegative), [true, false, true, false]);
+  assert.ok(DEFAULT_CALIBRATION.every(c => c.confirmed === false));
+});
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const header = { session: 0x12345678, sequence: 0x90abcdef };

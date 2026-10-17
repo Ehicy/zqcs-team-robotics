@@ -77,7 +77,7 @@ int remote_bridge_receive(remote_bridge_t *b,const uint8_t *p,size_t size,uint32
         unsigned i; int32_t peak=0; uint16_t limit=speed_limit(b);
         for(i=0;i<4;i++) { int32_t value=a.targets[i]; if(value<0) value=-value; if(value>peak) peak=value; }
         if(peak>limit) for(i=0;i<4;i++) a.targets[i]=(int16_t)((int32_t)a.targets[i]*limit/peak);
-        b->control.left_mm_s=a.targets[0]; b->control.right_mm_s=a.targets[1];
+        b->control.left_mm_s=a.targets[1]; b->control.right_mm_s=a.targets[0];
         if(!link_node_submit_input(n,n->have_input_sequence?n->input_sequence+1U:1U,
                                   a.targets,1,a.ttl_ms,now)) {
             remote_bridge_stop(b,REMOTE_REASON_LINK,now); return 0;
@@ -131,8 +131,8 @@ void remote_bridge_status(remote_bridge_t *b,uint8_t kind,uint8_t p[20])
         p[3]=b->control.reason; link_put_u32(p+4,b->control.session);
         link_put_u32(p+8,b->control.have_sequence?b->control.last_sequence:0);
         if(n->remote_speed_valid_mask==15) {
-            link_put_u16(p+12,(uint16_t)(((int32_t)n->remote_speed_measured[0]+n->remote_speed_measured[2])/2));
-            link_put_u16(p+14,(uint16_t)(((int32_t)n->remote_speed_measured[1]+n->remote_speed_measured[3])/2));
+            link_put_u16(p+12,(uint16_t)(((int32_t)n->remote_speed_measured[1]+n->remote_speed_measured[3])/2));
+            link_put_u16(p+14,(uint16_t)(((int32_t)n->remote_speed_measured[0]+n->remote_speed_measured[2])/2));
         }
         link_put_u16(p+16,speed_limit(b)); p[18]=n->remote_speed_ready_mask; p[19]=n->remote_speed_fault;
     }

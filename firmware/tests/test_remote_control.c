@@ -93,6 +93,9 @@ static void test_replay_stop_and_foreign(void)
     drive(p,&s,2,500,-500,300,200);
     assert(remote_control_receive(&s,p,20,0,0,&a));
     assert(s.left_mm_s==0 && s.right_mm_s==300);
+    /* Left arc: physical right wheels M1/M3 move, left M2/M4 stay still. */
+    assert(a.targets[0]==300 && a.targets[2]==300);
+    assert(a.targets[1]==0 && a.targets[3]==0);
     assert(!remote_control_receive(&s,p,20,150,150,&a));
     assert(a.kind==REMOTE_ACTION_NONE && s.received_ms==0 && s.expires_ms==200);
     memcpy(old,p,20); put32(p+4,s.session+1); p[0]=0; p[2]=9;
@@ -229,7 +232,7 @@ static void test_wrap_and_expiry_before_receive(void)
     assert(remote_control_receive(&s,p,20,UINT32_MAX-100,UINT32_MAX-90,&a));
     drive(p,&s,0,-1000,1000,300,100);
     assert(remote_control_receive(&s,p,20,UINT32_MAX-20,0,&a));
-    assert(a.ttl_ms==79 && a.targets[0]==0 && a.targets[1]==-300);
+    assert(a.ttl_ms==79 && a.targets[0]==-300 && a.targets[1]==0);
     assert(!remote_control_tick(&s,78,1,1));
     session=s.session;
     packet(p,REMOTE_OPCODE_ARM,s.session,1);

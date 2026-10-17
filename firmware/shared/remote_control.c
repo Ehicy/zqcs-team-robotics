@@ -211,8 +211,9 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         s->reason = REMOTE_REASON_READY;
         a->kind = REMOTE_ACTION_DRIVE;
         a->ttl_ms = (uint16_t)(ttl - age);
-        a->targets[0] = a->targets[2] = s->left_mm_s;
-        a->targets[1] = a->targets[3] = s->right_mm_s;
+        /* Measured chassis order: M1 RF, M2 LF, M3 RR, M4 LR. */
+        a->targets[0] = a->targets[2] = s->right_mm_s;
+        a->targets[1] = a->targets[3] = s->left_mm_s;
         return 1;
     }
 }

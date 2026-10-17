@@ -35,7 +35,7 @@ enum {
 
 typedef struct {
     uint8_t kind, led_on, wheel, flags;
-    int16_t targets[4]; /* left, right, left, right; requested mm/s */
+    int16_t targets[4]; /* M1 RF, M2 LF, M3 RR, M4 LR; requested mm/s */
     uint16_t ttl_ms; /* Remaining ORIGINAL receive-time lease. */
     uint16_t diameter_tenth_mm, kp_milli, ki_milli, max_mm_s;
     uint32_t counts_per_rev, source_sequence;

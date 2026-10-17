@@ -2,7 +2,7 @@ import { UUID, WHEELS, DEFAULT_CALIBRATION, RemoteController, decodeStatus, vali
 
 const $ = id => document.getElementById(id);
 const directionButtons = [...document.querySelectorAll('.direction')];
-const storageKey = 'crtc-lower-car-calibration-v1';
+const storageKey = 'crtc-lower-car-calibration-v2-rf-lf-rr-lr';
 let connection = null, connecting = false, attempt = 0, heldPointer = null, heldButton = null, heldKey = null;
 let encoder = null, wheelSpeeds = null, encoderAt = -Infinity, speedsAt = -Infinity;
 let supported = false;

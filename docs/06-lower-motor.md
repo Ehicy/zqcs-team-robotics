@@ -49,10 +49,12 @@
 
 | 轮号 | 位置 | PWM | IN1 / IN2 | 编码器 A / B |
 |---|---|---|---|---|
-| M1 | 左后 | PB6 / TIM4 CH1 | PB0 / PB1 | PA0 / PA1，TIM2 ×4 |
-| M2 | 右后 | PB7 / TIM4 CH2 | PB3 / PB4 | PA6 / PA7，TIM3 ×4 |
-| M3 | 左前 | PB8 / TIM4 CH3 | PB5 / PB12 | PA8 / PA9，TIM1 ×4 |
-| M4 | 右前 | PB9 / TIM4 CH4 | PB13 / PB14 | PB10 / PB11，EXTI ×2 |
+| M1 | 右前 | PB6 / TIM4 CH1 | PB0 / PB1 | PA0 / PA1，TIM2 ×4 |
+| M2 | 左前 | PB7 / TIM4 CH2 | PB3 / PB4 | PA6 / PA7，TIM3 ×4 |
+| M3 | 右后 | PB8 / TIM4 CH3 | PB5 / PB12 | PA8 / PA9，TIM1 ×4 |
+| M4 | 左后 | PB9 / TIM4 CH4 | PB13 / PB14 | PB10 / PB11，EXTI ×2 |
+
+当前轮位以 2026-10-17 明确车头后的逐轮 +15%、2 秒复验为准；上方早期试转记录中的轮位称呼已经被本表替代。M1/M3 正 PWM 向前，M2/M4 正 PWM 向后；电机与编码器按同编号配对。详见 [方向校准记录](08-speed-remote.md)。
 
 两块 TB6612 的 STBY 共接 PB15。固件释放 PB3/PB4 的 JTAG 功能，保留 PA13/PA14 的 SWD。UART 仍是 ESP32 GPIO4 TX→STM32 PA3 RX，GPIO6 RX←PA2 TX，共地、115200、8N1。
 

@@ -91,7 +91,9 @@ static void test_drive_stop_lease(void)
     packet(p,REMOTE_OPCODE_DRIVE); link_put_u16(p+12,1000); link_put_u16(p+14,500);
     link_put_u16(p+16,300); link_put_u16(p+18,200);
     assert(remote_bridge_receive(&bridge,p,20,now,now)); cycle(2);
-    assert(stm.requested_mm_s[0]==80 && stm.requested_mm_s[1]==26);
+    assert(stm.requested_mm_s[0]==26 && stm.requested_mm_s[2]==26);
+    assert(stm.requested_mm_s[1]==80 && stm.requested_mm_s[3]==80);
+    assert(bridge.control.left_mm_s==80 && bridge.control.right_mm_s==26);
     puts("PASS ARM without STOP loop, velocity units, original TTL, zero release, STOP and old-session rejection");
 }
 static void test_fault_and_telemetry(void)
@@ -100,6 +102,9 @@ static void test_fault_and_telemetry(void)
     initialize(); remote_bridge_status(&bridge,2,status);
     assert(status[1]==2 && status[2]==15 && link_get_u16(status+4)==20);
     assert(link_get_u16(status+6)==(uint16_t)-20);
+    remote_bridge_status(&bridge,0,status);
+    assert(link_get_u16(status+12)==(uint16_t)-25); /* Left: M2/M4. */
+    assert(link_get_u16(status+14)==25); /* Right: M1/M3. */
     packet(p,REMOTE_OPCODE_ARM); assert(remote_bridge_receive(&bridge,p,20,now,now));
     fault=3; cycle(110); assert(!bridge.control.armed && !bridge.control.drive_ready);
     packet(p,REMOTE_OPCODE_ARM); assert(!remote_bridge_receive(&bridge,p,20,now,now));
