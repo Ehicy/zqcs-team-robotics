@@ -2776,5 +2776,1586 @@
       "checks": {},
       "error": "RuntimeError('Target BLE advertisement not found')"
     }
+  },
+  "standalone_usb_power_test": {
+    "power_source": "User connected power bank or USB charger per instructions; exact device unspecified",
+    "computer_usb_disconnected": true,
+    "esp32_external_5v_disconnect_requested": true,
+    "scan": {
+      "time": 1792222890.9440427,
+      "power_source": "user connected standalone USB supply",
+      "observed_device_count": 82,
+      "target_matches": [
+        {
+          "address": "C0:4E:30:2B:D9:A5",
+          "name": "CRTC-Lower-Car",
+          "rssi": -50,
+          "service_uuids": [
+            "2c4b0001-6f1a-4c9e-9b72-3c06f42b7d11"
+          ]
+        }
+      ],
+      "motion_commands_sent": 0
+    },
+    "bench": {
+      "temporary_bench_only": true,
+      "diameter_mm": 65,
+      "cpr": [
+        1756,
+        1791,
+        1774,
+        898
+      ],
+      "max_speed_mm_s": 80,
+      "max_duration_seconds": 2,
+      "events": [
+        {
+          "t": 103915.968,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103915.984,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.015,
+          "kind": "notify",
+          "hex": "010001039f99cb4400000000000000002c010000"
+        },
+        {
+          "t": 103916.046,
+          "kind": "write",
+          "op": 3,
+          "sequence": 1,
+          "session": 1154193823,
+          "hex": "010300009f99cb44010000000000000000000000"
+        },
+        {
+          "t": 103916.046,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.078,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.109,
+          "kind": "notify",
+          "hex": "01000003ca06721f00000000000000002c010000"
+        },
+        {
+          "t": 103916.14,
+          "kind": "notify",
+          "hex": "01010000b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.171,
+          "kind": "notify",
+          "hex": "0102000000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.203,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.234,
+          "kind": "notify",
+          "hex": "01010000b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.265,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.296,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.312,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.343,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.375,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.406,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.437,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.468,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.5,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.531,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.562,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.593,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.625,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.656,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.671,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.703,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.734,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.765,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.796,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.828,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.859,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.89,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103916.921,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103916.953,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103916.984,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.015,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103917.046,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.062,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.109,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103917.125,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.156,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.187,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103917.218,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.25,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.281,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103917.312,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.343,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.375,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103917.437,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.437,
+          "kind": "write",
+          "op": 5,
+          "sequence": 2,
+          "session": 1541470780,
+          "hex": "010500003cfae05b0200000000068a02dc060000"
+        },
+        {
+          "t": 103917.437,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.5,
+          "kind": "notify",
+          "hex": "010001033cfae05b00000000000000002c010000"
+        },
+        {
+          "t": 103917.5,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.562,
+          "kind": "notify",
+          "hex": "010300003cfae05b020000000000000000000000"
+        },
+        {
+          "t": 103917.562,
+          "kind": "config_ack",
+          "wheel": 0,
+          "op": 5,
+          "confirmed": true
+        },
+        {
+          "t": 103917.562,
+          "kind": "write",
+          "op": 6,
+          "sequence": 3,
+          "session": 1541470780,
+          "hex": "010600003cfae05b030000000000e803d0075000"
+        },
+        {
+          "t": 103917.562,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.609,
+          "kind": "notify",
+          "hex": "010001033cfae05b02000000000000002c010100"
+        },
+        {
+          "t": 103917.609,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.671,
+          "kind": "notify",
+          "hex": "010300003cfae05b030000000000000000000000"
+        },
+        {
+          "t": 103917.671,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.703,
+          "kind": "config_ack",
+          "wheel": 0,
+          "op": 6,
+          "confirmed": false
+        },
+        {
+          "t": 103917.703,
+          "kind": "write",
+          "op": 5,
+          "sequence": 4,
+          "session": 1541470780,
+          "hex": "010500003cfae05b0400000001058a02ff060000"
+        },
+        {
+          "t": 103917.734,
+          "kind": "notify",
+          "hex": "010001033cfae05b030000000000000050000100"
+        },
+        {
+          "t": 103917.734,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff22fdffff"
+        },
+        {
+          "t": 103917.796,
+          "kind": "notify",
+          "hex": "010301003cfae05b040000000000000000000000"
+        },
+        {
+          "t": 103917.796,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.828,
+          "kind": "config_ack",
+          "wheel": 1,
+          "op": 5,
+          "confirmed": true
+        },
+        {
+          "t": 103917.828,
+          "kind": "write",
+          "op": 6,
+          "sequence": 5,
+          "session": 1541470780,
+          "hex": "010600003cfae05b050000000100e803d0075000"
+        },
+        {
+          "t": 103917.859,
+          "kind": "notify",
+          "hex": "010001033cfae05b040000000000000050000100"
+        },
+        {
+          "t": 103917.859,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103917.921,
+          "kind": "notify",
+          "hex": "010301003cfae05b050000000000000000000000"
+        },
+        {
+          "t": 103917.921,
+          "kind": "config_ack",
+          "wheel": 1,
+          "op": 6,
+          "confirmed": false
+        },
+        {
+          "t": 103917.921,
+          "kind": "write",
+          "op": 5,
+          "sequence": 6,
+          "session": 1541470780,
+          "hex": "010500003cfae05b0600000002068a02ee060000"
+        },
+        {
+          "t": 103917.921,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103917.968,
+          "kind": "notify",
+          "hex": "010001033cfae05b050000000000000050000300"
+        },
+        {
+          "t": 103917.968,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.031,
+          "kind": "notify",
+          "hex": "010302003cfae05b060000000000000000000000"
+        },
+        {
+          "t": 103918.031,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103918.031,
+          "kind": "config_ack",
+          "wheel": 2,
+          "op": 5,
+          "confirmed": true
+        },
+        {
+          "t": 103918.031,
+          "kind": "write",
+          "op": 6,
+          "sequence": 7,
+          "session": 1541470780,
+          "hex": "010600003cfae05b070000000200e803d0075000"
+        },
+        {
+          "t": 103918.093,
+          "kind": "notify",
+          "hex": "010001033cfae05b060000000000000050000700"
+        },
+        {
+          "t": 103918.093,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.156,
+          "kind": "notify",
+          "hex": "010302003cfae05b070000000000000000000000"
+        },
+        {
+          "t": 103918.156,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103918.171,
+          "kind": "config_ack",
+          "wheel": 2,
+          "op": 6,
+          "confirmed": false
+        },
+        {
+          "t": 103918.171,
+          "kind": "write",
+          "op": 5,
+          "sequence": 8,
+          "session": 1541470780,
+          "hex": "010500003cfae05b0800000003058a0282030000"
+        },
+        {
+          "t": 103918.218,
+          "kind": "notify",
+          "hex": "010001033cfae05b070000000000000050000700"
+        },
+        {
+          "t": 103918.218,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.281,
+          "kind": "notify",
+          "hex": "010303003cfae05b080000000000000000000000"
+        },
+        {
+          "t": 103918.281,
+          "kind": "config_ack",
+          "wheel": 3,
+          "op": 5,
+          "confirmed": true
+        },
+        {
+          "t": 103918.281,
+          "kind": "write",
+          "op": 6,
+          "sequence": 9,
+          "session": 1541470780,
+          "hex": "010600003cfae05b090000000300e803d0075000"
+        },
+        {
+          "t": 103918.281,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103918.328,
+          "kind": "notify",
+          "hex": "010001033cfae05b080000000000000050000700"
+        },
+        {
+          "t": 103918.328,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.39,
+          "kind": "notify",
+          "hex": "010303003cfae05b090000000000000000000000"
+        },
+        {
+          "t": 103918.39,
+          "kind": "config_ack",
+          "wheel": 3,
+          "op": 6,
+          "confirmed": false
+        },
+        {
+          "t": 103918.39,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103918.453,
+          "kind": "notify",
+          "hex": "010009033cfae05b090000000000000050000f00"
+        },
+        {
+          "t": 103918.453,
+          "kind": "write",
+          "op": 1,
+          "sequence": 10,
+          "session": 1541470780,
+          "hex": "010100003cfae05b0a0000000000000000000000"
+        },
+        {
+          "t": 103918.453,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.515,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103918.515,
+          "kind": "notify",
+          "hex": "010009033cfae05b090000000000000050000f00"
+        },
+        {
+          "t": 103918.578,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.578,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103918.64,
+          "kind": "notify",
+          "hex": "01000b003cfae05b0a0000000000000050000f00"
+        },
+        {
+          "t": 103918.64,
+          "kind": "drive_start",
+          "speed_mm_s": 80,
+          "max_seconds": 2
+        },
+        {
+          "t": 103918.64,
+          "kind": "write",
+          "op": 2,
+          "sequence": 11,
+          "session": 1541470780,
+          "hex": "010200003cfae05b0b000000e80300005000c800"
+        },
+        {
+          "t": 103918.64,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.703,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103918.703,
+          "kind": "notify",
+          "hex": "01000b003cfae05b0a0000000000000050000f00"
+        },
+        {
+          "t": 103918.75,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.75,
+          "kind": "write",
+          "op": 2,
+          "sequence": 12,
+          "session": 1541470780,
+          "hex": "010200003cfae05b0c000000e80300005000c800"
+        },
+        {
+          "t": 103918.75,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000a000a000a000a00"
+        },
+        {
+          "t": 103918.812,
+          "kind": "notify",
+          "hex": "01000b003cfae05b0b0000000000000050000f00"
+        },
+        {
+          "t": 103918.812,
+          "kind": "notify",
+          "hex": "01010f00b9f1ffffb0faffff73f4ffff23fdffff"
+        },
+        {
+          "t": 103918.875,
+          "kind": "notify",
+          "hex": "01020f000c000b000c0017003c003c003c003c00"
+        },
+        {
+          "t": 103918.875,
+          "kind": "write",
+          "op": 2,
+          "sequence": 13,
+          "session": 1541470780,
+          "hex": "010200003cfae05b0d000000e80300005000c800"
+        },
+        {
+          "t": 103918.875,
+          "kind": "notify",
+          "hex": "01000f003cfae05b0c0000000c00110050000f00"
+        },
+        {
+          "t": 103918.937,
+          "kind": "notify",
+          "hex": "01010f00b4f1ffffb4faffff6ef4ffff26fdffff"
+        },
+        {
+          "t": 103918.937,
+          "kind": "notify",
+          "hex": "01020f000c000b000c0017003c003c003c003c00"
+        },
+        {
+          "t": 103919.0,
+          "kind": "notify",
+          "hex": "01000f003cfae05b0d0000001d001c0050000f00"
+        },
+        {
+          "t": 103919.0,
+          "kind": "notify",
+          "hex": "01010f009ef1ffffcefaffff5af4ffff32fdffff"
+        },
+        {
+          "t": 103919.0,
+          "kind": "write",
+          "op": 2,
+          "sequence": 14,
+          "session": 1541470780,
+          "hex": "010200003cfae05b0e000000e80300005000c800"
+        },
+        {
+          "t": 103919.062,
+          "kind": "notify",
+          "hex": "01020f0023002200170017005000500050005000"
+        },
+        {
+          "t": 103919.062,
+          "kind": "notify",
+          "hex": "01000f003cfae05b0d0000002800270050000f00"
+        },
+        {
+          "t": 103919.109,
+          "kind": "notify",
+          "hex": "01010f0080f1ffffeffaffff3cf4ffff43fdffff"
+        },
+        {
+          "t": 103919.109,
+          "kind": "notify",
+          "hex": "01020f00230022002e002d005000500050005000"
+        },
+        {
+          "t": 103919.109,
+          "kind": "write",
+          "op": 2,
+          "sequence": 15,
+          "session": 1541470780,
+          "hex": "010200003cfae05b0f000000e80300005000c800"
+        },
+        {
+          "t": 103919.171,
+          "kind": "notify",
+          "hex": "01000f003cfae05b0e0000002e002d0050000f00"
+        },
+        {
+          "t": 103919.171,
+          "kind": "notify",
+          "hex": "01010f005df1ffff15fbffff1af4ffff55fdffff"
+        },
+        {
+          "t": 103919.234,
+          "kind": "notify",
+          "hex": "01020f002f002e002e002d005000500050005000"
+        },
+        {
+          "t": 103919.234,
+          "kind": "write",
+          "op": 2,
+          "sequence": 16,
+          "session": 1541470780,
+          "hex": "010200003cfae05b10000000e80300005000c800"
+        },
+        {
+          "t": 103919.234,
+          "kind": "notify",
+          "hex": "01000f003cfae05b0f0000002e002d0050000f00"
+        },
+        {
+          "t": 103919.296,
+          "kind": "notify",
+          "hex": "01010f0037f1ffff3efbfffff5f3ffff6afdffff"
+        },
+        {
+          "t": 103919.296,
+          "kind": "notify",
+          "hex": "01020f002f002e002e002d005000500050005000"
+        },
+        {
+          "t": 103919.359,
+          "kind": "notify",
+          "hex": "01000f003cfae05b100000002e002d0050000f00"
+        },
+        {
+          "t": 103919.359,
+          "kind": "notify",
+          "hex": "01010f000ef1ffff69fbffffccf3ffff7ffdffff"
+        },
+        {
+          "t": 103919.359,
+          "kind": "write",
+          "op": 2,
+          "sequence": 17,
+          "session": 1541470780,
+          "hex": "010200003cfae05b11000000e80300005000c800"
+        },
+        {
+          "t": 103919.421,
+          "kind": "notify",
+          "hex": "01020f002f0039003a002d005000500050005000"
+        },
+        {
+          "t": 103919.421,
+          "kind": "notify",
+          "hex": "01000f003cfae05b100000003400330050000f00"
+        },
+        {
+          "t": 103919.468,
+          "kind": "write",
+          "op": 2,
+          "sequence": 18,
+          "session": 1541470780,
+          "hex": "010200003cfae05b12000000e80300005000c800"
+        },
+        {
+          "t": 103919.468,
+          "kind": "notify",
+          "hex": "01010f00e2f0ffff98fbffffa1f3ffff96fdffff"
+        },
+        {
+          "t": 103919.468,
+          "kind": "notify",
+          "hex": "01020f003a0039002e002d005000500050005000"
+        },
+        {
+          "t": 103919.531,
+          "kind": "notify",
+          "hex": "01000f003cfae05b110000003400330050000f00"
+        },
+        {
+          "t": 103919.531,
+          "kind": "notify",
+          "hex": "01010f00e2f0ffff98fbffffa1f3ffff96fdffff"
+        },
+        {
+          "t": 103919.593,
+          "kind": "notify",
+          "hex": "01020f003a0039002e002d005000500050005000"
+        },
+        {
+          "t": 103919.593,
+          "kind": "write",
+          "op": 2,
+          "sequence": 19,
+          "session": 1541470780,
+          "hex": "010200003cfae05b13000000e80300005000c800"
+        },
+        {
+          "t": 103919.593,
+          "kind": "notify",
+          "hex": "01000f003cfae05b120000003400330050000f00"
+        },
+        {
+          "t": 103919.656,
+          "kind": "notify",
+          "hex": "01010f00b3f0ffffc8fbffff73f3ffffaffdffff"
+        },
+        {
+          "t": 103919.656,
+          "kind": "notify",
+          "hex": "01020f002f003900450044005000500050005000"
+        },
+        {
+          "t": 103919.718,
+          "kind": "write",
+          "op": 2,
+          "sequence": 20,
+          "session": 1541470780,
+          "hex": "010200003cfae05b14000000e80300005000c800"
+        },
+        {
+          "t": 103919.718,
+          "kind": "notify",
+          "hex": "01000f003cfae05b130000003a003e0050000f00"
+        },
+        {
+          "t": 103919.718,
+          "kind": "notify",
+          "hex": "01010f0083f0fffffbfbffff43f3ffffc8fdffff"
+        },
+        {
+          "t": 103919.781,
+          "kind": "notify",
+          "hex": "01020f003a0044003a002d005000500050005000"
+        },
+        {
+          "t": 103919.781,
+          "kind": "notify",
+          "hex": "01000f003cfae05b130000003a00380050000f00"
+        },
+        {
+          "t": 103919.828,
+          "kind": "notify",
+          "hex": "01010f0050f0ffff30fcffff11f3ffffe3fdffff"
+        },
+        {
+          "t": 103919.843,
+          "kind": "write",
+          "op": 2,
+          "sequence": 21,
+          "session": 1541470780,
+          "hex": "010200003cfae05b15000000e80300005000c800"
+        },
+        {
+          "t": 103919.843,
+          "kind": "notify",
+          "hex": "01020f003a0044003a002d005000500050005000"
+        },
+        {
+          "t": 103919.89,
+          "kind": "notify",
+          "hex": "01000f003cfae05b1400000040003e0050000f00"
+        },
+        {
+          "t": 103919.89,
+          "kind": "notify",
+          "hex": "01010f001cf0ffff67fcffffddf2fffffefdffff"
+        },
+        {
+          "t": 103919.953,
+          "kind": "notify",
+          "hex": "01020f00460039003a0044005000500050005000"
+        },
+        {
+          "t": 103919.953,
+          "kind": "notify",
+          "hex": "01000f003cfae05b150000004500440050000f00"
+        },
+        {
+          "t": 103919.953,
+          "kind": "write",
+          "op": 2,
+          "sequence": 22,
+          "session": 1541470780,
+          "hex": "010200003cfae05b16000000e80300005000c800"
+        },
+        {
+          "t": 103920.015,
+          "kind": "notify",
+          "hex": "01010f00e6efffff9ffcffffa7f2ffff1afeffff"
+        },
+        {
+          "t": 103920.015,
+          "kind": "notify",
+          "hex": "01020f0046004400450044005000500050005000"
+        },
+        {
+          "t": 103920.078,
+          "kind": "notify",
+          "hex": "01000f003cfae05b160000003a004a0050000f00"
+        },
+        {
+          "t": 103920.078,
+          "kind": "write",
+          "op": 2,
+          "sequence": 23,
+          "session": 1541470780,
+          "hex": "010200003cfae05b17000000e80300005000c800"
+        },
+        {
+          "t": 103920.078,
+          "kind": "notify",
+          "hex": "01010f00aeefffffd9fcffff6ff2ffff37feffff"
+        },
+        {
+          "t": 103920.14,
+          "kind": "notify",
+          "hex": "01020f003a0039003a005b005000500050005000"
+        },
+        {
+          "t": 103920.14,
+          "kind": "notify",
+          "hex": "01000f003cfae05b160000003a004a0050000f00"
+        },
+        {
+          "t": 103920.187,
+          "kind": "notify",
+          "hex": "01010f0075efffff14fdffff36f2ffff55feffff"
+        },
+        {
+          "t": 103920.203,
+          "kind": "notify",
+          "hex": "01020f003a003900450044005000500050005000"
+        },
+        {
+          "t": 103920.203,
+          "kind": "write",
+          "op": 2,
+          "sequence": 24,
+          "session": 1541470780,
+          "hex": "010200003cfae05b18000000e80300005000c800"
+        },
+        {
+          "t": 103920.25,
+          "kind": "notify",
+          "hex": "01000f003cfae05b170000003f003e0050000f00"
+        },
+        {
+          "t": 103920.25,
+          "kind": "notify",
+          "hex": "01010f003befffff50fdfffffcf1ffff73feffff"
+        },
+        {
+          "t": 103920.312,
+          "kind": "notify",
+          "hex": "01020f003a00440045005b005000500050005000"
+        },
+        {
+          "t": 103920.312,
+          "kind": "notify",
+          "hex": "01000f003cfae05b180000003f004f0050000f00"
+        },
+        {
+          "t": 103920.312,
+          "kind": "write",
+          "op": 2,
+          "sequence": 25,
+          "session": 1541470780,
+          "hex": "010200003cfae05b19000000e80300005000c800"
+        },
+        {
+          "t": 103920.375,
+          "kind": "notify",
+          "hex": "01010f0000efffff8dfdffffc1f1ffff91feffff"
+        },
+        {
+          "t": 103920.375,
+          "kind": "notify",
+          "hex": "01020f0046004400450044005000500050005000"
+        },
+        {
+          "t": 103920.437,
+          "kind": "notify",
+          "hex": "01000f003cfae05b190000004500440050000f00"
+        },
+        {
+          "t": 103920.437,
+          "kind": "notify",
+          "hex": "01010f0000efffff8dfdffffc1f1ffff91feffff"
+        },
+        {
+          "t": 103920.437,
+          "kind": "write",
+          "op": 2,
+          "sequence": 26,
+          "session": 1541470780,
+          "hex": "010200003cfae05b1a000000e80300005000c800"
+        },
+        {
+          "t": 103920.5,
+          "kind": "notify",
+          "hex": "01020f00460044003a0044005000500050005000"
+        },
+        {
+          "t": 103920.5,
+          "kind": "notify",
+          "hex": "01000f003cfae05b190000004000440050000f00"
+        },
+        {
+          "t": 103920.562,
+          "kind": "notify",
+          "hex": "01010f00c4eeffffccfdffff85f1ffffb1feffff"
+        },
+        {
+          "t": 103920.562,
+          "kind": "write",
+          "op": 3,
+          "sequence": 27,
+          "session": 1541470780,
+          "hex": "010300003cfae05b1b0000000000000000000000"
+        },
+        {
+          "t": 103920.562,
+          "kind": "notify",
+          "hex": "01020f0051004400450044005000500050005000"
+        },
+        {
+          "t": 103920.609,
+          "kind": "notify",
+          "hex": "01000f003cfae05b1a0000004b00440050000f00"
+        },
+        {
+          "t": 103920.609,
+          "kind": "notify",
+          "hex": "01010f0087eeffff0afeffff48f1ffffd0feffff"
+        },
+        {
+          "t": 103920.671,
+          "kind": "notify",
+          "hex": "01020f004600500051005b005000500050005000"
+        },
+        {
+          "t": 103920.671,
+          "kind": "notify",
+          "hex": "01000104f57318fa000000004b00550050000f00"
+        },
+        {
+          "t": 103920.734,
+          "kind": "notify",
+          "hex": "0101000049eeffff4afeffff0af1fffff0feffff"
+        },
+        {
+          "t": 103920.734,
+          "kind": "notify",
+          "hex": "010200004600500051005b005000500050005000"
+        },
+        {
+          "t": 103920.796,
+          "kind": "notify",
+          "hex": "0100000367678736000000000000000050000f00"
+        },
+        {
+          "t": 103920.796,
+          "kind": "notify",
+          "hex": "0101000049eeffff4afeffff0af1fffff0feffff"
+        },
+        {
+          "t": 103920.859,
+          "kind": "notify",
+          "hex": "010200004600500051005b005000500050005000"
+        },
+        {
+          "t": 103920.859,
+          "kind": "notify",
+          "hex": "01000103d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103920.921,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103920.921,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103920.968,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103920.968,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.031,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.031,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.093,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.093,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.156,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.156,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.218,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.218,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.281,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.281,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.343,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.343,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.39,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.39,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.453,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.453,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.515,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.515,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.578,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.578,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.64,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.64,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.687,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.703,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.75,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.75,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.812,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.812,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.875,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103921.875,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103921.937,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103921.937,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103922.0,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.0,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.062,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103922.062,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.125,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.125,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103922.171,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.171,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.234,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103922.234,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.296,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.296,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103922.359,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.359,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.421,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103922.421,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.468,
+          "kind": "write",
+          "op": 5,
+          "sequence": 28,
+          "session": 1928747737,
+          "hex": "01050000d95af6721c00000000028a02dc060000"
+        },
+        {
+          "t": 103922.484,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.484,
+          "kind": "notify",
+          "hex": "01000903d95af672000000000000000050000f00"
+        },
+        {
+          "t": 103922.531,
+          "kind": "notify",
+          "hex": "01030000d95af6721c0000000000000000000000"
+        },
+        {
+          "t": 103922.531,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.531,
+          "kind": "config_ack",
+          "wheel": 0,
+          "op": 5,
+          "confirmed": false
+        },
+        {
+          "t": 103922.531,
+          "kind": "write",
+          "op": 5,
+          "sequence": 29,
+          "session": 1928747737,
+          "hex": "01050000d95af6721d00000001018a02ff060000"
+        },
+        {
+          "t": 103922.593,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.593,
+          "kind": "notify",
+          "hex": "01000103d95af6721c0000000000000050000e00"
+        },
+        {
+          "t": 103922.656,
+          "kind": "notify",
+          "hex": "01030100d95af6721d0000000000000000000000"
+        },
+        {
+          "t": 103922.656,
+          "kind": "config_ack",
+          "wheel": 1,
+          "op": 5,
+          "confirmed": false
+        },
+        {
+          "t": 103922.656,
+          "kind": "write",
+          "op": 5,
+          "sequence": 30,
+          "session": 1928747737,
+          "hex": "01050000d95af6721e00000002028a02ee060000"
+        },
+        {
+          "t": 103922.656,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.718,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.718,
+          "kind": "notify",
+          "hex": "01000103d95af6721d0000000000000050000c00"
+        },
+        {
+          "t": 103922.781,
+          "kind": "notify",
+          "hex": "01030200d95af6721e0000000000000000000000"
+        },
+        {
+          "t": 103922.781,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.812,
+          "kind": "config_ack",
+          "wheel": 2,
+          "op": 5,
+          "confirmed": false
+        },
+        {
+          "t": 103922.812,
+          "kind": "write",
+          "op": 5,
+          "sequence": 31,
+          "session": 1928747737,
+          "hex": "01050000d95af6721f00000003018a0282030000"
+        },
+        {
+          "t": 103922.843,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.843,
+          "kind": "notify",
+          "hex": "01000103d95af6721e0000000000000050000c00"
+        },
+        {
+          "t": 103922.89,
+          "kind": "notify",
+          "hex": "01030300d95af6721f0000000000000000000000"
+        },
+        {
+          "t": 103922.89,
+          "kind": "notify",
+          "hex": "01010f0020eeffff74feffffe8f0ffff04ffffff"
+        },
+        {
+          "t": 103922.89,
+          "kind": "config_ack",
+          "wheel": 3,
+          "op": 5,
+          "confirmed": false
+        },
+        {
+          "t": 103922.953,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "t": 103922.953,
+          "kind": "notify",
+          "hex": "01000103d95af6721f0000000000000050000000"
+        }
+      ],
+      "drive_writes": 16,
+      "checks": {
+        "configuration_acknowledged": true,
+        "drive_window_completed": true,
+        "final_stop_confirmed": true,
+        "temporary_confirmation_removed": true,
+        "disconnected": true
+      },
+      "final_state": {
+        "flags": 1,
+        "reason": 3,
+        "session": 1928747737,
+        "sequence": 31,
+        "ready_mask": 0,
+        "fault": 0
+      },
+      "final_speed": {
+        "mask": 15,
+        "fault": 0,
+        "measured": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "targets": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "physical_observation": {
+      "all_four_forward": true,
+      "all_stopped": true,
+      "source": "user_confirmation"
+    },
+    "inference": "BLE and controller can operate without a computer USB data connection. Original external 5V supply path or power-transition startup remains suspect; root cause not determined."
   }
 }
