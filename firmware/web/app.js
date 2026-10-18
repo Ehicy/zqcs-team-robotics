@@ -1,8 +1,9 @@
+import { installServoPanel } from './servo-panel.js';
 import { UUID, WHEELS, DEFAULT_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js';
 
 const $ = id => document.getElementById(id);
 const directionButtons = [...document.querySelectorAll('.direction')];
-const storageKey = 'crtc-lower-car-calibration-v1';
+const storageKey = 'crtc-lower-car-calibration-v2-rf-lf-rr-lr';
 let connection = null, connecting = false, attempt = 0, heldPointer = null, heldButton = null, heldKey = null;
 let encoder = null, wheelSpeeds = null, encoderAt = -Infinity, speedsAt = -Infinity;
 let supported = false;
@@ -40,7 +41,9 @@ function render(state = controller.state) {
   $('statusMessage').textContent = state.note;
   $('statusMessage').classList.remove('error');
   $('faultMessage').hidden = !(state.connected && (state.fault || state.faultCode));
-  $('faultMessage').textContent = `故障码 ${state.faultCode} · 原因 ${state.reason}。先排除原因并停稳，清除故障不会自动解锁。`;
+  $('faultMessage').textContent = state.faultCode === 6
+    ? '看门狗故障：电机已禁止输出，通信和灯控仍可用。停稳后可尝试清除；初始化失败需修复并重启。'
+    : `故障码 ${state.faultCode} · 原因 ${state.reason}。先排除原因并停稳，清除故障不会自动解锁。`;
   $('armButton').disabled = !controller.canArm() || state.armPending || state.armed;
   $('armButton').textContent = state.armed ? '控制已解锁' : state.armPending ? '等待主控确认…' : '解锁控制 ARM';
   $('armHint').textContent = state.armed ? '按住方向行驶；松开归零。停止键会重新锁定。' : '四轮配置确认、底盘就绪且停稳后才能解锁。';
@@ -241,3 +244,5 @@ if (!window.isSecureContext) {
   warning.textContent = '此浏览器没有 Web Bluetooth。请在支持蓝牙的 Android Chrome 中打开 HTTPS 页面，并开启系统蓝牙。'; warning.hidden = false;
 } else supported = true;
 render();
+
+installServoPanel(controller);

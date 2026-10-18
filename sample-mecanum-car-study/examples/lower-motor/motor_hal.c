@@ -1,5 +1,7 @@
 #include "motor_hal.h"
 #include "board_link_config.h"
+#include "encoder_edge_filter.h"
+#include "delay.h"
 #include "stm32f10x.h"
 #include <stddef.h>
 
@@ -9,6 +11,9 @@
 
 #define STBY_MASK ((uint16_t)(1U << LINK_STM_DRIVER_INHIBIT_PIN))
 #define ENCODER_EXTI_MASK (1UL << 10)
+#define DWT_CYCCNT_REG (*(volatile uint32_t *)0xE0001004UL)
+#define M4_FILTER_US 20U
+#define M4_IRQS_PER_MS 32U
 
 static const uint8_t pwm_pins[4] = LINK_STM_MOTOR_PWM_PINS;
 static const uint8_t in1_pins[4] = LINK_STM_MOTOR_IN1_PINS;
@@ -20,7 +25,14 @@ static const uint8_t encoder_timers[4] = LINK_STM_ENCODER_TIMERS;
 static TIM_TypeDef *const encoder_timer[3] = {TIM2, TIM3, TIM1};
 static volatile uint8_t motor_ready;
 static volatile uint8_t motor_enabled;
-static volatile uint32_t exti_count;
+/* Keep diagnostics in RAM for SWD; none of these counters clear on STOP. */
+static encoder_edge_filter_t m4_filter;
+static volatile uint32_t m4_raw_irqs;
+static volatile uint8_t m4_overrun, m4_started;
+static encoder_irq_budget_t m4_budget;
+/* First overrun context; retained until reboot, including across STOP/CLEAR. */
+static volatile uint32_t m4_window_ms, m4_fault_ms, m4_fault_window_ms;
+static volatile uint32_t m4_fault_cycles, m4_fault_pins;
 static uint16_t previous_count[3];
 static uint32_t accumulated_count[3];
 static uint16_t direction_mask;
@@ -170,7 +182,9 @@ void lower_motor_init(void)
         accumulated_count[i] = 0;
     }
     prior = irq_save();
-    exti_count = 0;
+    m4_started=0; m4_overrun=0; m4_raw_irqs=0;
+    m4_window_ms=m4_fault_ms=m4_fault_window_ms=0;
+    m4_fault_cycles=m4_fault_pins=0;
     EXTI->IMR &= ~ENCODER_EXTI_MASK;
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource10);
     EXTI->RTSR |= ENCODER_EXTI_MASK;
@@ -180,8 +194,25 @@ void lower_motor_init(void)
     NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
     NVIC_SetPriority(EXTI15_10_IRQn, 2U);
     NVIC_EnableIRQ(EXTI15_10_IRQn);
-    EXTI->IMR |= ENCODER_EXTI_MASK;
+    /* delay_init() starts/resets DWT later. Do not timestamp edges until then. */
     motor_ready = 1;
+    irq_restore(prior);
+}
+
+void lower_encoder_start(void)
+{
+    uint32_t prior=irq_save(), pins=GPIOB->IDR;
+    if(motor_ready && !m4_started && SystemCoreClock>=1000000U) {
+        encoder_edge_filter_init(&m4_filter,(uint8_t)!!(pins&GPIO_Pin_10),
+                                 (SystemCoreClock/1000000U)*M4_FILTER_US);
+        encoder_irq_budget_init(&m4_budget,DWT_CYCCNT_REG,
+                                SystemCoreClock/1000U,M4_IRQS_PER_MS);
+        m4_window_ms=delay_millis();
+        EXTI->PR=ENCODER_EXTI_MASK;
+        NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
+        m4_started=1;
+        EXTI->IMR|=ENCODER_EXTI_MASK;
+    }
     irq_restore(prior);
 }
 
@@ -214,7 +245,7 @@ void lower_motor_write(const int16_t pwm[4], uint8_t active)
     }
     prior = irq_save();
     lower_motor_emergency_stop();
-    if (prior != 0U || !any_motion || lower_motor_watchdog_fault()) {
+    if (prior != 0U || !any_motion || !m4_started || m4_overrun || lower_motor_watchdog_fault()) {
         irq_restore(prior);
         return;
     }
@@ -240,15 +271,33 @@ uint8_t lower_motor_is_enabled(void)
 void EXTI15_10_IRQHandler(void)
 {
     if ((EXTI->PR & ENCODER_EXTI_MASK) != 0U) {
-        uint32_t pins;
+        uint32_t pins, now, previous_window;
         uint8_t a, b;
         EXTI->PR = ENCODER_EXTI_MASK; /* W1C before sampling; never clear other lines. */
+        if(!m4_started || m4_overrun) return;
+        now=DWT_CYCCNT_REG;
+        m4_raw_irqs++;
+        previous_window=m4_budget.start;
+        if(!encoder_irq_budget_allow(&m4_budget,now)) {
+            /* Bound interrupt work during a noisy/floating-input storm. Latch
+             * invalid feedback and stop, rather than starving UART/main until
+             * IWDG resets. Only reboot/reinitialization releases this mask. */
+            m4_overrun=1;
+            EXTI->IMR&=~ENCODER_EXTI_MASK;
+            lower_motor_emergency_stop();
+            m4_fault_ms=delay_millis();
+            m4_fault_window_ms=m4_fault_ms-m4_window_ms;
+            m4_fault_cycles=now-m4_budget.start;
+            m4_fault_pins=GPIOB->IDR;
+            return;
+        }
+        if(m4_budget.start!=previous_window) m4_window_ms=delay_millis();
         pins = GPIOB->IDR;
         a = (uint8_t)((pins & GPIO_Pin_10) != 0U);
         b = (uint8_t)((pins & GPIO_Pin_11) != 0U);
         /* Matches non-inverted hardware TI12 direction on each A transition.
          * Multiple edges while EXTI is pending cannot be recovered in software. */
-        exti_count += (a != b) ? 1U : UINT32_MAX;
+        encoder_edge_filter_irq(&m4_filter,now,a,b);
     }
 }
 
@@ -270,7 +319,15 @@ uint8_t lower_encoder_sample(int32_t counts[4])
     }
     prior = irq_save();
     for (i = 0; i < 3; ++i) current[i] = (uint16_t)encoder_timer[i]->CNT;
-    software_count = exti_count;
+    if(m4_started && !m4_overrun) {
+        uint32_t pins=GPIOB->IDR;
+        /* This poll also commits the final edge after the wheel stops. Keep B
+         * from the original edge even if it changed before this later poll. */
+        encoder_edge_filter_poll(&m4_filter,DWT_CYCCNT_REG,
+                                (uint8_t)!!(pins&GPIO_Pin_10),
+                                (uint8_t)!!(pins&GPIO_Pin_11));
+    }
+    software_count = m4_filter.count;
     irq_restore(prior);
     for (i = 0; i < 3; ++i) {
         uint16_t difference = (uint16_t)(current[i] - previous_count[i]);
@@ -281,5 +338,5 @@ uint8_t lower_encoder_sample(int32_t counts[4])
         counts[i] = signed_wrapping_count(accumulated_count[i]);
     }
     counts[3] = signed_wrapping_count(software_count);
-    return 15U;
+    return (m4_started && !m4_overrun) ? 15U : 7U;
 }

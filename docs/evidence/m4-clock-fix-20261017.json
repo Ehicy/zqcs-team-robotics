@@ -1,0 +1,201 @@
+{
+  "date": "2026-10-17",
+  "change": "Keep DWT-based M4 qualification/budget clock active during delay_ms; record first overrun context.",
+  "root_cause_status": "M4 IRQ budget overrun confirmed. Contribution of sleep/core-clock gating is a hypothesis, not confirmed on hardware.",
+  "before": {
+    "board_link_reset_cause": 335544320,
+    "board_link_transport_errors": 1,
+    "board_link_outputs_inhibited": 1,
+    "milliseconds": 1180470,
+    "m4_raw_irqs": 32859,
+    "m4_overrun": 1,
+    "m4_started": 1,
+    "m4_filter.count": 614,
+    "m4_filter.accepted": 29486,
+    "m4_filter.short_pulses": 6,
+    "m4_filter.duplicate_irqs": 3384,
+    "m4_filter.pending": 1,
+    "m4_filter.stable_a": 1,
+    "speeds.fault": 2,
+    "speeds.fault_encoder_mask": 8,
+    "speeds.fault_sample_ms": 931283,
+    "speeds.fault_sample_dt": 2,
+    "speeds.fault_raw_delta": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "speeds.measured_mm_s": [
+      12,
+      0,
+      12,
+      0
+    ],
+    "speeds.last_counts": [
+      4294964190,
+      2743,
+      4294965707,
+      614
+    ]
+  },
+  "dwt_rate_under_debug": 71968.46254927726,
+  "host_tests": {
+    "encoder_groups": 7,
+    "clock_gating_trace": "synthetic, not captured waveform",
+    "speed_groups": 8,
+    "bridge": "passed",
+    "ubsan_run": false
+  },
+  "build": "passed",
+  "new_binary_no_wfi_wfe": true,
+  "flash_verify": true,
+  "readback_and_idle": {
+    "elf": "sample-mecanum-car-study\\build\\lower-motor\\lower-motor.elf",
+    "stlink": "37FF71064E573436F3D01543",
+    "operations": [
+      {
+        "args": [
+          "-c",
+          "port=SWD",
+          "sn=37FF71064E573436F3D01543",
+          "freq=100",
+          "mode=HOTPLUG",
+          "-u",
+          "0x08000000",
+          "14632",
+          "C:\\Users\\15300\\AppData\\Local\\Temp\\crtc-m4-read-x5smcl7e\\flash.bin",
+          "-run"
+        ],
+        "output": "      -------------------------------------------------------------------\n                       STM32CubeProgrammer v2.23.0                  \n      -------------------------------------------------------------------\n\nST-LINK SN  : 37FF71064E573436F3D01543\nST-LINK FW  : V2J46S7\nBoard       : --\nVoltage     : 3.25V\nSWD freq    : 100 KHz\nConnect mode: Hot Plug\nReset mode  : Software reset\nDevice ID   : 0x410\nRevision ID : Rev A\nDevice name : STM32F101/F102/F103 Medium-density\nNVM size    : 128 KBytes\nDevice type : MCU\nDevice CPU  : Cortex-M3\nBL Version  : --\n\n\nUPLOADING ...\n  File          : C:\\Users\\15300\\AppData\\Local\\Temp\\crtc-m4-read-x5smcl7e\\flash.bin\n  Size          : 14632 Bytes\n  Address:      : 0x8000000\nRead progress:\n北北北北北北北北北北北北北北北北北北北北北北北北北 0%\n圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹圹 100%\n\nData read successfully\nTime elapsed during read operation is: 00:00:01.832\nCore run\n",
+        "returncode": 0
+      },
+      {
+        "args": [
+          "-c",
+          "port=SWD",
+          "sn=37FF71064E573436F3D01543",
+          "freq=100",
+          "mode=HOTPLUG",
+          "-r32",
+          "0x20000000",
+          "1424",
+          "-run"
+        ],
+        "output": "      -------------------------------------------------------------------\n                       STM32CubeProgrammer v2.23.0                  \n      -------------------------------------------------------------------\n\nST-LINK SN  : 37FF71064E573436F3D01543\nST-LINK FW  : V2J46S7\nBoard       : --\nVoltage     : 3.25V\nSWD freq    : 100 KHz\nConnect mode: Hot Plug\nReset mode  : Software reset\nDevice ID   : 0x410\nRevision ID : Rev A\nDevice name : STM32F101/F102/F103 Medium-density\nNVM size    : 128 KBytes\nDevice type : MCU\nDevice CPU  : Cortex-M3\nBL Version  : --\n\n\nReading 32-bit memory content\n  Size          : 1424 Bytes\n  Address:      : 0x20000000\n0x20000000 : 00000001 044AA200 00000001 14000000\n0x20000010 : 00000000 00000164 00000000 00000000\n0x20000020 : 00000000 00000000 000006E8 03E8028A\n0x20000030 : 012C07D0 010101F4 00000000 000006E8\n0x20000040 : 03E8028A 012C07D0 010101F4 00000000\n0x20000050 : 000006E8 03E8028A 012C07D0 010101F4\n0x20000060 : 00000000 00000374 03E8028A 012C07D0\n0x20000070 : 010101F4 00000000 00000000 00000000\n0x20000080 : 00000000 00000000 00000000 00000000\n0x20000090 : 00000000 00002E8D 00002E86 00000000\n0x200000A0 : 00000000 00000000 00000000 00000000\n0x200000B0 : 00000000 00000000 00000000 00000000\n0x200000C0 : 00000000 00000000 00000000 00000000\n0x200000D0 : 00000000 00000000 00000000 00000000\n0x200000E0 : 00000000 00000000 00000000 00000000\n0x200000F0 : 00000000 00000000 00000000 00000000\n0x20000100 : 00000000 00000000 00000000 00000000\n0x20000110 : 00000000 00000000 00000000 0000000F\n0x20000120 : 00000000 00000000 00000000 00000000\n0x20000130 : 00000000 00000000 00000000 00000000\n0x20000140 : 00000000 00002EA2 00000000 00000000\n0x20000150 : 00000000 00000000 00000000 0C030104\n0x20000160 : 012C1803 FCC2D106 0101C823 01010101\n0x20000170 : 01010101 00630103 00000000 00000000\n0x20000180 : 00000000 00002E9A 00000000 00010101\n0x20000190 : 00000100 00000000 02434EAF 23FCC2D1\n0x200001A0 : 878607B7 00000167 00002C18 00000000\n0x200001B0 : 00002E9A 00002E97 00002E97 00000000\n0x200001C0 : 000000EE 00000000 00002C18 000000C8\n0x200001D0 : 00000000 00000000 00000000 00000000\n0x200001E0 : 00000000 00000000 00000000 00000000\n0x200001F0 : 01010003 00000000 00000000 0000000F\n0x20000200 : 00002EB9 00002E7C 00000000 00000000\n0x20000210 : 00000000 00000000 00000000 00000000\n0x20000220 : 00000000 00000000 00000000 00000000\n0x20000230 : 00000000 00000000 00000000 00000000\n0x20000240 : 0F000001 00000000 00000000 00000000\n0x20000250 : 00000000 00000000 00000000 00000000\n0x20000260 : 00000000 00000000 00002EC5 00002E80\n0x20000270 : 00000000 00000000 00000000 00000000\n0x20000280 : 00000000 00000000 00000000 00000000\n0x20000290 : 00000000 00000000 00000000 00002E97\n0x200002A0 : 00002E97 00002E97 00002E97 00002E97\n0x200002B0 : 00002E97 00002E97 00002EC7 00002EC7\n0x200002C0 : 00002EC7 00002EC7 00002EC7 00002EC7\n0x200002D0 : 00002EC7 00002EC8 00002EC8 00002EC8\n0x200002E0 : 00002EC8 00002EC8 00002EC8 00002EC8\n0x200002F0 : 00002EC8 00002EC8 00002EC8 00002EC8\n0x20000300 : 00002EC9 00002EC9 00002EC9 00002EC9\n0x20000310 : 00002EC9 00002EC9 00002EC9 00002EC9\n0x20000320 : 00002EC9 00002EC9 00002EC9 00002E00\n0x20000330 : 00002E01 00002E01 00002E01 00002E01\n0x20000340 : 00002E01 00002E01 00002E01 00002E01\n0x20000350 : 00002E01 00002E01 00002E01 00002E31\n0x20000360 : 00002E31 00002E31 00002E31 00002E31\n0x20000370 : 00002E31 00002E31 00002E32 00002E32\n0x20000380 : 00002E32 00002E32 00002E32 00002E32\n0x20000390 : 00002E32 00002E32 00002E32 00002E32\n0x200003A0 : 00002E32 00002E33 00002E33 00002E33\n0x200003B0 : 00002E33 00002E33 00002E33 00002E33\n0x200003C0 : 00002E33 00002E33 00002E33 00002E33\n0x200003D0 : 00002E63 00002E63 00002E63 00002E63\n0x200003E0 : 00002E63 00002E63 00002E63 00002E64\n0x200003F0 : 00002E64 00002E64 00002E64 00002E64\n0x20000400 : 00002E64 00002E64 00002E64 00002E64\n0x20000410 : 00002E64 00002E64 00002E65 00002E65\n0x20000420 : 00002E65 00002E65 00002E65 00002E65\n0x20000430 : 00002E65 00002E65 00002E65 00002E65\n0x20000440 : 00002E65 00002E95 00002E95 00002E95\n0x20000450 : 00002E95 00002E95 00002E95 00002E95\n0x20000460 : 00002E96 00002E96 00002E96 00002E96\n0x20000470 : 00002E96 00002E96 00002E96 00002E96\n0x20000480 : 00002E96 00002E96 00002E96 00002E97\n0x20000490 : 00002E97 00002E97 00002E97 01414100\n0x200004A0 : 01030101 04000063 030C0301 06012C19\n0x200004B0 : 23FCC2D1 010101C8 01010101 03010101\n0x200004C0 : 000056B2 0C030104 012C1A03 FCC2D106\n0x200004D0 : 0101C823 01010101 01010101 00086703\n0x200004E0 : 01010101 01010101 00631203 03010400\n0x200004F0 : 2C17030C C2D10601 01C823FC 01010101\n0x20000500 : 01010101 56A10301 01040000 18030C03\n0x20000510 : D106012C C823FCC2 01010101 00010101\n0x20000520 : 703B0E10 00000000 00000000 00000000\n0x20000530 : 00000000 00000000 00000000 00000000\n0x20000540 : 00000000 00000000 00000000 00004C2B\n0x20000550 : 00011940 00002000 00000001 00000000\n0x20000560 : 00000000 00000000 000005A0 00000000\n0x20000570 : 00000000 00000000 00000000 00000100\n0x20000580 : 00000048 00010101 00002F2A 00002F2A\nCore run\n",
+        "returncode": 0
+      },
+      {
+        "args": [
+          "-c",
+          "port=SWD",
+          "sn=37FF71064E573436F3D01543",
+          "freq=100",
+          "mode=HOTPLUG",
+          "-r32",
+          "0x40010c08",
+          "8",
+          "-run"
+        ],
+        "output": "      -------------------------------------------------------------------\n                       STM32CubeProgrammer v2.23.0                  \n      -------------------------------------------------------------------\n\nST-LINK SN  : 37FF71064E573436F3D01543\nST-LINK FW  : V2J46S7\nBoard       : --\nVoltage     : 3.25V\nSWD freq    : 100 KHz\nConnect mode: Hot Plug\nReset mode  : Software reset\nDevice ID   : 0x410\nRevision ID : Rev A\nDevice name : STM32F101/F102/F103 Medium-density\nNVM size    : 128 KBytes\nDevice type : MCU\nDevice CPU  : Cortex-M3\nBL Version  : --\n\n\nReading 32-bit memory content\n  Size          : 8 Bytes\n  Address:      : 0x40010C08\n0x40010C08 : 00000800 00000C00\n\n\nCore run\n",
+        "returncode": 0
+      },
+      {
+        "args": [
+          "-c",
+          "port=SWD",
+          "sn=37FF71064E573436F3D01543",
+          "freq=100",
+          "mode=HOTPLUG",
+          "-r32",
+          "0x40021024",
+          "4",
+          "-run"
+        ],
+        "output": "      -------------------------------------------------------------------\n                       STM32CubeProgrammer v2.23.0                  \n      -------------------------------------------------------------------\n\nST-LINK SN  : 37FF71064E573436F3D01543\nST-LINK FW  : V2J46S7\nBoard       : --\nVoltage     : 3.25V\nSWD freq    : 100 KHz\nConnect mode: Hot Plug\nReset mode  : Software reset\nDevice ID   : 0x410\nRevision ID : Rev A\nDevice name : STM32F101/F102/F103 Medium-density\nNVM size    : 128 KBytes\nDevice type : MCU\nDevice CPU  : Cortex-M3\nBL Version  : --\n\n\nReading 32-bit memory content\n  Size          : 4 Bytes\n  Address:      : 0x40021024\n0x40021024 : 00000003\n\n\nCore run\n",
+        "returncode": 0
+      }
+    ],
+    "atomic_snapshot": false,
+    "motor_commands_sent": false,
+    "writes": false,
+    "flash_sha256": "4c61be2bcf84cff7499744f285cf1c23810749e885cb8c353cb4702f19227940",
+    "fields": {
+      "board_link_reset_cause": 335544320,
+      "board_link_transport_errors": 0,
+      "board_link_outputs_inhibited": 1,
+      "milliseconds": 12074,
+      "m4_raw_irqs": 0,
+      "m4_overrun": 0,
+      "m4_started": 1,
+      "m4_window_ms": 0,
+      "m4_fault_ms": 0,
+      "m4_fault_window_ms": 0,
+      "m4_fault_cycles": 0,
+      "m4_fault_pins": 0,
+      "m4_filter.count": 0,
+      "m4_filter.accepted": 0,
+      "m4_filter.short_pulses": 0,
+      "m4_filter.duplicate_irqs": 0,
+      "m4_filter.pending": 0,
+      "m4_filter.stable_a": 0,
+      "speeds.fault": 0,
+      "speeds.fault_encoder_mask": 0,
+      "speeds.fault_sample_ms": 0,
+      "speeds.fault_sample_dt": 0,
+      "speeds.fault_raw_delta": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "speeds.measured_mm_s": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "speeds.last_counts": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "gpio_b_idr_odr": [
+      2048,
+      3072
+    ],
+    "rcc_csr_current": 3
+  },
+  "thresholds_unchanged": {
+    "filter_us": 20,
+    "irqs_per_ms": 32,
+    "closed_loop_pwm_permille": 500
+  },
+  "tradeoff": "CPU remains active during owner-loop delay, increasing idle power.",
+  "physical_turn_retest": {
+    "user_confirmation": "左右方向正确，均转动并停下，无故障",
+    "target_mm_s": 100,
+    "web_observation": {
+      "events": [
+        "17:38:07\n意图 后退（低速 -1000 / 转向 0）",
+        "17:38:07\n意图 停止（低速 0 / 转向 0）"
+      ],
+      "fault": "none",
+      "message": "已解锁：按住方向行驶，松开归零",
+      "mode": "已解锁",
+      "speeds": "M1 右前\t-6183\t0 / 0\nM2 左前\t6743\t0 / 0\nM3 右后\t-5422\t0 / 0\nM4 左后\t3188\t0 / 0"
+    },
+    "latest_web": {
+      "confirmed": "4 / 4",
+      "fault": "none",
+      "mode": "已解锁",
+      "ready": "就绪",
+      "speeds": "M1 右前\t-9039\t0 / 0\nM2 左前\t8881\t0 / 0\nM3 右后\t-8270\t0 / 0\nM4 左后\t4664\t0 / 0"
+    },
+    "post_test_swd": "Unavailable: read failed; no post-test RAM counters claimed.",
+    "long_term_stability_verified": false
+  },
+  "reference": "https://www.keil.com/dd/docs/datashts/arm/cortex_m3/r2p0/ddi0337g_cortex_m3_r2p0_trm.pdf"
+}

@@ -1,0 +1,3250 @@
+{
+  "date": "2026-10-17",
+  "bluetooth_connection_verified": true,
+  "ble_stop_disarm_verified": true,
+  "led_commands_accepted_by_esp32": true,
+  "physical_led_observation": false,
+  "neutral_arm_rejected_reason": 7,
+  "calibrated_mask": 0,
+  "motor_drive_commands_sent": 0,
+  "configuration_changed": false,
+  "flashed": false,
+  "reconnect_reliability_verified": false,
+  "notes": [
+    "首次独立供电 BLE 连接成功；最初灯控确认撞上 STOP 后 UART 会话更新，诊断脚本增加等待握手稳定。",
+    "随后一次 GATT 服务发现超时，广播一度消失；不能认定重连稳定性通过。",
+    "用户断开 ESP32 外部 5V 后接 USB；CH343 COM8 诊断确认 firmware=crtc-lower-pid-v2、source=BLE，UART 在线。",
+    "最终测试控制命令走 BLE，USB 提供 ESP32 电源；LED 两条命令收到源序号确认，未取得实物灯光确认。",
+    "中性 ARM 被拒绝，reason=7、ready=false、calibrated_mask=0；随后 10s 主状态保持同一会话、UART 在线、未解锁，无故障。",
+    "最终 BLE STOP 确认锁定并断开；没有发送 DRIVE、修改校准、清故障或刷写固件。"
+  ],
+  "records": {
+    "ble-pc-probe-first-20261017.json": {
+      "date": "2026-10-17",
+      "transport": "Windows BLE",
+      "motion_commands_sent": 0,
+      "configuration_changed": false,
+      "events": [
+        {
+          "monotonic": 94607.578,
+          "kind": "scan",
+          "candidates": [
+            {
+              "name": "CRTC-Lower-Car",
+              "address": "C0:4E:30:2B:D9:A5",
+              "rssi": -24
+            }
+          ]
+        },
+        {
+          "monotonic": 94610.171,
+          "kind": "connected",
+          "control_properties": [
+            "write"
+          ],
+          "status_properties": [
+            "notify",
+            "read"
+          ]
+        },
+        {
+          "monotonic": 94610.203,
+          "kind": "notify",
+          "hex": "010001039dcca16e00000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.203,
+          "kind": "initial_main",
+          "state": {
+            "flags": 1,
+            "reason": 3,
+            "session": 1856097437,
+            "last_sequence": 0,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94610.203,
+          "kind": "write",
+          "opcode": 3,
+          "session": 1856097437,
+          "sequence": 1,
+          "hex": "010300009dcca16e010000000000000000000000"
+        },
+        {
+          "monotonic": 94610.218,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.25,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.281,
+          "kind": "notify",
+          "hex": "010001045646d90c00000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.281,
+          "kind": "stop_confirmed",
+          "state": {
+            "flags": 1,
+            "reason": 4,
+            "session": 215565910,
+            "last_sequence": 0,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94610.281,
+          "kind": "write",
+          "opcode": 4,
+          "session": 215565910,
+          "sequence": 1,
+          "hex": "010400005646d90c010000000100000000000000"
+        },
+        {
+          "monotonic": 94610.312,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.343,
+          "kind": "notify",
+          "hex": "0102000000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.375,
+          "kind": "notify",
+          "hex": "01000003c839484900000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.406,
+          "kind": "notify",
+          "hex": "0101000000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.437,
+          "kind": "notify",
+          "hex": "0102000000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.468,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.5,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.531,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.546,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.578,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.609,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.64,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.671,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.703,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.734,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.765,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.796,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.828,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.859,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.89,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.921,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94610.937,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94610.968,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.0,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.031,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.062,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.093,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.125,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.156,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.187,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.218,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.25,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.281,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.296,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.328,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.359,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.39,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.421,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.453,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.484,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.515,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.546,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.578,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.609,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.64,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.671,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.687,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.718,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.75,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.781,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.812,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.843,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.875,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.906,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94611.968,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94611.968,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.031,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.031,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.093,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.093,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.156,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.156,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.218,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.218,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.281,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.281,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.328,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.328,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.406,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.406,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.453,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.453,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.515,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.515,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.578,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.578,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.64,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.64,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.687,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.687,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.75,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.75,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.812,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.812,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.875,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.875,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94612.937,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94612.937,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.0,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.0,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94613.046,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.062,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.109,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94613.109,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.171,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.171,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94613.234,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.234,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.296,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94613.296,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.328,
+          "kind": "write",
+          "opcode": 3,
+          "session": 2243374394,
+          "sequence": 1,
+          "hex": "010300003a2db785010000000000000000000000"
+        },
+        {
+          "monotonic": 94613.359,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.359,
+          "kind": "notify",
+          "hex": "010001033a2db78500000000000000002c010000"
+        },
+        {
+          "monotonic": 94613.421,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.421,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.484,
+          "kind": "notify",
+          "hex": "01000003659a5d6000000000000000002c010000"
+        },
+        {
+          "monotonic": 94613.484,
+          "kind": "notify",
+          "hex": "0101000000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.531,
+          "kind": "notify",
+          "hex": "0102000000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94613.531,
+          "kind": "notify",
+          "hex": "01000103d78dcc9c00000000000000002c010000"
+        }
+      ],
+      "checks": {
+        "connected": true,
+        "ble_stop_confirmed": true,
+        "final_ble_stop_confirmed": true
+      },
+      "device_address": "C0:4E:30:2B:D9:A5",
+      "initial_main": {
+        "flags": 1,
+        "reason": 3,
+        "session": 1856097437,
+        "last_sequence": 0,
+        "uart": true,
+        "armed": false,
+        "active": false,
+        "ready": false,
+        "fault": false,
+        "left": 0,
+        "right": 0,
+        "limit": 300,
+        "calibrated_mask": 0,
+        "fault_code": 0
+      },
+      "error": "No matching fresh BLE main state"
+    },
+    "ble-pc-probe-connect-timeout-20261017.json": {
+      "date": "2026-10-17",
+      "transport": "Windows BLE",
+      "motion_commands_sent": 0,
+      "configuration_changed": false,
+      "events": [
+        {
+          "monotonic": 94648.625,
+          "kind": "scan",
+          "candidates": [
+            {
+              "name": "CRTC-Lower-Car",
+              "address": "C0:4E:30:2B:D9:A5",
+              "rssi": -23
+            }
+          ]
+        }
+      ],
+      "checks": {},
+      "error": ""
+    },
+    "ble-pc-radio-after-reset-20261017.json": {
+      "date": "2026-10-17",
+      "after_user_esp32_reset": true,
+      "motion_commands_sent": 0,
+      "bluetooth_radios": [
+        {
+          "name": "蓝牙",
+          "state": 1
+        }
+      ],
+      "total_devices_seen": 71,
+      "matches": [],
+      "known_device_os_state": {
+        "name": "CRTC-Lower-Car",
+        "connection_status": 0
+      }
+    },
+    "ble-pc-usb-reconnected-20261017.json": {
+      "date": "2026-10-17",
+      "port": "COM8",
+      "commands": [
+        {
+          "command": "INFO",
+          "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=8AD9D1BD flags=31 encoder_mask=15 parser_errors=0 rejected=0 rx_bytes=61513 tx_bytes=33309 tx_frames=1149 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=57903 tx_gpio=4 rx_gpio=6\n"
+        },
+        {
+          "command": "HELP",
+          "reply": "INFO | RX | ENC | PWM token8hex m1 m2 m3 m4 (-250..250) | STOP | LED ON | LED OFF\n"
+        },
+        {
+          "command": "STOP",
+          "reply": "QUEUED STOP\n"
+        },
+        {
+          "command": "INFO",
+          "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=32CD8C6D flags=31 encoder_mask=15 parser_errors=0 rejected=4 rx_bytes=64744 tx_bytes=35066 tx_frames=1210 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=60930 tx_gpio=4 rx_gpio=6\n"
+        },
+        {
+          "command": "ENC",
+          "reply": "ENC mask=15 age_ms=69 counts=0,0,0,3\n"
+        },
+        {
+          "command": "RX",
+          "reply": "RX bytes=66884 hex=0F0101010101010101010101010101010103165100000401051403800901066D8CCD320F0101010101010101010101010101020301010304FD00000401041003810901066D8CCD321F010103E0040103DE04010201010103EB4E000004010C1403820901056D8CCD3201020F01010101010101010101010101010101030FA400\n"
+        },
+        {
+          "command": "INFO",
+          "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=32CD8C6D flags=31 encoder_mask=15 parser_errors=0 rejected=4 rx_bytes=67954 tx_bytes=36835 tx_frames=1271 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=63963 tx_gpio=4 rx_gpio=6\n"
+        }
+      ],
+      "motion_commands_sent": 0,
+      "initial_usb_output": ""
+    },
+    "ble-pc-probe-20261017.json": {
+      "date": "2026-10-17",
+      "transport": "Windows BLE",
+      "motion_commands_sent": 0,
+      "configuration_changed": false,
+      "events": [
+        {
+          "monotonic": 94945.484,
+          "kind": "scan",
+          "candidates": [
+            {
+              "name": "CRTC-Lower-Car",
+              "address": "C0:4E:30:2B:D9:A5",
+              "rssi": -28
+            }
+          ]
+        },
+        {
+          "monotonic": 94948.437,
+          "kind": "connected",
+          "control_properties": [
+            "write"
+          ],
+          "status_properties": [
+            "read",
+            "notify"
+          ]
+        },
+        {
+          "monotonic": 94948.468,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94948.5,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94948.531,
+          "kind": "notify",
+          "hex": "01000103c37740b100000000000000002c010000"
+        },
+        {
+          "monotonic": 94948.531,
+          "kind": "initial_main",
+          "state": {
+            "flags": 1,
+            "reason": 3,
+            "session": 2973792195,
+            "last_sequence": 0,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94948.531,
+          "kind": "write",
+          "opcode": 3,
+          "session": 2973792195,
+          "sequence": 1,
+          "hex": "01030000c37740b1010000000000000000000000"
+        },
+        {
+          "monotonic": 94948.562,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94948.593,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94948.625,
+          "kind": "notify",
+          "hex": "010001047cf1774f00000000000000002c010000"
+        },
+        {
+          "monotonic": 94948.656,
+          "kind": "stop_confirmed",
+          "state": {
+            "flags": 1,
+            "reason": 4,
+            "session": 1333260668,
+            "last_sequence": 0,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94948.656,
+          "kind": "notify",
+          "hex": "0101000000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94948.687,
+          "kind": "notify",
+          "hex": "0102000000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94948.718,
+          "kind": "notify",
+          "hex": "01000003eee4e68b00000000000000002c010000"
+        },
+        {
+          "monotonic": 94948.75,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94948.765,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94948.812,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94948.828,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94948.859,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94948.89,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94948.921,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94948.953,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94948.984,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.015,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.046,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.078,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.109,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.125,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.171,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.187,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.218,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.25,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.281,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.312,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.343,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.375,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.406,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.437,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.468,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.5,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.531,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.546,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.578,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.609,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.64,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.671,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.703,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.734,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.765,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.796,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.828,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.859,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.921,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94949.921,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94949.984,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94949.984,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.031,
+          "kind": "post_stop_handshake_stable",
+          "state": {
+            "flags": 1,
+            "reason": 3,
+            "session": 3361069152,
+            "last_sequence": 0,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94950.031,
+          "kind": "write",
+          "opcode": 4,
+          "session": 3361069152,
+          "sequence": 1,
+          "hex": "0104000060d855c8010000000100000000000000"
+        },
+        {
+          "monotonic": 94950.031,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.031,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.093,
+          "kind": "notify",
+          "hex": "0100010360d855c800000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.093,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.156,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.156,
+          "kind": "notify",
+          "hex": "0100010360d855c801000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.187,
+          "kind": "led_accepted",
+          "on": 1,
+          "state": {
+            "flags": 1,
+            "reason": 3,
+            "session": 3361069152,
+            "last_sequence": 1,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94950.218,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.218,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.281,
+          "kind": "notify",
+          "hex": "0100010360d855c801000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.281,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.343,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.343,
+          "kind": "notify",
+          "hex": "0100010360d855c801000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.39,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.39,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.453,
+          "kind": "notify",
+          "hex": "0100010360d855c801000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.453,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.515,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.515,
+          "kind": "notify",
+          "hex": "0100010360d855c801000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.578,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.578,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.64,
+          "kind": "notify",
+          "hex": "0100010360d855c801000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.64,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.703,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.703,
+          "kind": "notify",
+          "hex": "0100010360d855c801000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.703,
+          "kind": "write",
+          "opcode": 4,
+          "session": 3361069152,
+          "sequence": 2,
+          "hex": "0104000060d855c8020000000000000000000000"
+        },
+        {
+          "monotonic": 94950.765,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.765,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.812,
+          "kind": "notify",
+          "hex": "0100010360d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.812,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.812,
+          "kind": "led_accepted",
+          "on": 0,
+          "state": {
+            "flags": 1,
+            "reason": 3,
+            "session": 3361069152,
+            "last_sequence": 2,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94950.875,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94950.875,
+          "kind": "notify",
+          "hex": "0100010360d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94950.937,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94950.937,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.0,
+          "kind": "notify",
+          "hex": "0100010360d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.0,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.062,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.062,
+          "kind": "notify",
+          "hex": "0100010360d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.125,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.125,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.187,
+          "kind": "notify",
+          "hex": "0100010360d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.187,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.25,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.25,
+          "kind": "notify",
+          "hex": "0100010360d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.312,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.312,
+          "kind": "write",
+          "opcode": 1,
+          "session": 3361069152,
+          "sequence": 3,
+          "hex": "0101000060d855c8030000000000000000000000"
+        },
+        {
+          "monotonic": 94951.312,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.375,
+          "kind": "notify",
+          "hex": "0100010360d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.375,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.421,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.421,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.453,
+          "kind": "arm_rejected_not_ready",
+          "state": {
+            "flags": 1,
+            "reason": 7,
+            "session": 3361069152,
+            "last_sequence": 2,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          },
+          "attempted_sequence": 3
+        },
+        {
+          "monotonic": 94951.484,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.484,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.531,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.531,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.593,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.593,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.656,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.656,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.718,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.718,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.781,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.781,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.843,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.843,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.906,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94951.906,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94951.953,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94951.953,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.015,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.015,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.078,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.078,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.14,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.14,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.203,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.203,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.265,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.265,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.312,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.312,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.375,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.375,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.437,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.437,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.5,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.5,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.562,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.562,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.625,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.625,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.671,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.671,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.734,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.734,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.796,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.796,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.859,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.859,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.921,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94952.921,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94952.984,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94952.984,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.031,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.031,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.093,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.093,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.156,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.156,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.218,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.218,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.281,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.281,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.343,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.343,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.406,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.406,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.453,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.453,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.515,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.515,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.578,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.578,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.64,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.64,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.703,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.703,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.765,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.765,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.812,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.812,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.875,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94953.875,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94953.937,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94953.937,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.0,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.0,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.062,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.062,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.125,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.125,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.171,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.171,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.234,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.234,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.296,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.296,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.359,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.359,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.421,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.421,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.484,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.484,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.531,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.531,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.593,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.593,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.656,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.656,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.718,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.718,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.781,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.781,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.843,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.843,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.906,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94954.906,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94954.953,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94954.953,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.031,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.031,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.078,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.078,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.14,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.14,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.203,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.203,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.265,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.265,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.312,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.312,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.375,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.375,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.437,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.437,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.5,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.5,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.562,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.562,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.625,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.625,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.671,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.671,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.734,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.734,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.796,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.796,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.859,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.859,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.921,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94955.921,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94955.984,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94955.984,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.046,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.046,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.093,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.093,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.156,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.156,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.218,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.218,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.281,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.281,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.343,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.343,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.39,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.39,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.453,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.453,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.515,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.515,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.578,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.578,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.64,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.64,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.703,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.703,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.765,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.765,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.812,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.812,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.875,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94956.875,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94956.937,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94956.937,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.0,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.0,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.062,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.062,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.125,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.125,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.171,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.171,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.234,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.234,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.296,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.296,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.359,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.359,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.421,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.421,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.484,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.484,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.546,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.546,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.593,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.593,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.656,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.656,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.718,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.718,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.781,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.781,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.843,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.843,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.89,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94957.906,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94957.953,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94957.953,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.015,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.015,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.078,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.078,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.14,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.14,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.203,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.203,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.265,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.265,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.312,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.312,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.375,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.375,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.437,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.437,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.5,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.5,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.562,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.562,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.625,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.625,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.687,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.687,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.75,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.75,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.796,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.796,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.859,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.859,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.921,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94958.921,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94958.984,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94958.984,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.046,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.046,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.093,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.093,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.156,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.156,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.218,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.218,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.281,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.281,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.343,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.343,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.39,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.406,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.453,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.453,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.515,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.515,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.578,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.578,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.64,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.64,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.703,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.703,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.75,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.75,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.812,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.812,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.875,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94959.875,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94959.937,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94959.937,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.0,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.0,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.062,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.062,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.125,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.125,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.171,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.171,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.234,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.234,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.296,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.296,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.359,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.359,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.421,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.421,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.484,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.484,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.531,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.531,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.593,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.593,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.656,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.656,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.718,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.718,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.781,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.781,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.843,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.843,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.89,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94960.89,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94960.953,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94960.953,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.015,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.015,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.078,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.078,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.14,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.14,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.203,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.203,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.265,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.265,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.312,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.312,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.375,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.375,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.437,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.437,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.468,
+          "kind": "final_main",
+          "state": {
+            "flags": 1,
+            "reason": 7,
+            "session": 3361069152,
+            "last_sequence": 2,
+            "uart": true,
+            "armed": false,
+            "active": false,
+            "ready": false,
+            "fault": false,
+            "left": 0,
+            "right": 0,
+            "limit": 300,
+            "calibrated_mask": 0,
+            "fault_code": 0
+          }
+        },
+        {
+          "monotonic": 94961.468,
+          "kind": "write",
+          "opcode": 3,
+          "session": 3361069152,
+          "sequence": 3,
+          "hex": "0103000060d855c8030000000000000000000000"
+        },
+        {
+          "monotonic": 94961.5,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.5,
+          "kind": "notify",
+          "hex": "0100010760d855c802000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.562,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.562,
+          "kind": "notify",
+          "hex": "01020f0000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.625,
+          "kind": "notify",
+          "hex": "0100010419528d6600000000000000002c010000"
+        },
+        {
+          "monotonic": 94961.625,
+          "kind": "notify",
+          "hex": "01010f0000000000000000000000000003000000"
+        },
+        {
+          "monotonic": 94961.671,
+          "kind": "notify",
+          "hex": "0102000000000000000000000000000000000000"
+        },
+        {
+          "monotonic": 94961.671,
+          "kind": "notify",
+          "hex": "010000038b45fca200000000000000002c010000"
+        }
+      ],
+      "checks": {
+        "connected": true,
+        "ble_stop_confirmed": true,
+        "led_1_accepted": true,
+        "led_0_accepted": true,
+        "neutral_arm_rejected_not_ready": true,
+        "final_ble_stop_confirmed": true,
+        "disconnected_cleanly": true
+      },
+      "device_address": "C0:4E:30:2B:D9:A5",
+      "initial_main": {
+        "flags": 1,
+        "reason": 3,
+        "session": 2973792195,
+        "last_sequence": 0,
+        "uart": true,
+        "armed": false,
+        "active": false,
+        "ready": false,
+        "fault": false,
+        "left": 0,
+        "right": 0,
+        "limit": 300,
+        "calibrated_mask": 0,
+        "fault_code": 0
+      },
+      "before_arm_check": {
+        "flags": 1,
+        "reason": 3,
+        "session": 3361069152,
+        "last_sequence": 2,
+        "uart": true,
+        "armed": false,
+        "active": false,
+        "ready": false,
+        "fault": false,
+        "left": 0,
+        "right": 0,
+        "limit": 300,
+        "calibrated_mask": 0,
+        "fault_code": 0
+      },
+      "final_main": {
+        "flags": 1,
+        "reason": 7,
+        "session": 3361069152,
+        "last_sequence": 2,
+        "uart": true,
+        "armed": false,
+        "active": false,
+        "ready": false,
+        "fault": false,
+        "left": 0,
+        "right": 0,
+        "limit": 300,
+        "calibrated_mask": 0,
+        "fault_code": 0
+      }
+    }
+  }
+}

@@ -4,10 +4,10 @@ export const UUID = Object.freeze({
   control: '2c4b0002-6f1a-4c9e-9b72-3c06f42b7d11',
   status: '2c4b0003-6f1a-4c9e-9b72-3c06f42b7d11',
 });
-export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7 });
-export const WHEELS = Object.freeze(['M1 左后', 'M2 右后', 'M3 左前', 'M4 右前']);
+export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7, SERVO: 8 });
+export const WHEELS = Object.freeze(['M1 右前', 'M2 左前', 'M3 右后', 'M4 左后']);
 export const DEFAULT_CALIBRATION = Object.freeze(WHEELS.map((_, wheel) => Object.freeze({
-  wheel, motorNegative: false, encoderNegative: false, confirmed: false,
+  wheel, motorNegative: wheel % 2 === 1, encoderNegative: wheel % 2 === 0, confirmed: false,
   diameterTenthMm: 650, countsPerRev: wheel === 3 ? 884 : 1768,
   kpMilli: 1000, kiMilli: 2000, maxMmS: 300,
 })));
@@ -42,7 +42,7 @@ export function validateCalibration(value) {
   return item;
 }
 export function encodeCommand(op, args) {
-  integer(op, 1, 7, '操作码');
+  integer(op, 1, 8, '操作码');
   const bytes = new Uint8Array(20), v = new DataView(bytes.buffer);
   bytes[0] = 1; bytes[1] = op;
   v.setUint32(4, integer(args.session, 1, 0xffffffff, '会话'), true);
@@ -52,6 +52,9 @@ export function encodeCommand(op, args) {
     v.setInt16(14, integer(args.steer, -1000, 1000, '转向量'), true);
     v.setUint16(16, integer(args.limit, 0, 300, '速度上限'), true);
     v.setUint16(18, integer(args.ttl ?? 200, 50, 200, '有效期'), true);
+  } else if (op === OP.SERVO) {
+    bytes[12] = integer(args.channel, 0, 1, '舵机通道');
+    v.setUint16(14, args.pulseUs === 0 ? 0 : integer(args.pulseUs, 1300, 1700, '脉宽 μs'), true);
   } else if (op === OP.LED) {
     bytes[12] = integer(args.on, 0, 1, '灯状态');
   } else if (op === OP.MECHANICAL) {
@@ -91,9 +94,16 @@ export function decodeStatus(bytes) {
       targets: [0, 1, 2, 3].map(i => v.getInt16(12 + 2 * i, true)) };
   }
   if (kind === 3) {
-    if (flags > 3 && flags !== 255) throw new Error('配置确认轮号无效');
+    if (flags > 3 && flags !== 254 && flags !== 255) throw new Error('配置确认轮号无效');
     for (let i = 12; i < 20; i++) if (v.getUint8(i)) throw new Error('配置确认保留位无效');
     return { kind, wheel: flags, result: extra, session: v.getUint32(4, true), sourceSequence: v.getUint32(8, true) };
+  }
+  if (kind === 4) {
+    const pulses = [v.getUint16(8, true), v.getUint16(10, true)];
+    if (flags & ~3 || extra & ~7 || pulses.some((p,i) => p !== 0 && (p < 1300 || p > 1700) || !!p !== !!(flags & (1<<i))) ||
+        v.getUint16(12,true) !== 1300 || v.getUint16(14,true) !== 1700 ||
+        v.getUint16(16,true) !== 25 || v.getUint16(18,true) !== 100) throw new Error('舵机状态字段无效');
+    return { kind, session: v.getUint32(4,true), pulses, available: !!(extra & 1), positionMask: (extra>>1)&3 };
   }
   throw new Error('未知状态类型');
 }
@@ -174,7 +184,7 @@ export class AckRegistry {
     if (!wait || wait.session !== packet.session || wait.wheel !== packet.wheel) return false;
     this.pending.delete(packet.sourceSequence);
     if (this.now() >= wait.deadline) wait.reject(rejection('配置确认超时'));
-    else if (packet.result) wait.reject(rejection(`STM32 拒绝配置，代码 ${packet.result}`));
+    else if (packet.result) wait.reject(rejection(`${packet.wheel === 254 ? "ESP32 拒绝舵机操作" : "STM32 拒绝配置"}，代码 ${packet.result}`));
     else wait.resolve(packet);
     return true;
   }
@@ -196,6 +206,7 @@ export class RemoteController {
       uart: false, ready: false, active: false, fault: false, faultCode: 0, reason: 0,
       calibratedMask: 0, left: 0, right: 0, limit: 100, configBusy: false, note: '尚未连接' };
     this.throttle = 0; this.steer = 0; this.lastTick = now(); this.lastDrive = -Infinity;
+    this.servoStatus = null; this.servoStatusAt = -Infinity;
     this.mainStatusAt = -Infinity; this.armSequence = null; this.unsolicitedArmedStopped = false;
     this.armRequestedAt = -Infinity;
   }
@@ -206,6 +217,7 @@ export class RemoteController {
     return this.generation;
   }
   disconnect() {
+    this.servoStatus = null; this.servoStatusAt = -Infinity;
     this.generation++; this.queue.setWriter(null); this.acks.clear('连接已断开');
     Object.assign(this.state, { connected: false, session: 0, armed: false, armPending: false,
       remoteArmed: false, uart: false, ready: false, active: false, calibratedMask: 0, note: '连接已断开，保持锁定' });
@@ -273,10 +285,15 @@ export class RemoteController {
   ingest(packet, generation) {
     if (generation !== this.generation || !this.state.connected) return false;
     if (packet.kind === 3) { this.acks.accept(packet); return true; }
+    if (packet.kind === 4) {
+      if (packet.session !== this.state.session) return false;
+      this.servoStatus = packet; this.servoStatusAt = this.now(); this.notify(); return true;
+    }
     if (packet.kind !== 0) return !!this.state.session;
     if (!packet.session) return false;
     const changedSession = packet.session !== this.state.session;
     if (changedSession) {
+      this.servoStatus = null; this.servoStatusAt = -Infinity;
       this.state.session = packet.session;
       this.unsolicitedArmedStopped = false;
       // Firmware rotates the session when STOP is accepted. Sending STOP in
@@ -303,6 +320,28 @@ export class RemoteController {
     }
     if (!packet.armed) this.unsolicitedArmedStopped = false;
     this.notify(); return true;
+  }
+  servoAvailable(channel, release = false) {
+    const s = this.servoStatus;
+    return !!(s && s.available && s.session === this.state.session && this.now()-this.servoStatusAt < 500 &&
+      this.state.connected && this.state.uart && !this.state.armed && !this.state.armPending &&
+      !this.state.remoteArmed && !this.state.active && !this.state.configBusy &&
+      this.now()-this.mainStatusAt < 500 && (release || !this.state.fault && (s.positionMask & (1<<channel))));
+  }
+  async servo(channel, pulseUs) {
+    this.assertStopped();
+    if (!this.servoAvailable(channel, pulseUs === 0)) throw new Error('舵机固件未就绪、类型待确认或状态已过期');
+    const old = this.servoStatus.pulses[channel];
+    if (pulseUs && ((!old && pulseUs !== 1500) || (old && Math.abs(old-pulseUs)>25)))
+      throw new Error('首次仅允许 1500μs，后续每次最多改变 25μs');
+    this.state.configBusy = true; this.notify();
+    try {
+      await this.acknowledged(OP.SERVO, { channel, pulseUs }, 254);
+      // ACK confirms the owner task updated PWM, not a measured shaft angle.
+      if (this.servoStatus) this.servoStatus = { ...this.servoStatus,
+        pulses: this.servoStatus.pulses.map((p,i) => i === channel ? pulseUs : p) };
+      this.state.note = pulseUs ? '舵机脉宽已确认；实际角度需观察' : '舵机 PWM 已释放，请托住机构';
+    } finally { this.state.configBusy = false; this.notify(); }
   }
   async led(on) {
     await this.queue.offer(this.packet(OP.LED, { on: on ? 1 : 0 }).bytes, { expiresAt: this.now() + 500 });

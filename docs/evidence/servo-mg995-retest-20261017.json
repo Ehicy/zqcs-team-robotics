@@ -1,0 +1,24 @@
+{
+  "channel": 1,
+  "gpio": 13,
+  "model": "MG995",
+  "motion_writes": 0,
+  "events": [
+    {
+      "t": 123902.078,
+      "kind": "write",
+      "op": 3,
+      "pulse_us": 0,
+      "sequence": 1
+    },
+    {
+      "t": 123902.359,
+      "kind": "error",
+      "error": "Telemetry/link/fault changed"
+    }
+  ],
+  "release_confirmed": false,
+  "error": "Telemetry/link/fault changed",
+  "date": "2026-10-17",
+  "visual_confirmation": "not applicable; cancelled before servo command"
+}

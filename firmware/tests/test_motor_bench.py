@@ -166,6 +166,99 @@ class MotorBenchTests(unittest.TestCase):
         self.assertEqual(serial.pwm_count, 1)
         self.assert_final_stop(serial)
 
+    def test_all_wheels_share_deadline_and_stop(self):
+        serial = FakeSerial(Clock())
+        result = bench.run_bench(serial, wheel=None, pwm=150, seconds=.6,
+                                 clock=serial.clock, log=lambda line: None)
+        sent = [(when, cmd) for when, cmd in serial.commands if cmd.startswith("PWM ")]
+        self.assertTrue(result.stop_confirmed)
+        self.assertGreater(len(sent), 1)
+        self.assertLess(sent[-1][0] - sent[0][0], .6)
+        for _, cmd in sent:
+            self.assertEqual(cmd.split()[2:], ["150"] * 4)
+        self.assert_final_stop(serial)
+
+    def test_all_wheels_disconnect_stops_without_retry(self):
+        serial = FakeSerial(Clock(), mode="disconnect")
+        with self.assertRaisesRegex(bench.BenchError, "Board link disconnected"):
+            bench.run_bench(serial, wheel=None, pwm=150, seconds=.6,
+                            clock=serial.clock, log=lambda line: None)
+        self.assertEqual(serial.pwm_count, 1)
+        self.assert_final_stop(serial)
+
+    def test_pair_only_drives_selected_wheels_and_stops(self):
+        for pair, values in (((1, 2), ["150", "150", "0", "0"]),
+                             ((3, 4), ["0", "0", "150", "150"])):
+            with self.subTest(pair=pair):
+                serial = FakeSerial(Clock())
+                result = bench.run_bench(serial, wheel=pair, pwm=150, seconds=.6,
+                                         clock=serial.clock, log=lambda line: None)
+                sent = [(when, cmd) for when, cmd in serial.commands if cmd.startswith("PWM ")]
+                self.assertTrue(result.stop_confirmed)
+                self.assertGreater(len(sent), 1)
+                self.assertLess(sent[-1][0] - sent[0][0], .6)
+                self.assertTrue(all(cmd.split()[2:] == values for _, cmd in sent))
+                self.assert_final_stop(serial)
+
+    def test_pair_token_change_stops_without_retry(self):
+        serial = FakeSerial(Clock(), mode="token_change")
+        with self.assertRaisesRegex(bench.BenchError, "Session token changed"):
+            bench.run_bench(serial, wheel=(1, 2), pwm=150, seconds=.6,
+                            clock=serial.clock, log=lambda line: None)
+        self.assertEqual(serial.pwm_count, 2)
+        self.assert_final_stop(serial)
+
+    def test_invalid_selection_rejected_before_any_write(self):
+        for pair in ((1, 1), (0, 2), (1, 5), (1,), (1, 2, 3, 4),
+                     (1, 2, 2), (0, 2, 3), (1, 2, 5)):
+            serial = FakeSerial(Clock())
+            with self.assertRaises(ValueError):
+                bench.run_bench(serial, wheel=pair, pwm=150, seconds=.6,
+                                clock=serial.clock, log=lambda line: None)
+            self.assertEqual(serial.commands, [])
+
+    def test_triple_only_drives_selected_wheels_and_stops(self):
+        serial = FakeSerial(Clock())
+        result = bench.run_bench(serial, wheel=(1, 2, 3), pwm=150, seconds=5,
+                                 clock=serial.clock, log=lambda line: None)
+        sent = [(when, cmd) for when, cmd in serial.commands if cmd.startswith("PWM ")]
+        self.assertTrue(result.stop_confirmed)
+        self.assertGreater(len(sent), 1)
+        self.assertLess(sent[-1][0] - sent[0][0], 5)
+        self.assertTrue(all(cmd.split()[2:] == ["150", "150", "150", "0"] for _, cmd in sent))
+        self.assert_final_stop(serial)
+
+    def test_triple_disconnect_stops_without_retry(self):
+        serial = FakeSerial(Clock(), mode="disconnect")
+        with self.assertRaisesRegex(bench.BenchError, "Board link disconnected"):
+            bench.run_bench(serial, wheel=(1, 2, 3), pwm=150, seconds=5,
+                            clock=serial.clock, log=lambda line: None)
+        self.assertEqual(serial.pwm_count, 1)
+        self.assert_final_stop(serial)
+
+    def test_cli_triple_passes_exact_selection(self):
+        connection = mock.Mock()
+        with mock.patch.object(bench, "_open_serial", return_value=connection):
+            with mock.patch.object(bench, "run_bench") as runner:
+                self.assertEqual(bench.main(["--port", "FAKE", "--triple", "1", "2", "3",
+                                             "--pwm", "150", "--seconds", "5"]), 0)
+        self.assertEqual(runner.call_args.kwargs["wheel"], (1, 2, 3))
+        connection.close.assert_called_once()
+
+    def test_cli_requires_one_explicit_target(self):
+        base = ["--port", "FAKE", "--pwm", "150"]
+        for extra in ([], ["--wheel", "1", "--all-wheels"],
+                      ["--pair", "1", "2", "--all-wheels"],
+                      ["--pair", "1", "2", "--wheel", "1"], ["--pair", "1", "1"],
+                      ["--triple", "1", "2", "3", "--all-wheels"],
+                      ["--triple", "1", "2", "2"], ["--triple", "1", "2"]):
+            with mock.patch.object(bench, "_open_serial") as opener:
+                with contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as result:
+                        bench.main(base + extra)
+                self.assertEqual(result.exception.code, 2)
+                opener.assert_not_called()
+
     def test_disconnect_during_run_stops(self):
         serial = FakeSerial(Clock(), mode="disconnect")
         with self.assertRaisesRegex(bench.BenchError, "Board link disconnected"):
@@ -207,6 +300,71 @@ class MotorBenchTests(unittest.TestCase):
                     bench.run_bench(serial, wheel=wheel, pwm=pwm, seconds=seconds,
                                     clock=serial.clock, log=lambda line: None)
                 self.assertEqual(serial.commands, [])
+
+    def test_new_firmware_requires_explicit_exact_identity(self):
+        line = ("INFO firmware=crtc-lower-pid-v2 transport=1 connected=1 "
+                "token=10203040 flags=31 uptime_ms=123")
+        with self.assertRaisesRegex(bench.BenchError, "unexpected firmware"):
+            bench.parse_info(line)
+        info = bench.parse_info(line, "crtc-lower-pid-v2")
+        self.assertTrue(bench._Bench._ready(info))
+        for flags in (23, 27):  # Missing PWM support or missing inhibition.
+            info = bench.parse_info(line.replace("flags=31", f"flags={flags}"),
+                                    "crtc-lower-pid-v2")
+            self.assertFalse(bench._Bench._ready(info))
+        with self.assertRaisesRegex(bench.BenchError, "invalid status range"):
+            bench.parse_info(line.replace("flags=31", "flags=63"), "crtc-lower-pid-v2")
+
+    def test_extended_ten_second_window_and_stop(self):
+        serial = FakeSerial(Clock())
+        result = bench.run_bench(serial, wheel=None, pwm=150, seconds=10, extended=True,
+                                 clock=serial.clock, log=lambda line: None)
+        sent = [(when, cmd) for when, cmd in serial.commands if cmd.startswith("PWM ")]
+        self.assertTrue(result.stop_confirmed)
+        self.assertGreater(sent[-1][0] - sent[0][0], 9.8)
+        self.assertLess(sent[-1][0] - sent[0][0], 10)
+        self.assertTrue(all(cmd.split()[2:] == ["150"] * 4 for _, cmd in sent))
+        self.assert_final_stop(serial)
+
+    def test_extended_still_rejects_out_of_bounds_before_write(self):
+        for seconds in (0, 10.01, float("nan"), float("inf")):
+            serial = FakeSerial(Clock())
+            with self.assertRaises(ValueError):
+                bench.run_bench(serial, wheel=None, pwm=150, seconds=seconds, extended=True,
+                                clock=serial.clock, log=lambda line: None)
+            self.assertEqual(serial.commands, [])
+
+    def test_extended_disconnect_does_not_wait_out_interval(self):
+        serial = FakeSerial(Clock(), mode="disconnect")
+        with self.assertRaisesRegex(bench.BenchError, "Board link disconnected"):
+            bench.run_bench(serial, wheel=None, pwm=150, seconds=10, extended=True,
+                            clock=serial.clock, log=lambda line: None)
+        self.assertEqual(serial.pwm_count, 1)
+        self.assert_final_stop(serial)
+
+    def test_cli_extended_is_explicit(self):
+        base = ["--port", "FAKE", "--all-wheels", "--pwm", "150", "--seconds", "10"]
+        with mock.patch.object(bench, "_open_serial") as opener:
+            with contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit):
+                    bench.main(base)
+            opener.assert_not_called()
+        connection = mock.Mock()
+        with mock.patch.object(bench, "_open_serial", return_value=connection):
+            with mock.patch.object(bench, "run_bench") as runner:
+                self.assertEqual(bench.main(base + ["--extended"]), 0)
+        self.assertTrue(runner.call_args.kwargs["extended"])
+        self.assertEqual(runner.call_args.kwargs["seconds"], 10)
+        connection.close.assert_called_once()
+
+    def test_wrong_firmware_never_sends_pwm(self):
+        serial = FakeSerial(Clock())
+        with self.assertRaisesRegex(bench.BenchError, "unexpected firmware"):
+            bench.run_bench(serial, wheel=1, pwm=100, seconds=.25,
+                            clock=serial.clock, log=lambda line: None,
+                            expected_firmware="different-firmware")
+        self.assertEqual(serial.pwm_count, 0)
+        self.assert_final_stop(serial)
 
     def test_dtr_rts_are_false_before_open(self):
         events = []

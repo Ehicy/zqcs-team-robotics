@@ -1,6 +1,6 @@
 # 开源项目、第三方代码与工具使用说明
 
-截至 2026-10-16。按参赛手册要求说明使用范围，不将上游工程、厂商库、工具链或参考资料写成本队原创。以仓库已有文件声明和实际构建配置为依据，不用一份新许可证覆盖第三方原有声明。
+截至 2026-10-18。按参赛手册要求说明使用范围，不将上游工程、厂商库、工具链或参考资料写成本队原创。以仓库已有文件声明和实际构建配置为依据，不用一份新许可证覆盖第三方原有声明。
 
 ## 上层车运动与遥控控制
 
@@ -28,8 +28,12 @@ ESP32 配置位于 [platformio.ini](../firmware/esp32/platformio.ini)：`espress
 
 主机测试使用 Python 与 GCC；STM32 构建使用 Arm GNU，ESP32 使用 PlatformIO 和其工具链。硬件灯控脚本使用 [pyserial](https://github.com/pyserial/pyserial)。ST-Link/STM32CubeProgrammer 用于此前 STM32 写入和读回，Espressif 工具链的 esptool 用于 ESP32；使用工具不表示相关软件由本队开发。
 
-芯片数据手册用于接口核对，不是复制到项目的控制实现。当前直接引用包括 ST STM32F103、Espressif ESP32-S3、Toshiba TB6612FNG 及 TI DRV8833 文档，链接保留在相关技术说明。SolidWorks 生成脚本及旧 CAD 作为历史设计资料；最新团队模型待补，不能推定其来源与历史草案相同。
+芯片数据手册用于接口核对，不是复制到项目的控制实现。当前直接引用包括 ST STM32F103、Espressif ESP32-S3、Toshiba TB6612FNG 及 TI DRV8833 文档，链接保留在相关技术说明。SolidWorks 生成脚本及旧 CAD 作为历史设计资料；最新团队模型已原样归档于 `output/mechanics/team-solidworks-20261017/`，不能推定其来源与历史草案相同。
 
 ## 开源使用说明的维护
 
 每篇参赛功能正文末尾说明其直接使用的开源项目，并链接本清单。若后续引入 BLE UI、编码器库、定位或路径项目，再补上作者/仓库、版本、文件范围、许可证和实际修改；不得提前将候选工具写成已集成。队员学习笔记摘编已经区分原项目知识、后续修订和未实现计划，见 [学习记录](03-learning-notes.md)。
+
+## 团队桌面 BLE 面板贡献
+
+桌面 `dashboard.html/css/js`、`dashboard-input.js` 及对应 Node 测试从协作者 Ehicy 的 [PR #6](https://github.com/Seroliya/zuiqiangchusheng/pull/6)（`97b631d76df932e2efe4dae2a7919c5fbb6dec17`）接入后继续适配。当前版本修正实测轮位和左右混控，新增里程计地图、场地图叠加及双舵机面板，共用现行 BLE 协议。PR 中的旧实板问题报告、旧接线工具与当时的浏览器测试保留在该 PR 历史中，不作为当前固件或接线依据。PR #6 由整合 PR #7 取代，不重复合入旧版面板。

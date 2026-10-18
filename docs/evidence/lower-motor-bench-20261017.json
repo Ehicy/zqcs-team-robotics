@@ -1,0 +1,464 @@
+{
+  "date": "2026-10-17",
+  "stlink_connected": false,
+  "mode": "open_loop_wheels_suspended",
+  "flashed": false,
+  "closed_loop_tested": false,
+  "single_wheel_visual_confirmation": {
+    "source": "user replies in conversation",
+    "m1": "Only left rear moved then stopped",
+    "m2_m3_m4": "Right rear, left front, right front in order; each moved then stopped"
+  },
+  "unexpected_reset_observation": {
+    "source": "counts reset and session changed after individual tests",
+    "user_response": "No reset or power changes",
+    "cause": "unresolved; no reset-cause register or voltage waveform"
+  },
+  "all_wheels_visual_confirmation": "User did not observe",
+  "all_wheels_passed": false,
+  "fault_cleared": false,
+  "artifacts": {
+    "motor-preflight-current.json": [
+      {
+        "command": "STOP",
+        "reply": "QUEUED STOP\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=5A3F09A6 flags=31 encoder_mask=15 parser_errors=0 rejected=1022 rx_bytes=2220600 tx_bytes=1408315 tx_frames=50210 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2700980 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=65 counts=0,0,0,0\n"
+      },
+      {
+        "command": "RX",
+        "reply": "RX bytes=2222065 hex=0F010101010101010101010101010101010324E70000040104100352030106A6093F5A1F0101033AC401033202010201010103C6FE0000040105140353030106A6093F5A0F01010101010101010101010101010101010103F325000004010C140354030105A6093F5A01020F0101010101010101010101010101010103E05100\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=5A3F09A6 flags=31 encoder_mask=15 parser_errors=0 rejected=1022 rx_bytes=2222814 tx_bytes=1409504 tx_frames=50251 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2703024 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "LED ON",
+        "reply": "QUEUED LED=1\nACK LED=1 seq=50265\n"
+      },
+      {
+        "command": "LED OFF",
+        "reply": "QUEUED LED=0\nACK LED=0 seq=50279\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=5A3F09A6 flags=31 encoder_mask=15 parser_errors=0 rejected=1022 rx_bytes=2225031 tx_bytes=1410729 tx_frames=50294 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2705074 tx_gpio=4 rx_gpio=6\n"
+      }
+    ],
+    "motor-m2-m3-m4-150-600ms.json": {
+      "port": "COM4",
+      "pwm": 150,
+      "seconds": 0.6,
+      "mode": "open_loop",
+      "wheels": [
+        {
+          "wheel": 2,
+          "log": [
+            "TX STOP",
+            "TX INFO",
+            "RX QUEUED STOP",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=C96D32F0 flags=31 encoder_mask=15 parser_errors=0 rejected=1026 rx_bytes=2261601 tx_bytes=1430744 tx_frames=50985 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2739263 tx_gpio=4 rx_gpio=6",
+            "TX STOP",
+            "RX QUEUED STOP",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=0 rejected=1028 rx_bytes=2261708 tx_bytes=1430773 tx_frames=50986 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2739375 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=0 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2261803 tx_bytes=1430848 tx_frames=50989 uart_faults=7 last_uart_event=4 rx_level=0 uptime_ms=2739485 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=31 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2261980 tx_bytes=1430906 tx_frames=50991 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2739593 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=31 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262124 tx_bytes=1430964 tx_frames=50993 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2739702 tx_gpio=4 rx_gpio=6",
+            "Ready: new stable session BE8125BF; controller reports inhibited",
+            "TX PWM BE8125BF 0 150 0 0",
+            "TX INFO",
+            "TX ENC",
+            "RX QUEUED PWM ttl_ms=200",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=31 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262124 tx_bytes=1431022 tx_frames=50995 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2739737 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=47 counts=-600,0,0,0",
+            "TX PWM BE8125BF 0 150 0 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=27 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262231 tx_bytes=1431080 tx_frames=50997 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2739844 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=54 counts=-600,-1,0,0",
+            "TX PWM BE8125BF 0 150 0 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM BE8125BF 0 150 0 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=27 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262338 tx_bytes=1431196 tx_frames=51001 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2739955 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=65 counts=-600,-44,0,0",
+            "TX PWM BE8125BF 0 150 0 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM BE8125BF 0 150 0 0",
+            "TX INFO",
+            "TX ENC",
+            "RX QUEUED PWM ttl_ms=200",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=27 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262445 tx_bytes=1431312 tx_frames=51005 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2740068 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=78 counts=-600,-150,0,0",
+            "TX PWM BE8125BF 0 150 0 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=27 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262552 tx_bytes=1431370 tx_frames=51007 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2740176 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=85 counts=-600,-267,0,0",
+            "TX PWM BE8125BF 0 150 0 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM BE8125BF 0 150 0 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=27 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262659 tx_bytes=1431486 tx_frames=51011 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2740282 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=91 counts=-600,-387,0,0",
+            "TX STOP",
+            "TX INFO",
+            "RX QUEUED STOP",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BE8125BF flags=27 encoder_mask=15 parser_errors=0 rejected=1028 rx_bytes=2262766 tx_bytes=1431544 tx_frames=51013 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2740328 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=0 rejected=1030 rx_bytes=2262873 tx_bytes=1431573 tx_frames=51014 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2740450 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BBB3D9E4 flags=0 encoder_mask=15 parser_errors=0 rejected=1030 rx_bytes=2262968 tx_bytes=1431619 tx_frames=51016 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2740573 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BBB3D9E4 flags=31 encoder_mask=15 parser_errors=0 rejected=1030 rx_bytes=2263145 tx_bytes=1431706 tx_frames=51019 uart_faults=7 last_uart_event=4 rx_level=0 uptime_ms=2740696 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BBB3D9E4 flags=31 encoder_mask=15 parser_errors=0 rejected=1030 rx_bytes=2263289 tx_bytes=1431764 tx_frames=51021 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2740804 tx_gpio=4 rx_gpio=6",
+            "STOP confirmed: controller reports inhibited in a new session",
+            "Bounded command interval ended; QUEUED does not verify physical motor movement"
+          ],
+          "result": {
+            "token": "BE8125BF",
+            "pwm_writes": 9,
+            "stop_confirmed": true
+          }
+        },
+        {
+          "wheel": 3,
+          "log": [
+            "TX STOP",
+            "TX INFO",
+            "RX QUEUED STOP",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=BBB3D9E4 flags=31 encoder_mask=15 parser_errors=0 rejected=1030 rx_bytes=2265429 tx_bytes=1432982 tx_frames=51063 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2742831 tx_gpio=4 rx_gpio=6",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=0 rejected=1032 rx_bytes=2265536 tx_bytes=1433011 tx_frames=51064 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2742943 tx_gpio=4 rx_gpio=6",
+            "TX STOP",
+            "RX QUEUED STOP",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=0 encoder_mask=0 parser_errors=0 rejected=1035 rx_bytes=2265664 tx_bytes=1433028 tx_frames=51065 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743052 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=31 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2265771 tx_bytes=1433115 tx_frames=51068 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743162 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=31 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2265878 tx_bytes=1433173 tx_frames=51070 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743271 tx_gpio=4 rx_gpio=6",
+            "Ready: new stable session D784FA90; controller reports inhibited",
+            "TX PWM D784FA90 0 0 150 0",
+            "TX INFO",
+            "TX ENC",
+            "RX QUEUED PWM ttl_ms=200",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=31 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2265985 tx_bytes=1433231 tx_frames=51072 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743320 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=28 counts=-600,-669,0,0",
+            "TX PWM D784FA90 0 0 150 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=27 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2266092 tx_bytes=1433289 tx_frames=51074 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743423 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=32 counts=-600,-669,-3,-2",
+            "TX PWM D784FA90 0 0 150 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM D784FA90 0 0 150 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=27 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2266199 tx_bytes=1433405 tx_frames=51078 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743533 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=42 counts=-600,-669,-50,-2",
+            "TX PWM D784FA90 0 0 150 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM D784FA90 0 0 150 0",
+            "TX INFO",
+            "TX ENC",
+            "RX QUEUED PWM ttl_ms=200",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=27 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2266306 tx_bytes=1433521 tx_frames=51082 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743643 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=52 counts=-600,-669,-142,-2",
+            "TX PWM D784FA90 0 0 150 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=27 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2266413 tx_bytes=1433579 tx_frames=51084 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743750 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=60 counts=-600,-669,-242,-2",
+            "TX PWM D784FA90 0 0 150 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM D784FA90 0 0 150 0",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=27 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2266520 tx_bytes=1433695 tx_frames=51088 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743859 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=68 counts=-600,-669,-342,-2",
+            "TX STOP",
+            "TX INFO",
+            "RX QUEUED STOP",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=D784FA90 flags=27 encoder_mask=15 parser_errors=0 rejected=1035 rx_bytes=2266594 tx_bytes=1433753 tx_frames=51090 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2743907 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=89534FBC flags=0 encoder_mask=0 parser_errors=0 rejected=1037 rx_bytes=2266722 tx_bytes=1433770 tx_frames=51091 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2744016 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=89534FBC flags=31 encoder_mask=15 parser_errors=0 rejected=1037 rx_bytes=2266829 tx_bytes=1433828 tx_frames=51093 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2744126 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=89534FBC flags=31 encoder_mask=15 parser_errors=0 rejected=1037 rx_bytes=2266936 tx_bytes=1433886 tx_frames=51095 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2744234 tx_gpio=4 rx_gpio=6",
+            "STOP confirmed: controller reports inhibited in a new session",
+            "Bounded command interval ended; QUEUED does not verify physical motor movement"
+          ],
+          "result": {
+            "token": "D784FA90",
+            "pwm_writes": 9,
+            "stop_confirmed": true
+          }
+        },
+        {
+          "wheel": 4,
+          "log": [
+            "TX STOP",
+            "TX INFO",
+            "RX QUEUED STOP",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=89534FBC flags=31 encoder_mask=15 parser_errors=0 rejected=1037 rx_bytes=2269076 tx_bytes=1435104 tx_frames=51137 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746261 tx_gpio=4 rx_gpio=6",
+            "TX STOP",
+            "RX QUEUED STOP",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=0 rejected=1039 rx_bytes=2269183 tx_bytes=1435133 tx_frames=51138 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746364 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=0 encoder_mask=0 parser_errors=0 rejected=1040 rx_bytes=2269278 tx_bytes=1435179 tx_frames=51140 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746473 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=31 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2269385 tx_bytes=1435237 tx_frames=51142 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746582 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=31 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2269492 tx_bytes=1435324 tx_frames=51145 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746692 tx_gpio=4 rx_gpio=6",
+            "Ready: new stable session 1FCE1910; controller reports inhibited",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "TX INFO",
+            "TX ENC",
+            "RX QUEUED PWM ttl_ms=200",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=31 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2269599 tx_bytes=1435353 tx_frames=51146 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746726 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=35 counts=-600,-669,-538,-2",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=27 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2269706 tx_bytes=1435411 tx_frames=51148 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746831 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=34 counts=-600,-669,-538,-45",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=27 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2269813 tx_bytes=1435527 tx_frames=51152 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2746939 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=40 counts=-600,-669,-538,-70",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "TX INFO",
+            "TX ENC",
+            "RX QUEUED PWM ttl_ms=200",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=27 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2269920 tx_bytes=1435643 tx_frames=51156 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747053 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=63 counts=-600,-669,-538,-120",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=27 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2270027 tx_bytes=1435701 tx_frames=51158 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747158 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=60 counts=-600,-669,-538,-174",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX INFO",
+            "TX ENC",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=27 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2270134 tx_bytes=1435817 tx_frames=51162 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747268 tx_gpio=4 rx_gpio=6",
+            "RX ENC mask=15 age_ms=70 counts=-600,-669,-538,-230",
+            "TX PWM 1FCE1910 0 0 0 150",
+            "RX QUEUED PWM ttl_ms=200",
+            "TX STOP",
+            "TX INFO",
+            "RX QUEUED STOP",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=1FCE1910 flags=27 encoder_mask=15 parser_errors=0 rejected=1040 rx_bytes=2270241 tx_bytes=1435904 tx_frames=51165 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747315 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=0 rejected=1042 rx_bytes=2270348 tx_bytes=1435933 tx_frames=51166 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747424 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F78EE149 flags=0 encoder_mask=15 parser_errors=0 rejected=1042 rx_bytes=2270443 tx_bytes=1435979 tx_frames=51168 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747532 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F78EE149 flags=31 encoder_mask=15 parser_errors=0 rejected=1042 rx_bytes=2270550 tx_bytes=1436037 tx_frames=51170 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747641 tx_gpio=4 rx_gpio=6",
+            "TX INFO",
+            "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F78EE149 flags=31 encoder_mask=15 parser_errors=0 rejected=1042 rx_bytes=2270657 tx_bytes=1436095 tx_frames=51172 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2747751 tx_gpio=4 rx_gpio=6",
+            "STOP confirmed: controller reports inhibited in a new session",
+            "Bounded command interval ended; QUEUED does not verify physical motor movement"
+          ],
+          "result": {
+            "token": "1FCE1910",
+            "pwm_writes": 10,
+            "stop_confirmed": true
+          }
+        }
+      ]
+    },
+    "motor-postflight-current.json": [
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=CD02E168 flags=0 encoder_mask=0 parser_errors=1 rejected=1043 rx_bytes=2295383 tx_bytes=1449939 tx_frames=51668 uart_faults=9 last_uart_event=4 rx_level=1 uptime_ms=2774795 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=95 counts=0,0,0,0\n"
+      },
+      {
+        "command": "RX",
+        "reply": "RX bytes=2296560 hex=02CD1F010103E6C901021301010101010103E34A000004010514022001010668E102CD0F01010101010101010101010101010101010103A089000004010C14022101010568E102CD01020F0101010101010101010101010101010103CB26000004010410022201010668E102CD1F010103E8C9010215010101010101037D5900\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=39 counts=0,0,0,0\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=CD02E168 flags=31 encoder_mask=15 parser_errors=1 rejected=1043 rx_bytes=2297737 tx_bytes=1451244 tx_frames=51713 uart_faults=9 last_uart_event=4 rx_level=1 uptime_ms=2777063 tx_gpio=4 rx_gpio=6\n"
+      }
+    ],
+    "motor-idle-followup.json": [
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=CD02E168 flags=31 encoder_mask=15 parser_errors=1 rejected=1043 rx_bytes=2314429 tx_bytes=1460263 tx_frames=52024 uart_faults=9 last_uart_event=4 rx_level=1 uptime_ms=2792613 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=47 counts=0,0,0,0\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=CD02E168 flags=31 encoder_mask=15 parser_errors=1 rejected=1043 rx_bytes=2316569 tx_bytes=1461452 tx_frames=52065 uart_faults=9 last_uart_event=4 rx_level=1 uptime_ms=2794620 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=51 counts=0,0,0,0\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=CD02E168 flags=31 encoder_mask=15 parser_errors=1 rejected=1043 rx_bytes=2318709 tx_bytes=1462583 tx_frames=52104 uart_faults=9 last_uart_event=4 rx_level=1 uptime_ms=2796613 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=54 counts=0,0,0,0\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=CD02E168 flags=31 encoder_mask=15 parser_errors=1 rejected=1043 rx_bytes=2320849 tx_bytes=1463743 tx_frames=52144 uart_faults=9 last_uart_event=4 rx_level=1 uptime_ms=2798610 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=45 counts=0,0,0,0\n"
+      }
+    ],
+    "motor-all-150-600ms.json": {
+      "port": "COM4",
+      "wheels": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "pwm": 150,
+      "seconds": 0.6,
+      "mode": "open_loop_equal_electrical_polarity",
+      "log": [
+        "TX STOP",
+        "TX INFO",
+        "RX QUEUED STOP",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=15287100 flags=31 encoder_mask=15 parser_errors=1 rejected=1088 rx_bytes=2417047 tx_bytes=1517546 tx_frames=54039 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898075 tx_gpio=4 rx_gpio=6",
+        "TX STOP",
+        "RX QUEUED STOP",
+        "TX INFO",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=1 rejected=1090 rx_bytes=2417154 tx_bytes=1517575 tx_frames=54040 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898178 tx_gpio=4 rx_gpio=6",
+        "TX INFO",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=67732051 flags=0 encoder_mask=0 parser_errors=1 rejected=1092 rx_bytes=2417249 tx_bytes=1517621 tx_frames=54042 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898285 tx_gpio=4 rx_gpio=6",
+        "TX INFO",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=67732051 flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2417463 tx_bytes=1517708 tx_frames=54045 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898407 tx_gpio=4 rx_gpio=6",
+        "TX INFO",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=67732051 flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2417570 tx_bytes=1517766 tx_frames=54047 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898516 tx_gpio=4 rx_gpio=6",
+        "Ready: new stable session 67732051; controller reports inhibited",
+        "TX PWM 67732051 150 150 150 150",
+        "TX INFO",
+        "TX ENC",
+        "RX QUEUED PWM ttl_ms=200",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=67732051 flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2417570 tx_bytes=1517795 tx_frames=54048 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898550 tx_gpio=4 rx_gpio=6",
+        "RX ENC mask=15 age_ms=53 counts=0,0,0,1",
+        "TX PWM 67732051 150 150 150 150",
+        "RX ERR PWM LINK_OR_UNSUPPORTED",
+        "TX STOP",
+        "TX INFO",
+        "RX QUEUED STOP",
+        "TX INFO",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=1 rejected=1092 rx_bytes=2417603 tx_bytes=1517824 tx_frames=54049 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898628 tx_gpio=4 rx_gpio=6",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F6FF9CAA flags=0 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2417698 tx_bytes=1517870 tx_frames=54051 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898751 tx_gpio=4 rx_gpio=6",
+        "TX INFO",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F6FF9CAA flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2417805 tx_bytes=1517928 tx_frames=54053 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898861 tx_gpio=4 rx_gpio=6",
+        "TX INFO",
+        "RX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F6FF9CAA flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2417912 tx_bytes=1517986 tx_frames=54055 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2898968 tx_gpio=4 rx_gpio=6",
+        "STOP confirmed: controller reports inhibited in a new session"
+      ],
+      "postflight": [],
+      "error": "Console rejected an operation: ERR PWM LINK_OR_UNSUPPORTED"
+    },
+    "motor-all-post-failure.json": [
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F6FF9CAA flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2432143 tx_bytes=1525671 tx_frames=54320 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2912225 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=61 counts=0,0,0,96\n"
+      },
+      {
+        "command": "RX",
+        "reply": "RX bytes=2433641 hex=0F010101010101010101010101010101010360C60000040104100377040106AA9CFFF61F0101034AD40103F602010202010103E1BB0000040105140378040106AA9CFFF60F01010101010101010101010101010260010103AB57000004010C140379040105AA9CFFF603020F01010101010101010101010101010101030D0D00\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F6FF9CAA flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2434497 tx_bytes=1526947 tx_frames=54364 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2914403 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=16 counts=0,0,0,96\n"
+      },
+      {
+        "command": "RX",
+        "reply": "RX bytes=2435995 hex=0F0101010101010101010101010101010103C3E500000401041003B9040106AA9CFFF61F01010376D401032203010202010101025C00000401051403BA040106AA9CFFF60F01010101010101010101010101010260010103D9D2000004010C1403BB040105AA9CFFF603020F01010101010101010101010101010101037F8800\n"
+      },
+      {
+        "command": "INFO",
+        "reply": "INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=F6FF9CAA flags=31 encoder_mask=15 parser_errors=1 rejected=1092 rx_bytes=2436744 tx_bytes=1528165 tx_frames=54406 uart_faults=21 last_uart_event=4 rx_level=1 uptime_ms=2916504 tx_gpio=4 rx_gpio=6\n"
+      },
+      {
+        "command": "ENC",
+        "reply": "ENC mask=15 age_ms=45 counts=0,0,0,96\n"
+      }
+    ],
+    "motor-m1-150-600ms.log": "TX STOP\r\nTX INFO\r\nRX QUEUED STOP\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=5A3F09A6 flags=31 encoder_mask=15 parser_errors=0 rejected=1022 rx_bytes=2237945 tx_bytes=1417747 tx_frames=50536 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717138 tx_gpio=4 rx_gpio=6\r\nTX STOP\r\nRX QUEUED STOP\r\nTX INFO\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=0 encoder_mask=0 parser_errors=0 rejected=1024 rx_bytes=2238073 tx_bytes=1417764 tx_frames=50537 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717256 tx_gpio=4 rx_gpio=6\r\nTX INFO\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=31 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238180 tx_bytes=1417851 tx_frames=50540 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717366 tx_gpio=4 rx_gpio=6\r\nTX INFO\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=31 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238287 tx_bytes=1417909 tx_frames=50542 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717475 tx_gpio=4 rx_gpio=6\r\nReady: new stable session 2BF09DAC; controller reports inhibited\r\nTX PWM 2BF09DAC 150 0 0 0\r\nTX INFO\r\nTX ENC\r\nRX QUEUED PWM ttl_ms=200\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=31 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238361 tx_bytes=1417938 tx_frames=50543 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717512 tx_gpio=4 rx_gpio=6\r\nRX ENC mask=15 age_ms=20 counts=0,0,0,0\r\nTX PWM 2BF09DAC 150 0 0 0\r\nRX QUEUED PWM ttl_ms=200\r\nTX PWM 2BF09DAC 150 0 0 0\r\nTX INFO\r\nTX ENC\r\nRX QUEUED PWM ttl_ms=200\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=27 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238501 tx_bytes=1418025 tx_frames=50546 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717631 tx_gpio=4 rx_gpio=6\r\nRX ENC mask=15 age_ms=39 counts=-6,0,0,0\r\nTX PWM 2BF09DAC 150 0 0 0\r\nRX QUEUED PWM ttl_ms=200\r\nTX INFO\r\nTX ENC\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=27 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238608 tx_bytes=1418112 tx_frames=50549 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717739 tx_gpio=4 rx_gpio=6\r\nRX ENC mask=15 age_ms=47 counts=-61,0,0,0\r\nTX PWM 2BF09DAC 150 0 0 0\r\nRX QUEUED PWM ttl_ms=200\r\nTX PWM 2BF09DAC 150 0 0 0\r\nRX QUEUED PWM ttl_ms=200\r\nTX INFO\r\nTX ENC\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=27 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238715 tx_bytes=1418228 tx_frames=50553 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717848 tx_gpio=4 rx_gpio=6\r\nRX ENC mask=15 age_ms=56 counts=-160,0,0,0\r\nTX PWM 2BF09DAC 150 0 0 0\r\nRX QUEUED PWM ttl_ms=200\r\nTX PWM 2BF09DAC 150 0 0 0\r\nRX QUEUED PWM ttl_ms=200\r\nTX INFO\r\nTX ENC\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=27 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238822 tx_bytes=1418344 tx_frames=50557 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2717958 tx_gpio=4 rx_gpio=6\r\nRX ENC mask=15 age_ms=65 counts=-266,0,0,0\r\nTX PWM 2BF09DAC 150 0 0 0\r\nRX QUEUED PWM ttl_ms=200\r\nTX PWM 2BF09DAC 150 0 0 0\r\nTX INFO\r\nTX ENC\r\nRX QUEUED PWM ttl_ms=200\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=27 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238929 tx_bytes=1418460 tx_frames=50561 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2718069 tx_gpio=4 rx_gpio=6\r\nRX ENC mask=15 age_ms=76 counts=-376,0,0,0\r\nTX STOP\r\nTX INFO\r\nRX QUEUED STOP\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=2BF09DAC flags=27 encoder_mask=15 parser_errors=0 rejected=1024 rx_bytes=2238966 tx_bytes=1418489 tx_frames=50562 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2718099 tx_gpio=4 rx_gpio=6\r\nTX INFO\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=C96D32F0 flags=0 encoder_mask=0 parser_errors=0 rejected=1026 rx_bytes=2239131 tx_bytes=1418506 tx_frames=50563 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2718206 tx_gpio=4 rx_gpio=6\r\nTX INFO\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=C96D32F0 flags=31 encoder_mask=15 parser_errors=0 rejected=1026 rx_bytes=2239238 tx_bytes=1418564 tx_frames=50565 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2718316 tx_gpio=4 rx_gpio=6\r\nTX INFO\r\nRX INFO firmware=crtc-lower-pid-v2 source=BLE ps2_state=0 ps2_mode=00 transport=1 connected=1 token=C96D32F0 flags=31 encoder_mask=15 parser_errors=0 rejected=1026 rx_bytes=2239345 tx_bytes=1418622 tx_frames=50567 uart_faults=7 last_uart_event=4 rx_level=1 uptime_ms=2718426 tx_gpio=4 rx_gpio=6\r\nSTOP confirmed: controller reports inhibited in a new session\r\nBounded command interval ended; QUEUED does not verify physical motor movement\r\n"
+  },
+  "decoded_speed_after_all_wheels": [
+    {
+      "token": "F6FF9CAA",
+      "ready_mask": 0,
+      "fault": 2,
+      "valid_mask": 15,
+      "crc_valid": true
+    },
+    {
+      "token": "F6FF9CAA",
+      "ready_mask": 0,
+      "fault": 2,
+      "valid_mask": 15,
+      "crc_valid": true
+    }
+  ]
+}

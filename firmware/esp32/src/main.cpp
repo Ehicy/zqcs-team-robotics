@@ -9,6 +9,7 @@
 #include "motor_command.h"
 #include "remote_bridge.h"
 #include "ble_remote.h"
+#include "servo_output.h"
 
 #if !defined(CONFIG_IDF_TARGET_ESP32S3)
 #error This target requires ESP32-S3
@@ -55,7 +56,7 @@ static void console_command(const char *line,uint32_t now,unsigned which)
     char response[384];
     if(!strcmp(line,"INFO")) {
         snprintf(response,sizeof(response),
-            "INFO firmware=crtc-lower-speed-ble-v1 transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
+            "INFO firmware=crtc-lower-servo-v1 transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
             transport_ready?1U:0U,client.connected,static_cast<unsigned long>(client.token),
             client.remote_flags,client.remote_encoder_valid_mask,
             static_cast<unsigned long>(client.parser.errors),
@@ -190,6 +191,7 @@ void setup()
     Serial.begin(115200);
     link_node_init(&client,LINK_CLIENT,esp_random(),millis());
     remote_bridge_init(&remote_bridge,&client,esp_random());
+    if(servo_output_begin()) remote_bridge.servo_write=servo_output_write;
     ble_remote_begin(); owner_loop_ms=millis();
     config.baud_rate=LINK_BAUD; config.data_bits=UART_DATA_8_BITS;
     config.parity=UART_PARITY_DISABLE; config.stop_bits=UART_STOP_BITS_1;
@@ -226,9 +228,10 @@ static void remote_poll(uint32_t now)
         }
     }
     if((uint32_t)(now-ble_status_ms)>=30U) {
-        uint8_t packet[20]; remote_bridge_status(&remote_bridge,ble_status_kind,packet);
+        const uint8_t kinds[4]={0,1,2,4};
+        uint8_t packet[20]; remote_bridge_status(&remote_bridge,kinds[ble_status_kind],packet);
         ble_remote_publish(packet); ble_status_ms=now;
-        if(packet[1]!=3) ble_status_kind=(ble_status_kind+1U)%3U;
+        if(packet[1]!=3) ble_status_kind=(ble_status_kind+1U)%4U;
     }
 }
 void loop()

@@ -1,0 +1,10 @@
+.servo-panel { grid-column: 1 / -1; }
+.servo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:16px; margin-top:16px; }
+.servo-grid fieldset { min-width:0; border:1px solid #40536b; border-radius:12px; padding:16px; }
+.servo-grid legend { font-weight:700; padding:0 8px; }
+.servo-grid output { display:block; font-size:1.3rem; font-variant-numeric:tabular-nums; margin:8px 0; }
+.servo-buttons { display:flex; flex-wrap:wrap; gap:8px; }
+.servo-buttons button { padding:10px 12px; border-radius:8px; border:1px solid #536982; background:#203c55; color:#f1f7ff; cursor:pointer; }
+.servo-buttons button:disabled { opacity:.45; cursor:not-allowed; }
+.servo-confirm { display:flex; align-items:center; gap:8px; line-height:1.6; }
+.servo-confirm input { width:18px; height:18px; flex-shrink:0; }

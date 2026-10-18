@@ -74,7 +74,10 @@ int speed_control_configure(speed_control_t *s, unsigned wheel, const speed_conf
 int speed_control_clear_fault(speed_control_t *s)
 {
     if(!physically_stopped(s)) return 0;
-    s->fault=SPEED_FAULT_NONE; return 1;
+    s->fault=SPEED_FAULT_NONE;
+    s->fault_encoder_mask=0; s->fault_sample_ms=s->fault_sample_dt=0;
+    memset(s->fault_raw_delta,0,sizeof(s->fault_raw_delta));
+    return 1;
 }
 
 /* Rebase the local delta accumulator after a missing sample or timing fault.
@@ -89,12 +92,13 @@ static void rebase(speed_control_t *s, uint32_t now, const int32_t counts[4])
 static int sample_feedback(speed_control_t *s, uint32_t now, const int32_t counts[4],
                            uint32_t dt, int32_t deltas[4])
 {
-    unsigned i; int valid=1;
+    unsigned i; uint8_t invalid=0; int32_t raw_deltas[4];
     for(i=0;i<SPEED_WHEELS;i++) {
         const speed_config_t *c=&s->config[i];
         uint32_t raw=(uint32_t)counts[i]-s->last_counts[i];
         int64_t delta=raw<=INT32_MAX ? (int64_t)raw : (int64_t)raw-4294967296LL;
         int64_t numerator, denominator, value;
+        raw_deltas[i]=(int32_t)delta;
         s->last_counts[i]=(uint32_t)counts[i];
         delta*=c->encoder_sign;
         /* pi ~= 314159/100000; diameter unit is 0.1mm; dt is milliseconds.
@@ -106,15 +110,21 @@ static int sample_feedback(speed_control_t *s, uint32_t now, const int32_t count
         /* Generous provisional physical plausibility envelope. It catches a
          * counter discontinuity before that value reaches the PI integrator. */
         if(value>(int64_t)c->max_mm_s*4+200 || value<-((int64_t)c->max_mm_s*4+200)) {
-            valid=0; s->measured_mm_s[i]=0; deltas[i]=0;
+            invalid|=(uint8_t)(1U<<i); s->measured_mm_s[i]=0; deltas[i]=0;
         } else {
             s->measured_mm_s[i]=(int16_t)value;
             /* A valid velocity bounds delta well below INT32_MAX. */
             deltas[i]=(int32_t)delta;
         }
     }
-    s->last_sample_ms=now; s->feedback_valid_mask=valid ? 15 : 0;
-    if(!valid) { latch_fault(s,SPEED_FAULT_ENCODER,now); return 0; }
+    s->last_sample_ms=now; s->feedback_valid_mask=invalid ? 0 : 15;
+    if(invalid) {
+        if(!s->fault) {
+            s->fault_encoder_mask=invalid; s->fault_sample_ms=now; s->fault_sample_dt=dt;
+            memcpy(s->fault_raw_delta,raw_deltas,sizeof(raw_deltas));
+        }
+        latch_fault(s,SPEED_FAULT_ENCODER,now); return 0;
+    }
     return 1;
 }
 static int32_t approach(int32_t value, int32_t target, int32_t step)
@@ -204,6 +214,11 @@ int speed_control_update(speed_control_t *s, uint32_t now, const int32_t counts[
         rebase(s,now,counts); latch_fault(s,SPEED_FAULT_TIMING,now); return 0;
     }
     if(!counts || valid_mask!=15) {
+        if(!s->fault) {
+            s->fault_encoder_mask=counts ? (uint8_t)(15U&~valid_mask) : 15U;
+            s->fault_sample_ms=now; s->fault_sample_dt=dt;
+            memset(s->fault_raw_delta,0,sizeof(s->fault_raw_delta));
+        }
         rebase(s,now,counts); latch_fault(s,SPEED_FAULT_ENCODER,now); return 0;
     }
     for(i=0;i<SPEED_WHEELS;i++) if(!config_valid(&s->config[i])) {

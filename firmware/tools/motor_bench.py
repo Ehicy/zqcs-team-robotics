@@ -1,4 +1,4 @@
-"""Bounded, single-wheel USB bench input for the ESP32 motor console.
+"""Bounded USB bench input for one, two, three, or all four selected wheels.
 
 Requires pyserial only when opening a real port. Keep the tested wheel clear
 of the ground. This sends open-loop duty, not speed or distance commands.
@@ -47,10 +47,10 @@ class BenchResult:
     stop_confirmed: bool
 
 
-def parse_info(line: str) -> Info:
+def parse_info(line: str, expected_firmware: str = FIRMWARE) -> Info:
     try:
         fields = dict(part.split("=", 1) for part in line.split()[1:])
-        if fields["firmware"] != FIRMWARE:
+        if fields["firmware"] != expected_firmware:
             raise ValueError("unexpected firmware")
         if fields["transport"] != "1":
             raise ValueError("UART transport unavailable")
@@ -62,7 +62,9 @@ def parse_info(line: str) -> Info:
         connected = fields["connected"] == "1"
         flags = int(fields["flags"], 10)
         uptime = int(fields["uptime_ms"], 10)
-        if not 0 <= flags <= 15 or not 0 <= uptime <= 0xFFFFFFFF:
+        # Bit 4 advertises speed control in newer firmware. It does not
+        # replace the PWM capability or inhibited-state checks below.
+        if not 0 <= flags <= 31 or not 0 <= uptime <= 0xFFFFFFFF:
             raise ValueError("invalid status range")
         if connected and token == "00000000":
             raise ValueError("connected with a zero session token")
@@ -71,19 +73,29 @@ def parse_info(line: str) -> Info:
         raise BenchError(f"Invalid INFO reply: {exc}") from exc
 
 
-def validate_parameters(wheel: int, pwm: int, seconds: float) -> None:
-    if wheel not in range(1, 5):
+def validate_parameters(wheel: int | tuple[int, ...] | None, pwm: int, seconds: float,
+                        *, extended: bool = False) -> None:
+    if isinstance(wheel, tuple):
+        if (len(wheel) not in (2, 3) or any(w not in range(1, 5) for w in wheel) or
+                len(set(wheel)) != len(wheel)):
+            raise ValueError("selection must contain two or three distinct wheels in 1..4")
+    elif wheel is not None and wheel not in range(1, 5):
         raise ValueError("wheel must be 1..4")
     if not -250 <= pwm <= 250 or pwm == 0:
         raise ValueError("pwm must be nonzero and within -250..250 permille")
-    if not 0 < seconds <= 5:
-        raise ValueError("seconds must be greater than zero and at most 5")
+    limit = 10 if extended else 5
+    if not 0 < seconds <= limit:
+        raise ValueError(f"seconds must be greater than zero and at most {limit}")
 
 
 class _Bench:
-    def __init__(self, serial_port, wheel: int, pwm: int, seconds: float,
-                 clock: Callable[[], float], log: Callable[[str], None]):
-        validate_parameters(wheel, pwm, seconds)
+    def __init__(self, serial_port, wheel: int | tuple[int, ...] | None, pwm: int, seconds: float,
+                 clock: Callable[[], float], log: Callable[[str], None],
+                 expected_firmware: str = FIRMWARE, extended: bool = False):
+        validate_parameters(wheel, pwm, seconds, extended=extended)
+        if re.fullmatch(r"[A-Za-z0-9_.-]+", expected_firmware) is None:
+            raise ValueError("expected firmware must be an exact nonempty identifier")
+        self.expected_firmware = expected_firmware
         self.serial = serial_port
         self.serial.timeout = READ_TIMEOUT
         self.serial.write_timeout = WRITE_TIMEOUT
@@ -126,7 +138,7 @@ class _Bench:
                 raise BenchError("Console rejected an operation: " + line)
             if not line.startswith("INFO "):
                 continue
-            info = parse_info(line)
+            info = parse_info(line, self.expected_firmware)
             if self.last_info is not None:
                 delta = (info.uptime_ms - self.last_info.uptime_ms) & 0xFFFFFFFF
                 if delta >= 0x80000000:
@@ -187,8 +199,9 @@ class _Bench:
         raise BenchError("Preparation timed out: no new stable, inhibited PWM-capable session")
 
     def _drive(self, token: str) -> None:
-        values = [0, 0, 0, 0]
-        values[self.wheel - 1] = self.pwm
+        selected = (1, 2, 3, 4) if self.wheel is None else (
+            self.wheel if isinstance(self.wheel, tuple) else (self.wheel,))
+        values = [self.pwm if wheel in selected else 0 for wheel in range(1, 5)]
         command = "PWM " + token + " " + " ".join(map(str, values))
         end = self.clock() + self.seconds
         next_pwm = self.clock()
@@ -272,11 +285,16 @@ class _Bench:
         return BenchResult(token, self.pwm_writes, confirmed)
 
 
-def run_bench(serial_port, *, wheel: int, pwm: int, seconds: float = 2.0,
+def run_bench(serial_port, *, wheel: int | tuple[int, ...] | None, pwm: int, seconds: float = 2.0,
               clock: Callable[[], float] = time.monotonic,
-              log: Callable[[str], None] = print) -> BenchResult:
-    """Run against an already-open port; injectable clock/port support dry tests."""
-    return _Bench(serial_port, wheel, pwm, seconds, clock, log).run()
+              log: Callable[[str], None] = print,
+              expected_firmware: str = FIRMWARE, extended: bool = False) -> BenchResult:
+    """Run on an open port; a tuple selects two/three wheels, None all four.
+
+    Equal electrical polarity does not imply all wheels propel the car forward.
+    An explicit extended=True raises only the duration cap from 5 to 10 seconds.
+    """
+    return _Bench(serial_port, wheel, pwm, seconds, clock, log, expected_firmware, extended).run()
 
 
 def _open_serial(port: str):
@@ -298,18 +316,34 @@ def _open_serial(port: str):
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", required=True, help="ESP32 USB serial port, for example COM8")
-    parser.add_argument("--wheel", required=True, type=int, choices=range(1, 5))
+    target = parser.add_mutually_exclusive_group(required=True)
+    target.add_argument("--wheel", type=int, choices=range(1, 5))
+    target.add_argument("--pair", type=int, nargs=2, choices=range(1, 5),
+                        help="two distinct wheel numbers at equal electrical duty")
+    target.add_argument("--triple", type=int, nargs=3, choices=range(1, 5),
+                        help="three distinct wheel numbers at equal electrical duty")
+    target.add_argument("--all-wheels", action="store_true",
+                        help="all four at equal electrical duty; keep all wheels off the ground")
     parser.add_argument("--pwm", required=True, type=int, help="nonzero signed duty, -250..250 permille")
-    parser.add_argument("--seconds", type=float, default=2.0, help="command interval in (0,5], default 2")
+    parser.add_argument("--seconds", type=float, default=2.0,
+                        help="command interval in seconds, default 2; maximum 5 unless --extended")
+    parser.add_argument("--extended", action="store_true",
+                        help="explicitly allow a supervised command interval of up to 10 seconds")
+    parser.add_argument("--expected-firmware", default=FIRMWARE,
+                        help="exact verified INFO firmware identifier; does not bypass capability checks")
     args = parser.parse_args(argv)
+    selected = tuple(args.pair) if args.pair is not None else args.wheel
+    if args.triple is not None:
+        selected = tuple(args.triple)
     try:
-        validate_parameters(args.wheel, args.pwm, args.seconds)
+        validate_parameters(selected, args.pwm, args.seconds, extended=args.extended)
     except ValueError as exc:
         parser.error(str(exc))
     connection = None
     try:
         connection = _open_serial(args.port)
-        run_bench(connection, wheel=args.wheel, pwm=args.pwm, seconds=args.seconds)
+        run_bench(connection, wheel=selected, pwm=args.pwm, seconds=args.seconds,
+                  expected_firmware=args.expected_firmware, extended=args.extended)
         return 0
     except KeyboardInterrupt:
         print("Bench interrupted; STOP was attempted, with no automatic restart", file=sys.stderr)

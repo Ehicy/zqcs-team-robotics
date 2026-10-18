@@ -15,6 +15,7 @@ static volatile uint32_t last_feed_ms;
 static volatile uint8_t watchdog_latched = 1;
 static volatile uint8_t timing_ready;
 static volatile uint8_t iwdg_ready;
+static volatile uint8_t iwdg_started;
 static uint32_t cycles_per_us;
 
 static uint32_t irq_save(void)
@@ -45,6 +46,11 @@ static uint8_t iwdg_init(void)
     while ((RCC->CSR & RCC_CSR_LSIRDY) == 0U) {
         if ((uint32_t)(DWT_CYCCNT_REG - start) >= cycles_per_us * 20000U) return 0;
     }
+    /* Start the IWDG clock domain before waiting for PR/RLR synchronization,
+     * as in ST's STM32F1 HAL_IWDG_Init sequence. */
+    DBGMCU->CR &= ~DBGMCU_CR_DBG_IWDG_STOP;
+    IWDG->KR = IWDG_KEY_START;
+    iwdg_started = 1;
     IWDG->KR = IWDG_KEY_ACCESS;
     IWDG->PR = 3U; /* Divide LSI by 32. */
     IWDG->RLR = 249U; /* 8000 LSI periods: nominal 200 ms at 40 kHz. */
@@ -52,8 +58,8 @@ static uint8_t iwdg_init(void)
     while (IWDG->SR != 0U) {
         if ((uint32_t)(DWT_CYCCNT_REG - start) >= cycles_per_us * 20000U) return 0;
     }
+    if (IWDG->PR != 3U || IWDG->RLR != 249U) return 0;
     IWDG->KR = IWDG_KEY_RELOAD;
-    IWDG->KR = IWDG_KEY_START;
     /* No debug-freeze: a stopped CPU must not leave STBY asserted. The exact
      * reset interval follows the actual LSI frequency, not a calibrated 200 ms. */
     return 1;
@@ -79,11 +85,13 @@ void delay_init(void)
     NVIC_SetPriorityGrouping(3U);
     if (SysTick_Config(ticks) != 0U) return;
     NVIC_SetPriority(SysTick_IRQn, 0U);
+    /* Communication uses SysTick even if the independent watchdog fails.
+     * watchdog_latched remains set until IWDG configuration is verified. */
+    timing_ready = 1;
     if (!iwdg_init()) return;
     iwdg_ready = 1;
     last_feed_ms = milliseconds;
     watchdog_latched = 0;
-    timing_ready = 1;
 }
 
 void SysTick_Handler(void)
@@ -116,15 +124,18 @@ void delay_us(uint16_t us)
 void delay_ms(uint16_t ms)
 {
     uint32_t start = delay_millis();
-    /* Main context with interrupts enabled only. Deliberately does not feed
-     * either watchdog; a blocking operation must not sustain motor output. */
-    while ((uint32_t)(delay_millis() - start) < (uint32_t)ms) __WFI();
+    /* Main context with interrupts enabled only. M4 timestamps/IRQ budgets
+     * use DWT core cycles: keep the core clock running during this wait rather
+     * than depending on debug-dependent sleep clock gating. This intentionally
+     * spends idle CPU power. A future sleep path needs a peripheral timebase.
+     * Do not feed either watchdog here: a blocked owner must still stop. */
+    while ((uint32_t)(delay_millis() - start) < (uint32_t)ms) __NOP();
 }
 
 void lower_motor_watchdog_feed(void)
 {
     uint32_t prior, now;
-    if (!in_thread_context() || !timing_ready || !iwdg_ready) return;
+    if (!in_thread_context() || !timing_ready) return;
     prior = irq_save();
     if (prior != 0U) {
         /* A main loop that keeps PRIMASK set would otherwise keep feeding the
@@ -141,7 +152,9 @@ void lower_motor_watchdog_feed(void)
         lower_motor_emergency_stop();
     }
     last_feed_ms = now;
-    IWDG->KR = IWDG_KEY_RELOAD;
+    /* Keep diagnostic communication alive if a started IWDG failed setup.
+     * iwdg_ready stays false: neither feeding nor CLEAR can enable outputs. */
+    if (iwdg_started) IWDG->KR = IWDG_KEY_RELOAD;
     irq_restore(prior);
 }
 

@@ -93,6 +93,9 @@ static void test_replay_stop_and_foreign(void)
     drive(p,&s,2,500,-500,300,200);
     assert(remote_control_receive(&s,p,20,0,0,&a));
     assert(s.left_mm_s==0 && s.right_mm_s==300);
+    /* Left arc: physical right wheels M1/M3 move, left M2/M4 stay still. */
+    assert(a.targets[0]==300 && a.targets[2]==300);
+    assert(a.targets[1]==0 && a.targets[3]==0);
     assert(!remote_control_receive(&s,p,20,150,150,&a));
     assert(a.kind==REMOTE_ACTION_NONE && s.received_ms==0 && s.expires_ms==200);
     memcpy(old,p,20); put32(p+4,s.session+1); p[0]=0; p[2]=9;
@@ -229,7 +232,7 @@ static void test_wrap_and_expiry_before_receive(void)
     assert(remote_control_receive(&s,p,20,UINT32_MAX-100,UINT32_MAX-90,&a));
     drive(p,&s,0,-1000,1000,300,100);
     assert(remote_control_receive(&s,p,20,UINT32_MAX-20,0,&a));
-    assert(a.ttl_ms==79 && a.targets[0]==0 && a.targets[1]==-300);
+    assert(a.ttl_ms==79 && a.targets[0]==-300 && a.targets[1]==0);
     assert(!remote_control_tick(&s,78,1,1));
     session=s.session;
     packet(p,REMOTE_OPCODE_ARM,s.session,1);
@@ -239,6 +242,29 @@ static void test_wrap_and_expiry_before_receive(void)
     packet(p,REMOTE_OPCODE_LED,s.session,2);
     assert(!remote_control_receive(&s,p,20,1000,1200,&a));
     assert(a.kind==REMOTE_ACTION_STOP && !s.armed);
+}
+
+/* Physical order: RF, LF, RR, LR. Positive means vehicle-forward after
+ * STM32 applies the independently calibrated motor/encoder directions. */
+static void test_physical_turn_directions(void)
+{
+    static const struct { int throttle, steer; int16_t expected[4]; } cases[] = {
+        {0,-1000,{300,-300,300,-300}}, /* A: left pivot */
+        {0,1000,{-300,300,-300,300}}, /* D: right pivot */
+        {1000,-1000,{300,0,300,0}}, /* W+A */
+        {1000,1000,{0,300,0,300}}, /* W+D */
+        {-1000,-1000,{0,-300,0,-300}}, /* S+A: yaw left */
+        {-1000,1000,{-300,0,-300,0}}, /* S+D: yaw right */
+        {0,0,{0,0,0,0}}, /* release */
+    };
+    remote_control_t s; remote_action_t a; uint8_t p[20]; unsigned i,w;
+    ready(&s); arm(&s,1,0);
+    for(i=0;i<sizeof(cases)/sizeof(cases[0]);i++) {
+        drive(p,&s,i+2,cases[i].throttle,cases[i].steer,300,200);
+        assert(remote_control_receive(&s,p,20,i*10,i*10,&a));
+        assert(a.kind==REMOTE_ACTION_DRIVE);
+        for(w=0;w<4;w++) assert(a.targets[w]==cases[i].expected[w]);
+    }
 }
 
 static void test_mix_envelope(void)
@@ -268,7 +294,8 @@ int main(void)
     test_bad_configuration_and_payloads();
     test_lengths_and_ranges();
     test_wrap_and_expiry_before_receive();
+    test_physical_turn_directions();
     test_mix_envelope();
-    puts("remote control: 9 groups passed (6,561 normalized mixes; all opcodes, lease/fault gates)");
+    puts("remote control: 10 groups passed (physical turns, 6,561 normalized mixes; all opcodes, lease/fault gates)");
     return 0;
 }

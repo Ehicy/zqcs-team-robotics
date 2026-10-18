@@ -1,0 +1,87 @@
+{
+  "channel": 1,
+  "gpio": 13,
+  "model": "MG995",
+  "motion_writes": 3,
+  "events": [
+    {
+      "t": 124001.078,
+      "kind": "write",
+      "op": 3,
+      "pulse_us": 0,
+      "sequence": 1
+    },
+    {
+      "t": 124003.421,
+      "kind": "stable_preflight",
+      "session": 4079348690,
+      "seconds": 2,
+      "main": "01000103d2eb25f300000000000000002c010000",
+      "speed": "01020f0000000000000000000000000000000000",
+      "servo": "01040007d2eb25f3000000001405a40619006400"
+    },
+    {
+      "t": 124003.421,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 1500,
+      "sequence": 2
+    },
+    {
+      "t": 124003.625,
+      "kind": "confirmed",
+      "pulse_us": 1500
+    },
+    {
+      "t": 124004.343,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 1525,
+      "sequence": 3
+    },
+    {
+      "t": 124004.468,
+      "kind": "confirmed",
+      "pulse_us": 1525
+    },
+    {
+      "t": 124006.468,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 1500,
+      "sequence": 4
+    },
+    {
+      "t": 124006.703,
+      "kind": "confirmed",
+      "pulse_us": 1500
+    },
+    {
+      "t": 124007.406,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 0,
+      "sequence": 5
+    },
+    {
+      "t": 124007.5,
+      "kind": "confirmed",
+      "pulse_us": 0
+    },
+    {
+      "t": 124007.5,
+      "kind": "write",
+      "op": 3,
+      "pulse_us": 0,
+      "sequence": 6
+    },
+    {
+      "t": 124007.625,
+      "kind": "complete",
+      "visual_confirmation_required": true
+    }
+  ],
+  "release_confirmed": true,
+  "date": "2026-10-17",
+  "visual_confirmation": "pending"
+}
