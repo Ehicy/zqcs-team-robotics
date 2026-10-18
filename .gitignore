@@ -10,3 +10,7 @@
 
 __pycache__/
 *.pyc
+
+# Reproducible host-test dependencies and disposable object files.
+/node_modules/
+/output/**/objects/

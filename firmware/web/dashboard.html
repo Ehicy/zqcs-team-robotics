@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRTC 下层车 · BLE 遥控台</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="dashboard.css?v=servo1">
+<link rel="stylesheet" href="dashboard.css?v=agent1">
 <link rel="stylesheet" href="servo-panel.css?v=1">
 </head>
 <body>
@@ -19,6 +19,7 @@
   <div class="conn">
     <span id="connectionDot" class="dot" aria-hidden="true"></span>
     <span id="connectionText" class="conn-text">尚未连接</span>
+    <a class="agent-link" href="#agentTitle">Agent 诊断</a>
     <button id="connectButton" type="button">连接蓝牙</button>
   </div>
 </header>
@@ -46,7 +47,7 @@
 
     <label class="limit">
       <span>速度上限 <b id="speedValue">80</b> mm/s</span>
-      <input id="speedLimit" type="range" min="0" max="300" step="1" value="80">
+      <input id="speedLimit" type="range" min="0" max="1000" step="1" value="80">
     </label>
 
     <div class="row">
@@ -120,6 +121,10 @@
 
   <section id="servoPanel" class="card servo-panel" aria-label="机械臂舵机控制"></section>
 
+  <section id="pidPanel" class="card calibration" aria-label="统一 PID 参数"></section>
+
+  <section id="pidTestPanel" class="card calibration" aria-label="PID 往复行驶测试"></section>
+
   <section class="card calibration">
     <h2>四轮校准（只写 STM32 RAM，断电即失效）</h2>
     <form id="calibrationForm">
@@ -129,7 +134,7 @@
         <button id="rememberButton" type="button">记住本机表单</button>
         <button id="resetFormButton" type="button">恢复初值</button>
       </div>
-      <p class="hint">每轮依次发送机械参数与速度环参数，等主控逐包 ACK。未实测核对就不要勾选“已实测”。</p>
+      <p class="hint">先发送统一 PID，再逐轮发送机械参数与速度上限，等主控逐包 ACK。未实测核对就不要勾选“已实测”。</p>
     </form>
   </section>
 
@@ -137,8 +142,25 @@
     <h2>事件日志</h2>
     <ol id="log" class="log"></ol>
   </section>
+  <section class="card agent-panel" aria-labelledby="agentTitle">
+    <h2 id="agentTitle">Agent 接口 · 状态与诊断</h2>
+    <p id="agentTransport" class="hint">正在装配接口…</p>
+    <p id="agentDiagnosis" role="status">正在读取状态…</p>
+    <p class="hint">只读诊断和 STOP 始终可用。其余操作沿用现有会话、校准和固件门禁；停止锁定、页面失焦、隐藏、断连或会话变化会撤销 Agent 许可。未实测不代勾校准。</p>
+    <label class="confirmation"><input id="agentWriteAllowed" type="checkbox">允许 Agent 控制（灯控、写入已确认表单、清故障及已确认的舵机微调）</label>
+    <label class="confirmation"><input id="agentMotionAllowed" type="checkbox" disabled>允许 Agent 解锁和短时运动；已架空车轮或确认周围安全（≤100 mm/s、每次≤1秒，到期停止锁定）</label>
+    <div class="row"><button id="agentReadStatus" type="button">读取 Agent 状态</button><button id="agentStop" class="danger" type="button">Agent STOP</button></div>
+    <form id="agentCommandForm">
+      <label for="agentCommand">Agent JSON 命令</label>
+      <textarea id="agentCommand" rows="3" spellcheck="false">{"command":"status"}</textarea>
+      <button id="agentExecute" type="submit">执行 Agent 命令</button>
+    </form>
+    <p class="hint">命令：status / stop / led / configure / clearFault / arm / drive / servo。configure 只读当前已确认表单，不接受注入校准值；蓝牙首次授权仍使用页面连接按钮。</p>
+    <details><summary>实时状态 JSON（只读）</summary><pre id="agentLiveStatus"></pre></details>
+    <details open><summary>最近命令结果</summary><pre id="agentResult" role="status">尚未执行命令</pre></details>
+  </section>
 </main>
 
-<script type="module" src="dashboard.js"></script>
+<script type="module" src="dashboard.js?v=agent1"></script>
 </body>
 </html>

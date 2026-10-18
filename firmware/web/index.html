@@ -31,8 +31,8 @@
   <section class="drive card" aria-labelledby="driveTitle">
     <div class="section-heading"><h2 id="driveTitle">手动行驶</h2><span class="muted">四胶轮 · 差速转向</span></div>
     <div class="speed-heading"><label for="speedLimit">速度上限</label><strong><output id="speedValue">100</output><small> mm/s</small></strong></div>
-    <input id="speedLimit" type="range" min="0" max="300" step="10" value="100" aria-label="速度上限，毫米每秒">
-    <div class="range-labels"><span>0</span><span>300 mm/s</span></div>
+    <input id="speedLimit" type="range" min="0" max="1000" step="10" value="100" aria-label="速度上限，毫米每秒">
+    <div class="range-labels"><span>0</span><span>1000 mm/s</span></div>
     <button id="armButton" class="button arm" disabled>解锁控制 ARM</button>
     <p class="hint" id="armHint">四轮配置确认、底盘就绪且停稳后才能解锁。</p>
     <div id="directionPad" class="direction-pad" aria-label="按住方向行驶，松开归零">
@@ -54,9 +54,11 @@
 
   <section id="servoPanel" class="card servo-panel" aria-label="机械臂舵机控制"></section>
 
+  <section id="pidPanel" class="card calibration" aria-label="统一 PID 参数"></section>
+
   <details class="card calibration" id="calibrationPanel">
     <summary><span><strong>四轮校准</strong><small>实测后确认 · 写入仅保存在 RAM</small></span><span class="chevron">⌄</span></summary>
-    <p class="notice">初值按编码器 <strong>13PPR 为单相周期、减速比 34:1</strong> 假设：前三轮 4 倍计数为 1768，M4 双沿 2 倍计数为 884。轮径 65mm、PI 参数均是待验证初值，不能直接视为实测标定。</p>
+    <p class="notice">初值按编码器 <strong>13PPR 为单相周期、减速比 34:1</strong> 假设：前三轮 4 倍计数为 1768，M4 双沿 2 倍计数为 884。轮径 65mm、PID 参数均是待验证初值，不能直接视为实测标定。</p>
     <form id="calibrationForm">
       <div id="calibrationWheels"></div>
       <div class="calibration-actions"><button id="saveConfigButton" class="button primary" type="submit" disabled>停车后写入四轮配置</button><button id="rememberButton" class="button secondary" type="button">记住本机表单</button><button id="resetFormButton" class="button secondary" type="button">恢复初值</button></div>

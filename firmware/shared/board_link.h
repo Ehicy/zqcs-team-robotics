@@ -12,7 +12,8 @@ extern "C" {
 #define LINK_WIRE_MAX (LINK_BODY_MAX + 3U)
 enum { LINK_HELLO=1, LINK_HELLO_ACK=2, LINK_CONTROL=3, LINK_STATUS=4, LINK_ENCODERS=5,
        LINK_LED_SET=6, LINK_LED_ACK=7, LINK_PWM=8,
-       LINK_SPEED_CONFIG=9, LINK_CONFIG_ACK=10, LINK_CLEAR_FAULT=11, LINK_SPEED=12 };
+       LINK_SPEED_CONFIG=9, LINK_CONFIG_ACK=10, LINK_CLEAR_FAULT=11, LINK_SPEED=12,
+       LINK_PID_CONFIG=13 };
 #define LINK_LED_TIMEOUT_MS 500U
 enum { LINK_CLIENT=0, LINK_CONTROLLER=1 };
 enum { LINK_WAITING=0, LINK_CONTROL_EXPIRED=1, LINK_PEER_EXPIRED=2,
@@ -77,6 +78,8 @@ typedef struct {
     uint8_t remote_config_valid, config_ready_mask, config_fault;
     uint32_t config_request_ms, config_sequence;
 } link_node_t;
+/* Global Kp/Ki/Kd, six LE bytes; ACK wheel=253. No PID histories leave STM32. */
+int link_node_request_pid(link_node_t *node, uint16_t kp, uint16_t ki, uint16_t kd, uint32_t now);
 void link_node_init(link_node_t *node, uint8_t role, uint32_t boot_id, uint32_t now);
 void link_node_tick(link_node_t *node, uint32_t now);
 void link_node_receive(link_node_t *node, uint8_t byte, uint32_t now);

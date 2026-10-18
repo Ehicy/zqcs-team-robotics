@@ -55,10 +55,10 @@ static void test_config_ack(void)
     assert(bridge.configs[3][1]==7 && link_get_u32(bridge.configs[3]+4)==884);
     /* A config/LED frame cannot renew an existing motor command lease. */
     packet(p,REMOTE_OPCODE_TUNING); p[12]=3;
-    link_put_u16(p+14,1200); link_put_u16(p+16,1500); link_put_u16(p+18,200);
+    link_put_u16(p+14,1000); link_put_u16(p+16,2000); link_put_u16(p+18,200);
     assert(remote_bridge_receive(&bridge,p,20,now,now)); cycle(5);
     remote_bridge_status(&bridge,0,status); assert(status[3]==0);
-    assert(link_get_u16(bridge.configs[3]+8)==1200);
+    assert(link_get_u16(bridge.configs[3]+8)==1000);
     assert(link_get_u32(bridge.configs[3]+4)==884 && bridge.configs[3][1]==7);
     packet(p,REMOTE_OPCODE_CLEAR_FAULT); assert(remote_bridge_receive(&bridge,p,20,now,now));
     cycle(5); remote_bridge_status(&bridge,0,status); assert(status[2]==255 && !status[3]);
@@ -145,7 +145,7 @@ static void test_watchdog_fault_diagnostics(void)
 static unsigned servo_writes;
 static int servo_hardware_ok=1;
 static int fake_servo_write(uint8_t channel,uint16_t pulse)
-{ assert(channel<2); assert(!pulse || (pulse>=1300 && pulse<=1700)); servo_writes++; return servo_hardware_ok; }
+{ assert(channel<LINK_SERVO_COUNT); assert(!pulse || (pulse>=LINK_SERVO_MIN_US(channel) && pulse<=LINK_SERVO_MAX_US(channel))); servo_writes++; return servo_hardware_ok; }
 static void servo_standstill(void)
 {
     unsigned i; client.remote_flags|=LINK_FLAG_OUTPUT_INHIBITED;
@@ -214,7 +214,15 @@ static void test_servos(void)
     cycle(350); servo_standstill();
     assert(bridge.servo_us[0]==0 && bridge.servo_us[1]==1500);
     assert(servo_command(0,1525)==2); /* released channel must be explicitly enabled */
-    puts("PASS servo ACK, two channels, replay/session/age, startup and step bounds, rate, physical standstill, STOP hold, release and HAL error");
+    cycle(350); servo_standstill();
+    assert(servo_command(2,1500)==0);
+    for(unsigned pulse=1525;pulse<=2000;pulse+=25) { cycle(100); servo_standstill(); assert(servo_command(2,(uint16_t)pulse)==0); }
+    assert(bridge.servo_us[2]==2000 && bridge.servo_us[1]==1500 && bridge.servo_us[0]==0);
+    remote_bridge_status(&bridge,5,status);
+    assert(status[1]==5 && status[2]==6 && status[3]==15 && link_get_u16(status+12)==2000);
+    assert(link_get_u16(status+14)==1000 && link_get_u16(status+16)==2000 && link_get_u16(status+18)==25);
+    cycle(100); servo_standstill(); assert(servo_command(2,0)==0);
+    puts("PASS servo ACK, three independent channels, door1000-2000, replay/session/age, startup/step/rate, standstill, STOP hold, release and HAL error");
 }
 
 int main(void)

@@ -175,7 +175,7 @@ static void test_bad_configuration_and_payloads(void)
         case 3: put16(p+16,20001); break;
         case 4: put16(p+14,0); break;
         case 5: put16(p+18,0); break;
-        case 6: put16(p+18,301); break;
+        case 6: put16(p+18,1001); break;
         case 7: p[1]=REMOTE_OPCODE_MECHANICAL; p[13]=8; break;
         case 8: p[1]=REMOTE_OPCODE_MECHANICAL; put16(p+14,0); break;
         case 9: p[1]=REMOTE_OPCODE_MECHANICAL; put16(p+14,5001); break;
@@ -215,7 +215,7 @@ static void test_lengths_and_ranges(void)
         case 1: put16(p+12,(uint16_t)-1001); break;
         case 2: put16(p+14,1001); break;
         case 3: put16(p+14,(uint16_t)-1001); break;
-        case 4: put16(p+16,301); break;
+        case 4: put16(p+16,1001); break;
         case 5: put16(p+18,49); break;
         case 6: put16(p+18,201); break;
         }

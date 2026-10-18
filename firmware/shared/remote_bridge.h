@@ -2,6 +2,7 @@
 #define CRTC_REMOTE_BRIDGE_H
 #include "board_link.h"
 #include "remote_control.h"
+#include "chassis_state.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -11,12 +12,15 @@ typedef struct {
     uint32_t uart_token, config_session, config_source_sequence, config_ms;
     uint8_t configs[4][20], pending_config[20], config_pending, config_wheel;
     uint8_t ack[20], ack_pending;
+    uint16_t kp_milli, ki_milli, kd_milli;
+    uint8_t pid_initialized, pid_init_failed, config_initializing;
+    chassis_state_t phase;
     /* PWM backend runs synchronously in the owner task, never BLE callbacks.
      * No autonomous ramp: STOP/disconnect retain the last commanded pulse. */
     int (*servo_write)(uint8_t channel, uint16_t pulse_us);
-    uint16_t servo_us[2];
-    uint32_t servo_changed_ms[2];
-    uint8_t servo_changed[2];
+    uint16_t servo_us[LINK_SERVO_COUNT];
+    uint32_t servo_changed_ms[LINK_SERVO_COUNT];
+    uint8_t servo_changed[LINK_SERVO_COUNT];
 } remote_bridge_t;
 void remote_bridge_init(remote_bridge_t *b,link_node_t *link,uint32_t session);
 void remote_bridge_stop(remote_bridge_t *b,uint8_t reason,uint32_t now);

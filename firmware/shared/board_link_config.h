@@ -22,7 +22,10 @@
 #define LINK_HELLO_PERIOD_MS       100U
 #define LINK_TARGET_LIMIT_MM_S    1000
 #define LINK_PWM_LIMIT_PERMILLE    250 /* first open-loop bench firmware: 25% */
-#define LINK_SPEED_PWM_LIMIT_PERMILLE 500 /* closed-loop ceiling: 50%; verify on suspended wheels */
+#define LINK_SPEED_PWM_LIMIT_PERMILLE 1000 /* User reports load validation; PID ceiling 100%, not current limiting. */
+#define LINK_PID_KP_MILLI           1000U
+#define LINK_PID_KI_MILLI           2000U
+#define LINK_PID_KD_MILLI              0U
 #define LINK_ACTUATION_ENABLED       0 /* legacy board-link target invariant;
                                        use the separate lower-motor target for PWM */
 /* Resource reservation for the confirmed two TB6612 boards and four MG370s.
@@ -43,7 +46,11 @@
 #define LINK_ENCODER_PERIOD_MS     100U
 #define LINK_ESP_ARM_SERVO_GPIO      12 /* DS3128 arm, ESP32 LEDC */
 #define LINK_ESP_FOREARM_SERVO_GPIO  13 /* MG995 forearm, ESP32 LEDC */
-#define LINK_SERVO_POSITION_MASK     3U /* MG995 180deg and DS3128 360deg POSITION types confirmed */
+#define LINK_ESP_DOOR_SERVO_GPIO     14 /* MG995 door, nominal 90deg travel */
+#define LINK_SERVO_COUNT             3U
+#define LINK_SERVO_POSITION_MASK     7U /* All three are position servos. */
+#define LINK_SERVO_MIN_US(channel) ((channel)==2U ? 1000U : 1300U)
+#define LINK_SERVO_MAX_US(channel) ((channel)==2U ? 2000U : 1700U)
 #if LINK_ACTUATION_ENABLED != 0
 #error Do not enable board-link this way: build the separate lower-motor target
 #endif

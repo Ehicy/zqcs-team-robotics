@@ -1,0 +1,41 @@
+{
+  "profile": "CRTC F103C8 64KiB / 8MHz PC13 PB2 / Maple DFU alt2 + CRTCDFU1",
+  "upstream": "df689808b6030280480c0d151ee9c552ecf6b405",
+  "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.3.Rel1 (Build arm-14.174)) 14.3.1 20250623",
+  "loader_base": "0x08000000",
+  "app_base": "0x8002000",
+  "app_end_exclusive": "0x800f800",
+  "calibration": "0x0800F800..0x08010000 untouched by USB loader",
+  "hardware_verified": "USB download/APP boot/UART only; no motion qualification",
+  "flashed": true,
+  "artifacts": {
+    "crtc-usb-loader.bin": {
+      "bytes": 8180
+    },
+    "crtc-usb-loader.elf": {
+      "bytes": 133316
+    },
+    "crtc-usb-loader.hex": {
+      "bytes": 23067
+    },
+    "first-install.bin": {
+      "bytes": 22848
+    },
+    "first-install.hex": {
+      "bytes": 64311
+    },
+    "lower-motor-usb.bin": {
+      "bytes": 14656
+    },
+    "lower-motor-usb.dfu.bin": {
+      "bytes": 15680
+    },
+    "lower-motor-usb.elf": {
+      "bytes": 576736
+    },
+    "lower-motor-usb.hex": {
+      "bytes": 41297
+    }
+  },
+  "installation_evidence": "../../docs/evidence/usb-servo3-20261018.json"
+}

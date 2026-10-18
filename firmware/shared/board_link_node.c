@@ -12,8 +12,19 @@ static int config_valid(const uint8_t *p)
         link_get_u32(p+4)>0 && link_get_u32(p+4)<=1000000 &&
         link_get_u16(p+8)<=20000 && link_get_u16(p+10)<=20000 &&
         (link_get_u16(p+8) || link_get_u16(p+10)) &&
-        link_get_u16(p+12)>0 && link_get_u16(p+12)<=300 &&
+        link_get_u16(p+12)>0 && link_get_u16(p+12)<=LINK_TARGET_LIMIT_MM_S &&
         link_get_u16(p+14)>0 && link_get_u16(p+14)<=5000 && link_get_u32(p+16)==0;
+}
+int link_node_request_pid(link_node_t *n,uint16_t kp,uint16_t ki,uint16_t kd,uint32_t now)
+{
+    link_node_tick(n,now);
+    if(n->role!=LINK_CLIENT || !n->connected || !n->token || n->pwm_stop_latched ||
+       !(n->remote_flags&LINK_FLAG_SPEED_SUPPORTED) || n->config_pending || n->config_waiting ||
+       n->input_enable || kp>20000U || ki>20000U || kd>20000U || !(kp || ki)) return 0;
+    memset(n->config_payload,0,20); link_put_u16(n->config_payload,kp);
+    link_put_u16(n->config_payload+2,ki); link_put_u16(n->config_payload+4,kd);
+    n->config_wheel=253; n->config_pending=1; n->remote_config_valid=0;
+    n->config_request_ms=now; return 1;
 }
 int link_node_request_config(link_node_t *n,const uint8_t p[20],uint8_t clear,uint32_t now)
 {
@@ -199,12 +210,15 @@ static int receive_controller(link_node_t *n,const link_frame_t *f,uint32_t now)
         n->led_request_ms=now; n->led_ack_pending=1; n->last_rx_ms=now;
         return 1;
     }
-    if((f->type==LINK_SPEED_CONFIG || f->type==LINK_CLEAR_FAULT) && n->speed_supported &&
+    if((f->type==LINK_SPEED_CONFIG || f->type==LINK_CLEAR_FAULT || f->type==LINK_PID_CONFIG) && n->speed_supported &&
        n->connected && f->session==n->token && !n->config_received && !n->config_ack_pending) {
         if((f->type==LINK_SPEED_CONFIG && (f->length!=20 || !config_valid(f->payload))) ||
-           (f->type==LINK_CLEAR_FAULT && f->length!=0) || !accept_sequence(n,f)) return 0;
-        n->config_wheel=f->type==LINK_CLEAR_FAULT?255:f->payload[0];
-        memcpy(n->config_payload,f->payload,20); n->config_sequence=f->sequence;
+           (f->type==LINK_CLEAR_FAULT && f->length!=0) ||
+           (f->type==LINK_PID_CONFIG && (f->length!=6 || link_get_u16(f->payload)>20000U ||
+            link_get_u16(f->payload+2)>20000U || link_get_u16(f->payload+4)>20000U ||
+            !(link_get_u16(f->payload) || link_get_u16(f->payload+2)))) || !accept_sequence(n,f)) return 0;
+        n->config_wheel=f->type==LINK_CLEAR_FAULT?255:f->type==LINK_PID_CONFIG?253:f->payload[0];
+        memset(n->config_payload,0,20); memcpy(n->config_payload,f->payload,f->length); n->config_sequence=f->sequence;
         n->config_received=1; n->config_request_ms=now; n->last_rx_ms=now; return 1;
     }
     if((f->type!=LINK_CONTROL && f->type!=LINK_PWM) ||
@@ -378,8 +392,8 @@ size_t link_node_transmit(link_node_t *n,uint32_t now,uint8_t *out,size_t cap)
             }
             /* No input or expired input => disabled, zero command heartbeat. */
         } else if(n->config_pending) {
-            f.type=n->config_wheel==255?LINK_CLEAR_FAULT:LINK_SPEED_CONFIG; f.session=n->token;
-            if(n->config_wheel!=255) { f.length=20; memcpy(f.payload,n->config_payload,20); }
+            f.type=n->config_wheel==255?LINK_CLEAR_FAULT:n->config_wheel==253?LINK_PID_CONFIG:LINK_SPEED_CONFIG; f.session=n->token;
+            if(n->config_wheel!=255) { f.length=n->config_wheel==253?6:20; memcpy(f.payload,n->config_payload,f.length); }
         } else if(n->led_pending) {
             f.type=LINK_LED_SET; f.session=n->token; f.length=1;
             f.payload[0]=n->led_expected_on;
@@ -393,7 +407,7 @@ size_t link_node_transmit(link_node_t *n,uint32_t now,uint8_t *out,size_t cap)
         if(f.type==LINK_ENCODERS) n->encoder_tx_ms=now;
         else if(f.type==LINK_SPEED) n->speed_tx_ms=now;
         else if(f.type==LINK_CONFIG_ACK) n->config_ack_pending=0;
-        else if(f.type==LINK_SPEED_CONFIG || f.type==LINK_CLEAR_FAULT) {
+        else if(f.type==LINK_SPEED_CONFIG || f.type==LINK_CLEAR_FAULT || f.type==LINK_PID_CONFIG) {
             n->config_pending=0; n->config_waiting=1; n->config_sequence=f.sequence;
         }
         else if(f.type==LINK_LED_SET) {

@@ -1,3 +1,5 @@
+import { installPidTest } from './pid-test.js';
+import { installPidPanel } from './pid-panel.js';
 import { installServoPanel } from './servo-panel.js';
 /* CRTC 下层车 BLE 遥控台：桌面 WASD 控制。
  *
@@ -13,8 +15,10 @@ import { installServoPanel } from './servo-panel.js';
 import { UUID, WHEELS, DEFAULT_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js';
 import { KeyHoldSet, mixWheels, describeIntent, isDriveKey, isStopKey, normalizeKey } from './dashboard-input.js';
 import { installLiveMap } from './live-map.js';
+import { createDashboardAgent, registerAgentTools } from './dashboard-agent.js';
 
 const $ = id => document.getElementById(id);
+let pidPanel = null, pidTest = null;
 const storageKey = 'crtc-lower-car-calibration-v2-rf-lf-rr-lr';
 const BAR_FULL_MM_S = 300;
 
@@ -30,6 +34,7 @@ let lastArmed = false;
 let heldPad = null;
 let heldPadPointer = null;
 let liveMap = null;
+let dashboardAgent = null;
 
 const keys = new KeyHoldSet();
 let lastIntent = { throttle: 0, steer: 0 };
@@ -69,6 +74,11 @@ function padIntent() {
 
 /** 合并键盘与虚拟键盘的意图，写入控制器并刷新读数。 */
 function applyIntent({ announce = false } = {}) {
+  if (pidTest?.runner.active) { stopNow('手动输入接管，往复测试已中止'); return { throttle: 0, steer: 0 }; }
+  if (dashboardAgent?.isDriving()) {
+    stopNow('手动输入接管，Agent 短测已停止并锁定');
+    return { throttle: 0, steer: 0 };
+  }
   const fromKeys = keys.intent();
   const fromPad = padIntent();
   const intent = {
@@ -172,6 +182,7 @@ function render(state = controller.state) {
   lastArmed = state.armed;
 
   paintIntent(lastIntent);
+  pidPanel?.render();
   renderTelemetry();
 }
 
@@ -218,6 +229,7 @@ function timeout(promise, milliseconds) {
 }
 
 function closeTransport() {
+  revokeAgentPermission();
   liveMap?.invalidate('蓝牙连接已断开');
   attempt++;
   const old = connection;
@@ -296,9 +308,9 @@ function buildCalibration() {
     <label for="wheel${i}_cpr">每轮每圈计数<input id="wheel${i}_cpr" type="number" min="1" max="1000000" step="1" required inputmode="numeric"></label>
     <label for="wheel${i}_motor">电机方向<select id="wheel${i}_motor"><option value="1">+ 正向</option><option value="-1">− 反向</option></select></label>
     <label for="wheel${i}_encoder">编码器方向<select id="wheel${i}_encoder"><option value="1">+ 正向</option><option value="-1">− 反向</option></select></label>
-    <label for="wheel${i}_kp">Kp_milli<input id="wheel${i}_kp" type="number" min="0" max="20000" step="1" required inputmode="numeric"></label>
-    <label for="wheel${i}_ki">Ki_milli<input id="wheel${i}_ki" type="number" min="0" max="20000" step="1" required inputmode="numeric"></label>
-    <label for="wheel${i}_max">最大轮速 mm/s<input id="wheel${i}_max" type="number" min="1" max="300" step="1" required inputmode="numeric"></label>
+
+
+    <label for="wheel${i}_max">最大轮速 mm/s<input id="wheel${i}_max" type="number" min="1" max="1000" step="1" required inputmode="numeric"></label>
     </div><label class="confirmation"><input id="wheel${i}_confirmed" type="checkbox"><span>我已实测核对本轮的方向、每圈计数和轮径</span></label></fieldset>`).join('');
   let values = DEFAULT_CALIBRATION.map(value => ({ ...value }));
   try {
@@ -312,6 +324,7 @@ function buildCalibration() {
 }
 
 function setCalibration(values) {
+  pidPanel.set(values[0]);
   WHEELS.forEach((_, wheel) => {
     const value = values[wheel];
     const field = name => $(`wheel${wheel}_${name}`);
@@ -320,8 +333,6 @@ function setCalibration(values) {
     field('motor').value = value.motorNegative ? '-1' : '1';
     field('encoder').value = value.encoderNegative ? '-1' : '1';
     field('confirmed').checked = value.confirmed;
-    field('kp').value = value.kpMilli;
-    field('ki').value = value.kiMilli;
     field('max').value = value.maxMmS;
   });
 }
@@ -340,8 +351,8 @@ function readCalibration() {
       confirmed: field('confirmed').checked,
       diameterTenthMm: Math.round(diameter * 10),
       countsPerRev: Number(field('cpr').value),
-      kpMilli: Number(field('kp').value),
-      kiMilli: Number(field('ki').value),
+      ...pidPanel.read(),
+
       maxMmS: Number(field('max').value),
     });
   });
@@ -350,7 +361,7 @@ function readCalibration() {
 /* ---------------- 控制器 ---------------- */
 const controller = new RemoteController({
   changed: render,
-  locked: () => { clearHolds(); },
+  locked: () => { pidTest?.runner.cancel('控制锁定，往复测试已中止'); dashboardAgent?.onLock(); revokeAgentPermission(); clearHolds(); },
   transportError: error => { closeTransport(); showError(new Error(`蓝牙写入失败，已锁定：${error.message}`)); },
 });
 
@@ -359,6 +370,7 @@ $('telemetryRows').innerHTML = WHEELS.map((name, i) =>
   `<tr><td>${name}</td><td id="count${i}">—</td><td id="wheelSpeed${i}">— / —</td></tr>`).join('');
 $('wheelBars').innerHTML = WHEELS.map((name, i) =>
   `<div class="bar bar-${i}"><span>${name.split(' ')[0]}</span><div class="track"><i class="target"></i><i class="measured"></i></div><span class="value">— / —</span></div>`).join('');
+pidPanel = installPidPanel({ root: $('pidPanel'), controller, error: showError, log: typeof log === 'function' ? log : () => {} });
 buildCalibration();
 liveMap = installLiveMap({
   snapshot: () => ({ ...controller.state, mainAt: controller.mainStatusAt,
@@ -369,6 +381,8 @@ liveMap = installLiveMap({
 $('connectButton').addEventListener('click', () => safely(connect()));
 $('armButton').addEventListener('click', () => safely(controller.arm()));
 $('speedLimit').addEventListener('input', event => {
+  if (pidTest?.runner.active) stopNow('手动改速，往复测试已中止');
+  if (dashboardAgent?.isDriving()) stopNow('手动调整速度，Agent 短测已停止并锁定');
   const value = Number(event.target.value);
   controller.setLimit(value);
   $('speedValue').textContent = value;
@@ -376,6 +390,7 @@ $('speedLimit').addEventListener('input', event => {
 });
 
 function stopNow(note = '已停止并锁定') {
+  pidTest?.runner.cancel(note);
   clearHolds();
   safely(controller.stop(note));
   log(note);
@@ -394,7 +409,7 @@ $('calibrationForm').addEventListener('submit', event => {
     }
     const values = readCalibration();
     log(`开始写入四轮配置（已确认 ${values.filter(v => v.confirmed).length} / 4）`);
-    safely(controller.configure(values).then(() => log('四轮配置已逐包确认（仅存 RAM）')));
+    safely(controller.configure(values).then(() => log('统一 PID 与四轮配置已逐包确认（仅存 RAM）')));
   } catch (error) { showError(error); }
 });
 $('rememberButton').addEventListener('click', () => {
@@ -461,12 +476,12 @@ window.addEventListener('keyup', event => {
   if (keys.release(event.key)) applyIntent({ announce: true });
 });
 
-window.addEventListener('blur', () => stopNow('页面失去焦点，已停止并锁定'));
-document.addEventListener('visibilitychange', () => stopNow(document.hidden ? '页面已隐藏，已停止并锁定' : '页面已恢复，请重新解锁'));
-window.addEventListener('pagehide', () => stopNow('页面已离开，已停止并锁定'));
+window.addEventListener('blur', () => { revokeAgentPermission(); stopNow('页面失去焦点，已停止并锁定'); });
+document.addEventListener('visibilitychange', () => { revokeAgentPermission(); stopNow(document.hidden ? '页面已隐藏，已停止并锁定' : '页面已恢复，请重新解锁'); });
+window.addEventListener('pagehide', () => { revokeAgentPermission(); stopNow('页面已离开，已停止并锁定'); });
 window.addEventListener('pageshow', event => { if (event.persisted) stopNow('页面已恢复，请重新解锁'); });
 
-setInterval(() => { controller.tick(); renderTelemetry(); liveMap.tick(); }, 25);
+setInterval(() => { pidTest?.tick(); dashboardAgent?.tick(); controller.tick(); renderTelemetry(); liveMap.tick(); }, 25);
 
 /* 支持性检查 */
 const warning = $('supportWarning');
@@ -480,18 +495,79 @@ if (!window.isSecureContext) {
   supported = true;
 }
 
-/* 只读调试钩子（供自动化测试与现场排查使用）。 */
-window.__crtcDashboard = {
-  controller,
-  keys,
+/* 旧调试名称只返回副本，不再暴露可绕过门禁的 controller/queue。 */
+window.__crtcDashboard = Object.freeze({
   intent: () => ({ ...lastIntent }),
   state: () => ({ ...controller.state }),
   mixWheels,
   describeIntent,
-};
+});
 
 controller.setLimit(80);
 log('遥控台已就绪：等待连接 CRTC-Lower-Car');
 render();
 
 installServoPanel(controller);
+pidTest = installPidTest({ root: $('pidTestPanel'), controller,
+  telemetry: () => ({ encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }), calibration: readCalibration,
+  foreground: () => !document.hidden && document.hasFocus(), error: showError, log });
+
+/* ---------------- Agent 接口（同页、无额外网络端口） ---------------- */
+function revokeAgentPermission() {
+  if ($('agentWriteAllowed')) $('agentWriteAllowed').checked = false;
+  if ($('agentMotionAllowed')) $('agentMotionAllowed').checked = false;
+}
+
+dashboardAgent = createDashboardAgent({
+  controller,
+  telemetry: () => ({ encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }),
+  calibration: readCalibration,
+  externalMotion: () => !!pidTest?.runner.active,
+  permissions: () => ({ write: $('agentWriteAllowed').checked, motion: $('agentMotionAllowed').checked,
+    servo: !!$('servoSetupConfirmed')?.checked }),
+  foreground: () => !document.hidden && document.hasFocus(),
+  clearInput: clearHolds,
+  paintInput: (throttle, steer) => { lastIntent = { throttle, steer }; paintIntent(lastIntent); },
+  log,
+});
+Object.defineProperty(window, 'crtcAgent', { value: Object.freeze({ version: 1,
+  status: dashboardAgent.snapshot, execute: dashboardAgent.execute }), configurable: true });
+let webMcp = false;
+try { webMcp = registerAgentTools(navigator.modelContext, dashboardAgent); }
+catch (error) { log(`WebMCP 注册不可用，JSON/API 接口仍可用：${error.message}`, true); }
+$('agentTransport').textContent = webMcp ? 'WebMCP + window.crtcAgent + JSON 命令均可用' : 'window.crtcAgent + JSON 命令可用（此浏览器未提供 WebMCP）';
+let agentSession = controller.state.session;
+function renderAgent() {
+  if (agentSession !== controller.state.session) { revokeAgentPermission(); agentSession = controller.state.session; }
+  const s = dashboardAgent.snapshot();
+  $('agentMotionAllowed').disabled = !s.permissions.write;
+  if (!s.permissions.write) $('agentMotionAllowed').checked = false;
+  $('agentDiagnosis').textContent = s.blockers.length ? s.blockers.map(b => b.message).join('；')
+    : s.state.armed ? '底盘已解锁；运动命令仍需独立许可' : '底盘已就绪，可手动解锁';
+  $('agentLiveStatus').textContent = JSON.stringify(s, null, 2);
+}
+function agentPermissionChanged() {
+  if (!$('agentWriteAllowed').checked) $('agentMotionAllowed').checked = false;
+  if (dashboardAgent.isDriving() || controller.state.armPending || controller.state.armed) stopNow('Agent 许可变更，已停止并锁定');
+  renderAgent();
+}
+$('agentWriteAllowed').addEventListener('change', agentPermissionChanged);
+$('agentMotionAllowed').addEventListener('change', agentPermissionChanged);
+$('agentCommandForm').addEventListener('submit', async event => {
+  event.preventDefault();
+  try {
+    const request = JSON.parse($('agentCommand').value);
+    const result = await dashboardAgent.execute(request);
+    $('agentResult').textContent = JSON.stringify(result, null, 2);
+  } catch (error) { $('agentResult').textContent = JSON.stringify({ ok: false, error: { code: 'INVALID_JSON', message: error.message } }, null, 2); }
+  renderAgent();
+});
+$('agentReadStatus').addEventListener('click', () => {
+  renderAgent(); $('agentResult').textContent = JSON.stringify({ ok: true, status: dashboardAgent.snapshot() }, null, 2);
+});
+$('agentStop').addEventListener('click', async () => {
+  const result = await dashboardAgent.execute({ command: 'stop' });
+  $('agentResult').textContent = JSON.stringify(result, null, 2); renderAgent();
+});
+setInterval(renderAgent, 250);
+renderAgent();

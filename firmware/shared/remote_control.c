@@ -1,4 +1,5 @@
 #include "remote_control.h"
+#include "board_link_config.h"
 #include <string.h>
 
 static uint16_t get_u16(const uint8_t *p)
@@ -119,8 +120,9 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
             return stop_reject(s, a, REMOTE_REASON_INVALID);
         break;
     case REMOTE_OPCODE_SERVO:
-        if (p[12] > 1U || p[13] != 0U || !all_zero(p, 16U) ||
-            (get_u16(p+14) != 0U && (get_u16(p+14) < 1300U || get_u16(p+14) > 1700U)))
+        if (p[12] >= LINK_SERVO_COUNT || p[13] != 0U || !all_zero(p, 16U) ||
+            (get_u16(p+14) != 0U && (get_u16(p+14) < LINK_SERVO_MIN_US(p[12]) ||
+                                      get_u16(p+14) > LINK_SERVO_MAX_US(p[12]))))
             return stop_reject(s, a, REMOTE_REASON_INVALID);
         break;
     case REMOTE_OPCODE_LED:
@@ -132,6 +134,11 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
             get_u16(p + 14) > 5000U || get_u32(p + 16) == 0U ||
             get_u32(p + 16) > 1000000UL)
             return stop_reject(s, a, REMOTE_REASON_INVALID);
+        break;
+    case REMOTE_OPCODE_PID:
+        if(p[12] || p[13] || get_u16(p+14)>20000U || get_u16(p+16)>20000U ||
+           get_u16(p+18)>20000U || !(get_u16(p+14) || get_u16(p+16)))
+            return stop_reject(s,a,REMOTE_REASON_INVALID);
         break;
     case REMOTE_OPCODE_TUNING:
         if (p[12] > 3U || p[13] != 0U || get_u16(p + 14) > 20000U ||
@@ -158,7 +165,7 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         return reject(s);
     }
     if (opcode == REMOTE_OPCODE_MECHANICAL || opcode == REMOTE_OPCODE_TUNING ||
-        opcode == REMOTE_OPCODE_CLEAR_FAULT || opcode == REMOTE_OPCODE_SERVO) {
+        opcode == REMOTE_OPCODE_CLEAR_FAULT || opcode == REMOTE_OPCODE_SERVO || opcode == REMOTE_OPCODE_PID) {
         if (s->armed || s->active) return stop_reject(s, a, REMOTE_REASON_LOCKED);
     }
     if (opcode == REMOTE_OPCODE_ARM || opcode == REMOTE_OPCODE_DRIVE) {
@@ -194,6 +201,10 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         a->flags = p[13];
         a->diameter_tenth_mm = get_u16(p + 14);
         a->counts_per_rev = get_u32(p + 16);
+        return 1;
+    case REMOTE_OPCODE_PID:
+        a->kind=REMOTE_ACTION_PID;
+        a->kp_milli=get_u16(p+14); a->ki_milli=get_u16(p+16); a->kd_milli=get_u16(p+18);
         return 1;
     case REMOTE_OPCODE_TUNING:
         a->kind = REMOTE_ACTION_TUNING;

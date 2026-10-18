@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-18",
+  "baseline_branch": "main",
+  "baseline_commit": "d0bde24",
+  "source_state": "local uncommitted changes",
+  "firmware": "crtc-lower-pid-v2",
+  "hardware_flashed": false,
+  "motor_or_servo_test_executed": false,
+  "coefficients": {
+    "kp_milli": 1000,
+    "ki_milli": 2000,
+    "kd_milli": 0,
+    "source": "ESP32 RAM defaults, asynchronous ACK to STM32",
+    "persistent_flash_settings": false
+  },
+  "architecture": {
+    "pid": "four independent histories in STM32, common 10ms cadence",
+    "shuttle": "Dashboard only; ESP32 normal bridge/telemetry",
+    "shared_chassis_states": [
+      "WAIT_LINK",
+      "WAIT_PID",
+      "WAIT_CALIBRATION",
+      "LOCKED",
+      "ARMED",
+      "RUNNING",
+      "FAULT"
+    ]
+  },
+  "limits": {
+    "command_mm_s": 1000,
+    "closed_loop_pwm_percent": 100,
+    "open_loop_pwm_percent": 25
+  },
+  "load_validation": {
+    "source": "user explicitly reported verified driver/battery/boost load capacity",
+    "agent_repeated_physical_validation": false
+  },
+  "tests": {
+    "web_logic_passed": 67,
+    "offline_dom_entrypoints_passed": 2,
+    "host_suites_passed": [
+      "pid",
+      "speed",
+      "remote",
+      "bridge",
+      "protocol",
+      "motor",
+      "encoder",
+      "upper-car regression"
+    ],
+    "UBSan_passed": false,
+    "UBSan_reason": "host linker cannot find -lubsan; final host runs explicitly SANITIZE=0",
+    "hardware_qualification": false
+  },
+  "artifacts": {
+    "output/pid-20261018/esp32/bootloader.bin": {
+      "bytes": 15104,
+      "sha256": "2a71d69b471e20c2bac7fb469f3c6a807b3ebee780e348e5889db0da849ca363"
+    },
+    "output/pid-20261018/esp32/firmware.bin": {
+      "bytes": 937360,
+      "sha256": "57004462d2a3ef7f7893ace1cab0748e476f8e5b00d145a945e221c20704aff0"
+    },
+    "output/pid-20261018/esp32/firmware.elf": {
+      "bytes": 19295940,
+      "sha256": "90edf4a8ad49dec366031b8f238a5e737a34adcbd1445865c91855586235a029"
+    },
+    "output/pid-20261018/esp32/partitions.bin": {
+      "bytes": 3072,
+      "sha256": "bd0f7954aca2ef7d925ee21aaa1f3dc8822d1d6ce5cbbd26a135e5886bfff6ce"
+    },
+    "output/pid-20261018/stm32/lower-motor.bin": {
+      "bytes": 14656,
+      "sha256": "f660add69b6df8935e0d21f63d411a4f0124c814a447f29eb97d1467d3b883ad"
+    },
+    "output/pid-20261018/stm32/lower-motor.elf": {
+      "bytes": 576544,
+      "sha256": "a4cb56130ec3b9435d39f21c5b39e0314bc325896a3e43558a50426cbf5914fc"
+    },
+    "output/pid-20261018/stm32/lower-motor.hex": {
+      "bytes": 41297,
+      "sha256": "f8e6f1ec0b7e29f3cf149e3f2815cfd394baeb85203a63cc566dc2495cbb1e90"
+    }
+  }
+}

@@ -14,7 +14,7 @@ const header = { session: 0x12345678, sequence: 0x90abcdef };
 function packet(kind) { const b = new Uint8Array(20); b[0] = 1; b[1] = kind; return b; }
 function main({ session = 71, sequence = 0, armed = false, active = false, ready = true, fault = false, uart = true, calibratedMask = 15 } = {}) {
   const b = packet(0), v = new DataView(b.buffer);
-  b[2] = Number(uart) | (Number(armed) << 1) | (Number(active) << 2) | (Number(ready) << 3) | (Number(fault) << 4);
+  b[2] = Number(uart) | (Number(armed) << 1) | (Number(active) << 2) | (Number(ready) << 3) | (Number(fault) << 4) | 32;
   v.setUint32(4, session, true); v.setUint32(8, sequence, true); v.setUint16(16, 100, true); b[18] = calibratedMask;
   return decodeStatus(b);
 }
@@ -23,7 +23,7 @@ function ack({ session = 71, sequence, wheel, result = 0 }) {
   b[2] = wheel; b[3] = result; v.setUint32(4, session, true); v.setUint32(8, sequence, true);
   return decodeStatus(b);
 }
-function info(bytes) { const v = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); return { op: bytes[1], session: v.getUint32(4, true), sequence: v.getUint32(8, true), wheel: bytes[12] }; }
+function info(bytes) { const v = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); return { op: bytes[1], session: v.getUint32(4, true), sequence: v.getUint32(8, true), wheel: bytes[1] === OP.PID ? 253 : bytes[12] }; }
 function fixture() {
   let now = 0, locks = 0;
   const writes = [], controller = new RemoteController({ now: () => now, locked: () => locks++ });
@@ -63,12 +63,12 @@ test('codec writes exactly 20 LE bytes, zero reserved fields and distinct operat
 
 test('codec bounds reject overflow, NaN, nonintegers and silent truncation', () => {
   const drive = { ...header, throttle: 0, steer: 0, limit: 100, ttl: 200 };
-  for (const [field, values] of Object.entries({ throttle: [-1001, 1001, NaN, 0.5], steer: [-1001, 1001], limit: [-1, 301], ttl: [0, 49, 201], session: [0, -1, 0x100000000], sequence: [-1, 0x100000000] })) {
+  for (const [field, values] of Object.entries({ throttle: [-1001, 1001, NaN, 0.5], steer: [-1001, 1001], limit: [-1, 1001], ttl: [0, 49, 201], session: [0, -1, 0x100000000], sequence: [-1, 0x100000000] })) {
     for (const value of values) assert.throws(() => encodeCommand(OP.DRIVE, { ...drive, [field]: value }), RangeError);
   }
   for (const op of [0, 8, 1.5]) assert.throws(() => encodeCommand(op, header));
   for (const on of [-1, 2, true]) assert.throws(() => encodeCommand(OP.LED, { ...header, on }));
-  for (const [field, values] of Object.entries({ wheel: [-1, 4], diameterTenthMm: [0, 5001], countsPerRev: [0, 1000001], kpMilli: [-1, 20001], kiMilli: [-1, 20001], maxMmS: [0, 301] })) {
+  for (const [field, values] of Object.entries({ wheel: [-1, 4], diameterTenthMm: [0, 5001], countsPerRev: [0, 1000001], kpMilli: [-1, 20001], kiMilli: [-1, 20001], maxMmS: [0, 1001] })) {
     for (const value of values) assert.throws(() => validateCalibration({ ...DEFAULT_CALIBRATION[0], [field]: value }));
   }
   assert.throws(() => validateCalibration({ ...DEFAULT_CALIBRATION[0], confirmed: 1 }));
@@ -87,12 +87,12 @@ test('decodes every status kind, signed values, offset views and rejects malform
   [-300, 300, 0, -1].forEach((n, i) => { sv.setInt16(4 + i * 2, n, true); sv.setInt16(12 + i * 2, -n, true); });
   assert.deepEqual(decodeStatus(speeds).targets, [300, -300, 0, 1]);
   assert.equal(decodeStatus(speeds).faultCode, 7);
-  assert.equal(main({ armed: true, active: true }).flags, 15);
+  assert.equal(main({ armed: true, active: true }).flags, 47);
   assert.equal(ack({ wheel: 255, sequence: 88 }).sourceSequence, 88);
   for (const value of [new Uint8Array(19), new Uint8Array(21), new Uint8Array(20), packet(4)]) assert.throws(() => decodeStatus(value));
   b[3] = 1; assert.throws(() => decodeStatus(b)); b[3] = 0; b[2] = 16; assert.throws(() => decodeStatus(b));
   const badAck = packet(3); badAck[2] = 4; assert.throws(() => decodeStatus(badAck)); badAck[2] = 0; badAck[19] = 1; assert.throws(() => decodeStatus(badAck));
-  const badMain = packet(0); badMain[2] = 32; assert.throws(() => decodeStatus(badMain)); badMain[2] = 0; badMain[18] = 16; assert.throws(() => decodeStatus(badMain));
+  const badMain = packet(0); badMain[2] = 64; assert.throws(() => decodeStatus(badMain)); badMain[2] = 0; badMain[18] = 16; assert.throws(() => decodeStatus(badMain));
 });
 
 test('write queue keeps one in flight and STOP discards queued movement/actions', async () => {
@@ -208,13 +208,13 @@ test('disconnect, session change, invalid readiness and old notifications cannot
   await assert.rejects(f.controller.arm());
 });
 
-test('configuration sends eight packets serially, waiting for each matching ACK', async () => {
+test('configuration sends unified PID then eight packets serially, waiting for each matching ACK', async () => {
   const f = fixture(); await flush();
   const values = DEFAULT_CALIBRATION.map(v => ({ ...v, confirmed: true }));
   const configuring = f.controller.configure(values); await flush();
   const initialCount = f.writes.length;
-  for (let index = 0; index < 8; index++) {
-    const item = info(f.writes.at(-1)); assert.equal(item.op, index % 2 ? OP.TUNING : OP.MECHANICAL); assert.equal(item.wheel, Math.floor(index / 2));
+  for (let index = 0; index < 9; index++) {
+    const item = info(f.writes.at(-1)); assert.equal(item.op, index === 0 ? OP.PID : (index-1) % 2 ? OP.TUNING : OP.MECHANICAL); assert.equal(item.wheel, index === 0 ? 253 : Math.floor((index-1) / 2));
     f.controller.ingest(ack({ sequence: item.sequence, wheel: (item.wheel + 1) % 4 }), f.generation);
     await flush(); assert.equal(f.writes.length, initialCount + index);
     f.controller.ingest(ack({ sequence: item.sequence, wheel: item.wheel }), f.generation); await flush();
@@ -253,9 +253,16 @@ function servoStatus({ session=71, pulses=[0,0], available=true }={}) {
 test('servo codec bounds and capability telemetry', () => {
   const b=encodeCommand(OP.SERVO,{...header,channel:1,pulseUs:1500});
   assert.equal(b[12],1); assert.equal(new DataView(b.buffer).getUint16(14,true),1500);
-  assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:2,pulseUs:1500}));
+  assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:3,pulseUs:1500}));
+  for(const pulseUs of [1000,1500,2000]) assert.equal(encodeCommand(OP.SERVO,{...header,channel:2,pulseUs})[12],2);
+  for(const pulseUs of [999,2001]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:2,pulseUs}));
   for(const p of [NaN,1299,1701,-1,1500.5]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:0,pulseUs:p}));
   assert.deepEqual(servoStatus({pulses:[1500,1550]}).pulses,[1500,1550]);
+  const extended=packet(5), v=new DataView(extended.buffer);
+  extended[2]=7; extended[3]=15; v.setUint32(4,71,true);
+  [1500,1550,2000,1000,2000,25].forEach((p,i)=>v.setUint16(8+2*i,p,true));
+  assert.deepEqual(decodeStatus(extended).pulses,[1500,1550,2000]);
+  extended[2]=3; assert.throws(()=>decodeStatus(extended));
 });
 test('servo cannot write old firmware, stale status, wrong session or armed chassis', async () => {
   const f=fixture(), c=f.controller;

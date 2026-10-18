@@ -56,7 +56,7 @@ static void console_command(const char *line,uint32_t now,unsigned which)
     char response[384];
     if(!strcmp(line,"INFO")) {
         snprintf(response,sizeof(response),
-            "INFO firmware=crtc-lower-servo-v1 transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
+            "INFO firmware=crtc-lower-pid-servo3-v3 transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
             transport_ready?1U:0U,client.connected,static_cast<unsigned long>(client.token),
             client.remote_flags,client.remote_encoder_valid_mask,
             static_cast<unsigned long>(client.parser.errors),
@@ -228,7 +228,7 @@ static void remote_poll(uint32_t now)
         }
     }
     if((uint32_t)(now-ble_status_ms)>=30U) {
-        const uint8_t kinds[4]={0,1,2,4};
+        const uint8_t kinds[4]={0,1,2,5};
         uint8_t packet[20]; remote_bridge_status(&remote_bridge,kinds[ble_status_kind],packet);
         ble_remote_publish(packet); ble_status_ms=now;
         if(packet[1]!=3) ble_status_kind=(ble_status_kind+1U)%4U;
