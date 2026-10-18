@@ -55,6 +55,20 @@ v4身份 `crtc-lower-servo-slew-v4`；产物 `output/servo-slew-20261018/esp32/f
 只更新ESP32应用0x10000；STM32与已安装USB loader不用重刷。
 烧录重启会撤掉PWM保持力，安装前断开舵机电源并支撑机构。
 
+已准备 `firmware/tools/flash_esp32_only.ps1`，默认匹配此前确认的ESP32 USB序列号。
+`-PlanOnly`只检查镜像格式并显示命令，不打开设备、不复位、不写入：
+
+```powershell
+./firmware/tools/flash_esp32_only.ps1 -PlanOnly
+# 实际安装时运行（舵机断电、机构支撑）：
+./firmware/tools/flash_esp32_only.ps1
+# 若同一块板重新枚举后自动识别失败，可明确指定它的端口：
+./firmware/tools/flash_esp32_only.ps1 -Port COM7
+```
+
+脚本只写 `firmware.bin` 到ESP32的0x10000，不全片擦除、不写分区/bootloader、不调用STM32烧录工具。
+用户已确认舵机断电并支撑；准备时电脑仅检测到蓝牙COM5/COM6，未检测到ESP32 USB，仍未执行烧录。
+
 接线HTML保留原样式，添加 `GPIO14 → MG995门S`，不猜测未确认的物理排针位置。
 
 验证：v4 ESP32编译通过，75项网页逻辑及两个离线DOM启动通过；C桥接/轨迹覆盖起点、速度/加速度、
