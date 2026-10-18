@@ -147,7 +147,7 @@
     <p id="agentTransport" class="hint">正在装配接口…</p>
     <p id="agentDiagnosis" role="status">正在读取状态…</p>
     <p class="hint">只读诊断和 STOP 始终可用。其余操作沿用现有会话、校准和固件门禁；停止锁定、页面失焦、隐藏、断连或会话变化会撤销 Agent 许可。未实测不代勾校准。</p>
-    <label class="confirmation"><input id="agentWriteAllowed" type="checkbox">允许 Agent 控制（灯控、写入已确认表单、清故障及已确认的舵机微调）</label>
+    <label class="confirmation"><input id="agentWriteAllowed" type="checkbox">允许 Agent 控制（灯控、写入已确认表单、清故障及舵机目标控制）</label>
     <label class="confirmation"><input id="agentMotionAllowed" type="checkbox" disabled>允许 Agent 解锁和短时运动；已架空车轮或确认周围安全（≤100 mm/s、每次≤1秒，到期停止锁定）</label>
     <div class="row"><button id="agentReadStatus" type="button">读取 Agent 状态</button><button id="agentStop" class="danger" type="button">Agent STOP</button></div>
     <form id="agentCommandForm">
@@ -161,6 +161,6 @@
   </section>
 </main>
 
-<script type="module" src="dashboard.js?v=agent1"></script>
+<script type="module" src="dashboard.js?v=servo4"></script>
 </body>
 </html>

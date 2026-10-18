@@ -15,7 +15,8 @@ function age(now, at) { return Number.isFinite(at) ? Math.max(0, now - at) : nul
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 
 export function createDashboardAgent({ controller, telemetry, calibration,
-  permissions = () => ({ write: false, motion: false, servo: false }),
+  permissions = () => ({ write: false, motion: false }),
+  moveServo = (channel,pulse,reference) => controller.servo(channel,pulse,null,reference),
   foreground = () => true, clearInput = () => {}, paintInput = () => {},
   log = () => {}, now = () => performance.now(), externalMotion = () => false,
 }) {
@@ -50,6 +51,8 @@ export function createDashboardAgent({ controller, telemetry, calibration,
       motion: lease ? { remainingMs: Math.max(0, lease.until - time), throttle: lease.throttle, steer: lease.steer, limitMmS: lease.limitMmS } : null,
       feedback: { mainAgeMs: mainAge, encoderAgeMs: encoderAge, speedAgeMs: speedAge,
         encoder: t.encoder ?? null, speeds: t.speed ?? null, servo: controller.servoStatus,
+        servoMotion: controller.servoMotion,
+        servoJob: controller.servoOwner ? {channel:controller.servoOwner.channel,target:controller.servoOwner.target} : null,
         servoAgeMs: age(time, controller.servoStatusAt) },
       calibrationForm: form, calibrationFormError: formError, audit: audit.slice(-20),
     });
@@ -84,7 +87,7 @@ export function createDashboardAgent({ controller, telemetry, calibration,
       if (!request || Array.isArray(request) || typeof request !== 'object' || !AGENT_COMMANDS.includes(command))
         fail('UNKNOWN_COMMAND', '未知命令；先执行 {"command":"status"} 查看接口');
       const fields = { status: [], stop: [], led: ['on'], configure: [], clearFault: [], arm: [],
-        drive: ['throttle', 'steer', 'limitMmS', 'durationMs'], servo: ['channel', 'pulseUs'] };
+        drive: ['throttle', 'steer', 'limitMmS', 'durationMs'], servo: ['channel', 'pulseUs', 'referenceUs'] };
       if (Object.keys(request).some(key => key !== 'command' && !fields[command].includes(key)))
         fail('INVALID_ARGUMENT', '命令包含未知字段');
       if (command === 'status') return { ok: true, status: snapshot() };
@@ -127,10 +130,13 @@ export function createDashboardAgent({ controller, telemetry, calibration,
         lease = { until: now() + durationMs, session: controller.state.session, generation: controller.generation, throttle, steer, limitMmS };
         paintInput(throttle, steer);
       } else if (command === 'servo') {
-        if (!permissions().servo) fail('SERVO_UNCONFIRMED', '请先在舵机面板确认供电、共地和机构支撑');
         integer(request.channel, 0, 2, 'channel');
         if (request.pulseUs !== 0) integer(request.pulseUs, request.channel===2?1000:1300, request.channel===2?2000:1700, 'pulseUs');
-        stoppedFeedback(); await controller.servo(request.channel, request.pulseUs);
+        const reference=request.referenceUs??0;
+        if(reference) integer(reference,request.channel===2?1000:1300,request.channel===2?2000:1700,'referenceUs');
+        if(!request.pulseUs && reference) fail('INVALID_ARGUMENT','释放时不能设置起点');
+        if(request.pulseUs) stoppedFeedback();
+        await moveServo(request.channel, request.pulseUs, reference);
       }
       if (startedEpoch !== epoch) fail('CANCELLED', '操作期间发生 STOP、断连或会话变化；结果不可沿用');
       record(command, true, command === 'drive' ? '已启动有限时短测；到期自动停止锁定' : '请求已提交；以状态/固件回执为准');
@@ -169,6 +175,7 @@ export function registerAgentTools(modelContext, agent) {
       command: { type: 'string', enum: AGENT_COMMANDS }, on: { type: 'boolean' },
       throttle: { type: 'integer', minimum: -1000, maximum: 1000 }, steer: { type: 'integer', minimum: -1000, maximum: 1000 },
       limitMmS: { type: 'integer', minimum: 1, maximum: 100 }, durationMs: { type: 'integer', minimum: 50, maximum: 1000 },
+      referenceUs: { type: 'integer', minimum: 0, maximum: 2000 },
       channel: { type: 'integer', minimum: 0, maximum: 2 }, pulseUs: { type: 'integer', minimum: 0, maximum: 2000 },
     }, required: ['command'], additionalProperties: false },
     execute: async request => result(await agent.execute(request)) });

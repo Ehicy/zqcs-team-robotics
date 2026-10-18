@@ -1,0 +1,12 @@
+{
+  "firmware": "crtc-lower-servo-slew-v4",
+  "installed": false,
+  "hardwareMotionTested": false,
+  "overloadResolvedOnHardware": false,
+  "servoConfirmationCheckboxes": "removed",
+  "startup": "No boot PWM or forced 1500us; first target requires explicit reference matching physical position",
+  "limits": {"speedUsPerSecond": 100, "accelerationUsPerSecondSquared": 200, "leaseMs": 500, "maxOwnerGapMs": 50},
+  "tests": {"web": 75, "offlineDomBoots": 2, "cHostSuites": "passed", "ubsan": "not run", "esp32Build": "passed"},
+  "artifactDirectory": "output/servo-slew-20261018/esp32",
+  "hardwareState": "Awaiting current servo power/support state before any reset, upload or motion"
+}

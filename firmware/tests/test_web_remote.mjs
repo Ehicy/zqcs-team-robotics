@@ -264,29 +264,46 @@ test('servo codec bounds and capability telemetry', () => {
   assert.deepEqual(decodeStatus(extended).pulses,[1500,1550,2000]);
   extended[2]=3; assert.throws(()=>decodeStatus(extended));
 });
-test('servo cannot write old firmware, stale status, wrong session or armed chassis', async () => {
-  const f=fixture(), c=f.controller;
-  await assert.rejects(c.servo(0,1500));
-  assert.equal(c.ingest(servoStatus({session:99}),f.generation),false);
-  c.ingest(servoStatus(),f.generation); assert.ok(c.servoAvailable(0));
+function slewStatus(pulses=[0,0,0]) {
+  const b=packet(5),v=new DataView(b.buffer);b[3]=143;
+  v.setUint32(4,71,true);pulses.forEach((p,i)=>{if(p)b[2]|=1<<i;v.setUint16(8+2*i,p,true);});
+  [1000,2000,25].forEach((p,i)=>v.setUint16(14+2*i,p,true));return decodeStatus(b);
+}
+function motionStatus({targets=[0,0,0],moving=0,error=0,session=71}={}) {
+  const b=packet(6),v=new DataView(b.buffer);b[2]=moving;b[3]=error;v.setUint32(4,session,true);
+  targets.forEach((p,i)=>v.setUint16(8+2*i,p,true));[100,200,500].forEach((p,i)=>v.setUint16(14+2*i,p,true));return decodeStatus(b);
+}
+test('servo rejects old firmware, missing reference, stale motion status, wrong session and armed chassis',async()=>{
+  const f=fixture(),c=f.controller;
+  c.ingest(servoStatus(),f.generation);assert.equal(c.servoAvailable(0),false);assert.ok(c.servoAvailable(0,true));
+  await assert.rejects(c.servo(0,1500,null,1300));
+  c.ingest(slewStatus(),f.generation);assert.equal(c.servoAvailable(0),false);
+  assert.equal(c.ingest(motionStatus({session:99}),f.generation),false);
+  c.ingest(motionStatus(),f.generation);assert.ok(c.servoAvailable(0));
   await assert.rejects(c.servo(0,1600));
-  c.state.armed=true; await assert.rejects(c.servo(0,1500)); c.state.armed=false;
-  f.advance(501); await assert.rejects(c.servo(0,1500));
-  assert.equal(f.writes.length,0);
+  c.state.armed=true;await assert.rejects(c.servo(0,1600,null,1300));c.state.armed=false;
+  f.advance(501);await assert.rejects(c.servo(0,1600,null,1300));assert.equal(f.writes.length,0);
 });
-test('servo waits for matching ACK, respects STOP cancellation and never auto-enables', async () => {
-  const f=fixture(), c=f.controller;
-  c.ingest(servoStatus(),f.generation);
-  const task=c.servo(0,1500); await flush();
-  assert.equal(c.state.configBusy,true);
-  const sent=info(f.writes.at(-1));
-  c.ingest(ack({sequence:sent.sequence,wheel:254}),f.generation);
-  await task; assert.equal(c.servoStatus.pulses[0],1500);
-  await assert.rejects(c.servo(0,1550));
-  const pending=c.servo(0,1510); const rejected=assert.rejects(pending);
-  await flush(); await c.stop(); await rejected;
+test('target codec includes explicit reference and validates reserved/bounded fields',()=>{
+  const b=encodeCommand(OP.SERVO_TARGET,{...header,channel:2,pulseUs:2000,referenceUs:1100}),v=new DataView(b.buffer);
+  assert.equal(b[1],10);assert.equal(v.getUint16(14,true),2000);assert.equal(v.getUint16(16,true),1100);
+  assert.equal(v.getUint16(18,true),0);
+  assert.throws(()=>encodeCommand(OP.SERVO_TARGET,{...header,channel:0,pulseUs:1700,referenceUs:1299}));
+  assert.throws(()=>encodeCommand(OP.SERVO_TARGET,{...header,channel:2,pulseUs:0,referenceUs:1500}));
+  assert.deepEqual(motionStatus({targets:[1500,0,2000],moving:4}).targets,[1500,0,2000]);
+  const bad=packet(6);bad[3]=128;assert.throws(()=>decodeStatus(bad));
+});
+test('target ACK does not pretend PWM/position arrived; STOP and session clear pending work',async()=>{
+  const f=fixture(),c=f.controller;c.ingest(slewStatus(),f.generation);c.ingest(motionStatus(),f.generation);
+  const task=c.servo(0,1700,null,1300);await flush();
+  assert.equal(c.state.configBusy,true);const sent=info(f.writes.at(-1));assert.equal(sent.op,OP.SERVO_TARGET);
+  c.ingest(ack({sequence:sent.sequence,wheel:254}),f.generation);await task;
+  assert.equal(c.servoStatus.pulses[0],0); /* ACK accepts target; it is not current PWM */
+  c.ingest(slewStatus([1300,0,0]),f.generation);
+  c.ingest(motionStatus({targets:[1700,0,0],moving:1}),f.generation);assert.equal(c.canArm(),false);
+  await assert.rejects(c.servo(0,1500,null,1500));
+  const pending=c.servo(0,1600);const rejected=assert.rejects(pending);await flush();await c.stop();await rejected;
   assert.equal(info(f.writes.at(-1)).op,OP.STOP);
-  c.ingest(main({session:72}),f.generation);
-  assert.equal(c.servoStatus,null); assert.equal(c.servoAvailable(0),false);
-  c.disconnect(); assert.equal(c.servoStatus,null);
+  c.ingest(main({session:72}),f.generation);assert.equal(c.servoStatus,null);assert.equal(c.servoMotion,null);
+  c.disconnect();assert.equal(c.servoAvailable(0),false);
 });

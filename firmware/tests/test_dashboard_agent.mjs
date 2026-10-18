@@ -139,12 +139,14 @@ test('STOP cancels outstanding commands; late completion cannot report success',
   finish(); assert.equal((await pending).error.code,'CANCELLED');
 });
 
-test('servo requires independent existing setup confirmation and firmware gates', async () => {
-  const h=harness(); h.permissions.write=true;
-  assert.equal((await h.agent.execute({command:'servo',channel:0,pulseUs:1500})).error.code,'SERVO_UNCONFIRMED');
-  h.permissions.servo=true;
-  assert.equal((await h.agent.execute({command:'servo',channel:0,pulseUs:1500})).ok,false);
-  assert.equal(h.sent.length,0);
+test('servo has no setup checkbox gate; firmware and explicit reference still apply',async()=>{
+  const h=harness();h.permissions.write=true;
+  const r=await h.agent.execute({command:'servo',channel:0,pulseUs:1700,referenceUs:1300});
+  assert.equal(r.ok,false);assert.notEqual(r.error.code,'SERVO_UNCONFIRMED');assert.equal(h.sent.length,0);
+  let args;h.controller.servo=async(...v)=>{args=v;};
+  assert.equal((await h.agent.execute({command:'servo',channel:0,pulseUs:1700,referenceUs:1300})).ok,true);
+  assert.deepEqual(args,[0,1700,null,1300]);
+  assert.equal((await h.agent.execute({command:'servo',channel:0,pulseUs:0,referenceUs:1300})).error.code,'INVALID_ARGUMENT');
 });
 
 test('WebMCP is optional and registered tools use the same facade', async () => {

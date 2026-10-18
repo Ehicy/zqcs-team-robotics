@@ -507,7 +507,7 @@ controller.setLimit(80);
 log('遥控台已就绪：等待连接 CRTC-Lower-Car');
 render();
 
-installServoPanel(controller);
+const servoPanel=installServoPanel(controller);
 pidTest = installPidTest({ root: $('pidTestPanel'), controller,
   telemetry: () => ({ encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }), calibration: readCalibration,
   foreground: () => !document.hidden && document.hasFocus(), error: showError, log });
@@ -523,8 +523,8 @@ dashboardAgent = createDashboardAgent({
   telemetry: () => ({ encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }),
   calibration: readCalibration,
   externalMotion: () => !!pidTest?.runner.active,
-  permissions: () => ({ write: $('agentWriteAllowed').checked, motion: $('agentMotionAllowed').checked,
-    servo: !!$('servoSetupConfirmed')?.checked }),
+  permissions: () => ({ write: $('agentWriteAllowed').checked, motion: $('agentMotionAllowed').checked }),
+  moveServo: (channel,pulse,reference) => servoPanel.move(channel,pulse,reference),
   foreground: () => !document.hidden && document.hasFocus(),
   clearInput: clearHolds,
   paintInput: (throttle, steer) => { lastIntent = { throttle, steer }; paintIntent(lastIntent); },

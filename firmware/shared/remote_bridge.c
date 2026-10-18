@@ -1,6 +1,49 @@
 #include "remote_bridge.h"
 #include <string.h>
 
+static void freeze_servos(remote_bridge_t *b)
+{
+    unsigned i;
+    for(i=0;i<LINK_SERVO_COUNT;i++) servo_motion_freeze(&b->servos[i]);
+}
+static int servo_moving(const remote_bridge_t *b)
+{
+    unsigned i; for(i=0;i<LINK_SERVO_COUNT;i++) if(b->servos[i].moving) return 1;
+    return 0;
+}
+static int servo_standstill(const remote_bridge_t *b,uint32_t now)
+{
+    const link_node_t *n=b->link; unsigned i;
+    if(!n->connected || n->remote_speed_fault || n->remote_speed_valid_mask!=15 ||
+       now-n->remote_speed_rx_ms>=200U || n->input_enable || b->control.armed || b->control.active ||
+       !(n->remote_flags&LINK_FLAG_OUTPUT_INHIBITED)) return 0;
+    for(i=0;i<4;i++) if(n->remote_speed_measured[i] || n->remote_speed_targets[i]) return 0;
+    return 1;
+}
+static void tick_servos(remote_bridge_t *b,uint32_t now)
+{
+    unsigned i;
+    if(!servo_standstill(b,now)) { freeze_servos(b); return; }
+    for(i=0;i<LINK_SERVO_COUNT;i++) {
+        servo_motion_t candidate=b->servos[i];
+        if(b->servo_error_mask & (1U<<i)) { servo_motion_freeze(&b->servos[i]); continue; }
+        servo_motion_tick(&candidate,now);
+        if(candidate.pulse<LINK_SERVO_MIN_US(i) && candidate.pulse) {
+            candidate.pulse=LINK_SERVO_MIN_US(i); servo_motion_freeze(&candidate);
+        }
+        if(candidate.pulse>LINK_SERVO_MAX_US(i)) {
+            candidate.pulse=LINK_SERVO_MAX_US(i); servo_motion_freeze(&candidate);
+        }
+        if(candidate.pulse!=b->servo_us[i]) {
+            if(!b->servo_write || !b->servo_write((uint8_t)i,candidate.pulse)) {
+                b->servo_error_mask|=(uint8_t)(1U<<i); servo_motion_freeze(&b->servos[i]); continue;
+            }
+            b->servo_us[i]=candidate.pulse;
+        }
+        b->servos[i]=candidate;
+    }
+}
+
 static uint16_t speed_limit(const remote_bridge_t *b)
 {
     unsigned i; uint16_t limit=REMOTE_CONTROL_TARGET_LIMIT;
@@ -30,6 +73,7 @@ void remote_bridge_init(remote_bridge_t *b,link_node_t *link,uint32_t session)
 }
 void remote_bridge_stop(remote_bridge_t *b,uint8_t reason,uint32_t now)
 {
+    freeze_servos(b);
     remote_control_reset(&b->control,reason);
     link_node_request_stop(b->link); b->link->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
     if(b->config_pending) { if(!b->config_initializing) acknowledge(b,3); b->config_pending=0; b->config_initializing=0; }
@@ -52,6 +96,7 @@ void remote_bridge_tick(remote_bridge_t *b,uint32_t now)
     link_node_tick(n,now);
     if(b->uart_token!=n->token) {
         unsigned i;
+        freeze_servos(b);
         b->uart_token=n->token; remote_control_reset(&b->control,REMOTE_REASON_LINK);
         link_node_cancel_input(n);
         for(i=0;i<4;i++) b->configs[i][1]&=(uint8_t)~4U;
@@ -95,6 +140,7 @@ void remote_bridge_tick(remote_bridge_t *b,uint32_t now)
     if(remote_control_tick(&b->control,now,n->connected,ready) && had_motion) {
         link_node_request_stop(n); n->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
     }
+    tick_servos(b,now);
     b->phase=chassis_state_update(n->connected,b->pid_initialized,
         ready,n->remote_speed_fault!=0,b->control.armed,
         b->control.active && (b->control.left_mm_s || b->control.right_mm_s));
@@ -104,11 +150,12 @@ int remote_bridge_receive(remote_bridge_t *b,const uint8_t *p,size_t size,uint32
     remote_action_t a; link_node_t *n=b->link; int accepted;
     remote_bridge_tick(b,now);
     if(p && size==20 && p[1]==REMOTE_OPCODE_ARM &&
-       (b->config_pending || b->ack_pending || b->phase!=CHASSIS_LOCKED)) return 0;
+       (b->config_pending || b->ack_pending || servo_moving(b) || b->phase!=CHASSIS_LOCKED)) return 0;
     if(p && size==20 && p[1]==REMOTE_OPCODE_DRIVE &&
        b->phase!=CHASSIS_ARMED && b->phase!=CHASSIS_RUNNING) return 0;
     accepted=remote_control_receive(&b->control,p,size,arrival,now,&a);
     if(a.kind==REMOTE_ACTION_STOP) {
+        freeze_servos(b);
         link_node_request_stop(n); n->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
         if(b->config_pending) { if(!b->config_initializing) acknowledge(b,3); b->config_pending=0; b->config_initializing=0; }
     } else if(a.kind==REMOTE_ACTION_DRIVE) {
@@ -127,30 +174,36 @@ int remote_bridge_receive(remote_bridge_t *b,const uint8_t *p,size_t size,uint32
     } else if(a.kind==REMOTE_ACTION_LED) {
         (void)link_node_request_led(n,a.led_on,now);
     } else if(a.kind==REMOTE_ACTION_SERVO) {
-        unsigned i; uint8_t result=0;
+        uint8_t result=0, ch=a.wheel;
         if(b->config_pending || b->ack_pending) {
             remote_bridge_stop(b,REMOTE_REASON_QUEUE,now); return 0;
         }
         b->config_wheel=254; b->config_session=b->control.session;
         b->config_source_sequence=a.source_sequence;
-        /* Release is possible even with a chassis fault; setting a pulse
-         * requires fresh, zero, valid feedback from every wheel. */
         if(!b->servo_write) result=4;
         if(a.servo_us) {
-            if(!(LINK_SERVO_POSITION_MASK & (1U<<a.wheel))) result=5;
-            int delta=(int)a.servo_us-(int)b->servo_us[a.wheel];
-            if(n->remote_speed_fault || n->remote_speed_valid_mask!=15 ||
-               (uint32_t)(now-n->remote_speed_rx_ms)>=200U || n->input_enable ||
-               !(n->remote_flags&LINK_FLAG_OUTPUT_INHIBITED)) result=1;
-            for(i=0;i<4;i++) if(n->remote_speed_measured[i] || n->remote_speed_targets[i]) result=1;
-            if((!b->servo_us[a.wheel] && a.servo_us!=1500U) ||
-               (b->servo_us[a.wheel] && (delta>25 || delta< -25))) result=2;
-            if(b->servo_changed[a.wheel] && (uint32_t)(now-b->servo_changed_ms[a.wheel])<100U) result=2;
+            if(!(LINK_SERVO_POSITION_MASK & (1U<<ch))) result=5;
+            if(!servo_standstill(b,now)) result=1;
+            /* Old clients cannot initiate an abrupt 1500us takeover. */
+            if(!a.flags) result=6;
+            if(b->servo_error_mask & (1U<<ch)) result=4;
+            if(a.flags && !b->servo_us[ch] && !a.servo_reference_us) result=2;
+            /* A reference is allowed only while PWM is released. */
+            if(a.flags && b->servo_us[ch] && a.servo_reference_us) result=2;
         }
-        if(!result && !b->servo_write(a.wheel,a.servo_us)) result=4;
         if(!result) {
-            b->servo_us[a.wheel]=a.servo_us;
-            b->servo_changed[a.wheel]=1; b->servo_changed_ms[a.wheel]=now;
+            if(!a.servo_us || !b->servo_us[ch]) {
+                uint16_t first=a.servo_us?a.servo_reference_us:0;
+                if(!b->servo_write(ch,first)) {
+                    result=4; b->servo_error_mask|=(uint8_t)(1U<<ch);
+                    servo_motion_freeze(&b->servos[ch]);
+                }
+                else {
+                    b->servo_us[ch]=first; servo_motion_reference(&b->servos[ch],first,now);
+                    b->servo_error_mask&=(uint8_t)~(1U<<ch);
+                }
+            }
+            if(!result && a.servo_us) servo_motion_target(&b->servos[ch],a.servo_us,arrival);
         }
         acknowledge(b,result);
     } else if(a.kind==REMOTE_ACTION_PID) {
@@ -201,9 +254,18 @@ void remote_bridge_status(remote_bridge_t *b,uint8_t kind,uint8_t p[20])
             if(b->servo_us[i]) p[2]|=(uint8_t)(1U<<i);
             link_put_u16(p+8+2*i,b->servo_us[i]);
         }
-        p[3]=b->servo_write?(1U|(LINK_SERVO_POSITION_MASK<<1)):0;
+        p[3]=b->servo_write?(0x80U|1U|(LINK_SERVO_POSITION_MASK<<1)):0;
         link_put_u32(p+4,b->control.session);
         link_put_u16(p+14,1000); link_put_u16(p+16,2000); link_put_u16(p+18,25);
+    } else if(kind==6) {
+        for(i=0;i<LINK_SERVO_COUNT;i++) {
+            if(b->servos[i].moving) p[2]|=(uint8_t)(1U<<i);
+            link_put_u16(p+8+2*i,b->servos[i].target);
+        }
+        p[3]=b->servo_error_mask; link_put_u32(p+4,b->control.session);
+        link_put_u16(p+14,SERVO_MOTION_SPEED_US_S);
+        link_put_u16(p+16,SERVO_MOTION_ACCEL_US_S2);
+        link_put_u16(p+18,SERVO_MOTION_LEASE_MS);
     } else if(kind==4) { /* Legacy two-servo status retained for old host tools. */
         p[2]=(b->servo_us[0]?1:0)|(b->servo_us[1]?2:0);
         p[3]=b->servo_write?(1U|((LINK_SERVO_POSITION_MASK&3U)<<1)):0;

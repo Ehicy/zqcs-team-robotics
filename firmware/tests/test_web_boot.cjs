@@ -22,6 +22,8 @@ async function boot(name,entry){
  assert(document.getElementById('writePid').disabled);
  assert(document.getElementById('servoValue2'));assert(document.getElementById('doorOpenButton').disabled);
  assert.equal(document.querySelectorAll('input.servo-angle[type="range"]').length,3);
+ assert.equal(document.querySelectorAll('#servoSetupConfirmed,#doorConfirmed').length,0);
+ for(let i=0;i<3;i++)assert(document.getElementById('servoReference'+i));
  for(let i=0;i<3;i++)assert(document.getElementById('servoAngle'+i).disabled);
  assert.equal(document.getElementById('doorClosed').value,'1000');assert.equal(document.getElementById('doorOpen').value,'2000');
  assert.equal(document.querySelectorAll('[id$="_kp"],[id$="_ki"]').length,0);

@@ -125,6 +125,13 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
                                       get_u16(p+14) > LINK_SERVO_MAX_US(p[12]))))
             return stop_reject(s, a, REMOTE_REASON_INVALID);
         break;
+    case REMOTE_OPCODE_SERVO_TARGET:
+        if (p[12]>=LINK_SERVO_COUNT || p[13] || !all_zero(p,18U) ||
+            (get_u16(p+14) && (get_u16(p+14)<LINK_SERVO_MIN_US(p[12]) || get_u16(p+14)>LINK_SERVO_MAX_US(p[12]))) ||
+            (get_u16(p+16) && (get_u16(p+16)<LINK_SERVO_MIN_US(p[12]) || get_u16(p+16)>LINK_SERVO_MAX_US(p[12]))) ||
+            (!get_u16(p+14) && get_u16(p+16)))
+            return stop_reject(s,a,REMOTE_REASON_INVALID);
+        break;
     case REMOTE_OPCODE_LED:
         if (p[12] > 1U || !all_zero(p, 13U))
             return stop_reject(s, a, REMOTE_REASON_INVALID);
@@ -165,7 +172,8 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         return reject(s);
     }
     if (opcode == REMOTE_OPCODE_MECHANICAL || opcode == REMOTE_OPCODE_TUNING ||
-        opcode == REMOTE_OPCODE_CLEAR_FAULT || opcode == REMOTE_OPCODE_SERVO || opcode == REMOTE_OPCODE_PID) {
+        opcode == REMOTE_OPCODE_CLEAR_FAULT || opcode == REMOTE_OPCODE_SERVO || opcode == REMOTE_OPCODE_PID ||
+        opcode == REMOTE_OPCODE_SERVO_TARGET) {
         if (s->armed || s->active) return stop_reject(s, a, REMOTE_REASON_LOCKED);
     }
     if (opcode == REMOTE_OPCODE_ARM || opcode == REMOTE_OPCODE_DRIVE) {
@@ -188,8 +196,11 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         a->kind = REMOTE_ACTION_ARM;
         return 1;
     case REMOTE_OPCODE_SERVO:
+    case REMOTE_OPCODE_SERVO_TARGET:
         a->kind = REMOTE_ACTION_SERVO;
         a->wheel = p[12]; a->servo_us = get_u16(p+14);
+        a->flags=(uint8_t)(opcode==REMOTE_OPCODE_SERVO_TARGET);
+        a->servo_reference_us=a->flags?get_u16(p+16):0;
         return 1;
     case REMOTE_OPCODE_LED:
         a->kind = REMOTE_ACTION_LED;

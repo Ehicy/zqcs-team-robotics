@@ -24,7 +24,7 @@
 {"command":"clearFault"}
 {"command":"arm"}
 {"command":"drive","throttle":1000,"steer":0,"limitMmS":80,"durationMs":300}
-{"command":"servo","channel":0,"pulseUs":1500}
+{"command":"servo","channel":0,"pulseUs":1600,"referenceUs":1400}
 ```
 
 每行是单独请求；不要一次执行整段。响应为 `{ok,status}` 或 `{ok:false,error:{code,message},status}`。
@@ -36,13 +36,18 @@
 - arm/drive 还需单独勾选 **允许 Agent 解锁和短时运动**。所有写命令要求前台可见且有焦点。
 - configure 只读取四轮表单，要求四项实测确认均已由操作者核对，不接收远程注入配置，
   不自动勾选、不自动恢复确认。轮径/CPR等默认值不能替代实测。
-- configure、clearFault、arm、drive、servo 均要求不足200ms、四轮有效且目标/实测速全零的反馈；
+- configure、clearFault、arm、drive、servo非零目标均要求不足200ms、四轮有效且目标/实测速全零的反馈；
   原有 UART、会话、就绪、故障、ARM 和舵机固件门禁继续有效。
 - drive 不自动 ARM，速度上限1–100mm/s、时长50–1000ms；每次短测到期停止锁定。
   运动中拒绝续期/追加命令，stop/status 除外。手动操作、许可撤销、会话变化、断连、
   页面失焦和原有150ms调度中断保护均会终止，不自动续跑。STM32 TTL 仍是最终保护。
-- 舵机沿用独立的供电/共地/机构支撑确认，固件必须确认位置型；范围1300–1700μs，
-  首次1500μs、后续单步最多25μs。0表示释放输出，可能失去保持力；不是“轴已停稳”。
+- 舵机不再要求供电/端点确认复选框。通道0/1范围1300–1700μs，通道2为1000–2000μs。
+  PWM释放后的第一条非零目标必须包含 `referenceUs`（当前机构位置的指令参考），已启用时省略或传0。
+  不自动读取真实角度、不强制1500μs、不把上次断电前的值冒充现角度。起点不匹配仍可能跳动。
+- 页面内Agent和手动滑块共用最新目标任务，由ESP32以100μs/s、200μs/s²生成轨迹；网页约150ms续租，
+  500ms无新包冻结。一次任务最多15秒。ACK只表示目标已接受，`feedback.servo.pulses` 是当前PWM，
+  `feedback.servoMotion` 是目标/运行位/错误位，`servoJob` 是页面续租任务；均不代表实物到位。
+  返回成功后任务可继续，STOP可立即取消；0释放PWM，可能失去保持力。
 - 停止锁定、断连、会话改变、失焦和隐藏撤销许可，不保存至 localStorage。
 - 首次蓝牙授权仍使用页面连接按钮，不在 API 中绕过设备选择器。
 
@@ -58,4 +63,6 @@ node --test firmware/tests/test_dashboard_agent.mjs firmware/tests/test_web_dash
 
 PID版：configure 先发送统一 Kp/Ki/Kd，再逐轮机械/速度上限配置（共9个ACK）。往复测试在Dashboard运行，Agent不能与其争抢ARM/DRIVE；STOP始终可用。
 
-2026-10-18：servo通道0=GPIO12大臂、1=GPIO13小臂、2=GPIO14门。0/1仍为1300–1700μs，2为1000–2000μs；0释放、首启1500、每次最多25μs、固件100ms限频不变。角度滑块运行时接口不允许抢占，先STOP取消后再操作。
+2026-10-18 v4：三路信号仍为 GPIO12 / GPIO13 / GPIO14。移除舵机复选框及旧首次1500/单步25限制，
+由ESP32生成限速轨迹。Agent的通用写许可与底盘解锁许可仍有效。新网页非零目标只接受有缓启动能力的固件；
+旧固件仍可显式释放PWM。当前硬件仍是v3，v4已编译、待断开舵机电源后安装，未做带载验收。

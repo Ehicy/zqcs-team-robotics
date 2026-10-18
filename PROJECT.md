@@ -1,3 +1,6 @@
+> 2026-10-18 舵机v4跟进：移除舵机确认复选框，首次接管显式起点参考，ESP32限速/加速度生成PWM。
+> 编译及主机测试完成，尚未烧入；旧v3安装记录不等于v4已安装。见 docs/13-usb-loader-door-servo.md。
+
 # CRTC2026 双车机器人项目
 
 参赛队名：最强初生；公开仓库为 [Seroliya/zuiqiangchusheng](https://github.com/Seroliya/zuiqiangchusheng)，默认分支 `main`。参赛文档统一从根目录 [docs/README.md](docs/README.md) 阅读；功能历程、迭代记录、学习笔记摘编和开源说明与工程入口分开维护。
