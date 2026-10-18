@@ -218,7 +218,7 @@ static void plant_step(plant_t *p, const int16_t target[4])
     }
     assert(speed_control_update(&p->controller,p->now,p->counts,15,target,1,p->now,200));
     assert(!p->controller.fault);
-    for(i=0;i<4;i++) assert(absolute(p->controller.pwm_permille[i])<=250);
+    for(i=0;i<4;i++) assert(absolute(p->controller.pwm_permille[i])<=SPEED_PWM_LIMIT);
 }
 static void plant_run(plant_t *p, const int16_t target[4], unsigned steps)
 { unsigned i; for(i=0;i<steps;i++) plant_step(p,target); }
@@ -245,9 +245,9 @@ static void test_plant_saturation_recovery(void)
     for(i=0;i<4;i++) saturated_integral[i]=p.controller.integral_micro[i];
     plant_run(&p,fast,600);
     for(i=0;i<4;i++) {
-        assert(absolute(p.controller.pwm_permille[i])>=240);
+        assert(absolute(p.controller.pwm_permille[i])>=SPEED_PWM_LIMIT-10);
         assert(p.controller.integral_micro[i]==saturated_integral[i]);
-        assert(llabs(p.controller.integral_micro[i])<250000000LL);
+        assert(llabs(p.controller.integral_micro[i])<(int64_t)SPEED_PWM_LIMIT*1000000LL);
     }
     p.gain=1.2;
     plant_run(&p,slow,600); near_velocity(&p,80,8);

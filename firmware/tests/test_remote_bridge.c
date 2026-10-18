@@ -142,6 +142,81 @@ static void test_watchdog_fault_diagnostics(void)
     assert(bridge.control.drive_ready && !bridge.control.armed);
     puts("PASS watchdog fault telemetry keeps UART/LED alive, rejects ARM and never auto-resumes");
 }
+static unsigned servo_writes;
+static int servo_hardware_ok=1;
+static int fake_servo_write(uint8_t channel,uint16_t pulse)
+{ assert(channel<2); assert(!pulse || (pulse>=1300 && pulse<=1700)); servo_writes++; return servo_hardware_ok; }
+static void servo_standstill(void)
+{
+    unsigned i; client.remote_flags|=LINK_FLAG_OUTPUT_INHIBITED;
+    client.remote_speed_valid_mask=15; client.remote_speed_rx_ms=now;
+    client.input_enable=0;
+    for(i=0;i<4;i++) client.remote_speed_measured[i]=client.remote_speed_targets[i]=0;
+}
+static unsigned servo_command(uint8_t channel,uint16_t pulse)
+{
+    uint8_t p[20],ack[20]; uint32_t session=bridge.control.session;
+    packet(p,REMOTE_OPCODE_SERVO); p[12]=channel; link_put_u16(p+14,pulse);
+    assert(remote_bridge_receive(&bridge,p,20,now,now));
+    remote_bridge_status(&bridge,4,ack);
+    assert(ack[1]==3 && ack[2]==254 && link_get_u32(ack+4)==session && link_get_u32(ack+8)==seq);
+    return ack[3];
+}
+static void test_servos(void)
+{
+    uint8_t p[20],status[20]; unsigned before;
+    initialize(); servo_writes=0; servo_hardware_ok=1;
+    bridge.servo_write=fake_servo_write; servo_standstill();
+    assert(servo_command(0,1600)==2 && !servo_writes); /* no initial jump */
+    assert(servo_command(0,1500)==0 && bridge.servo_us[0]==1500);
+    assert(servo_command(0,1510)==2); /* 100ms firmware rate gate */
+    cycle(100); servo_standstill();
+    assert(servo_command(0,1525)==0);
+    assert(servo_command(1,1500)==0); /* independent channels */
+    remote_bridge_status(&bridge,4,status);
+    assert(status[1]==4 && status[2]==3 && status[3]==7);
+    assert(link_get_u16(status+8)==1525 && link_get_u16(status+10)==1500);
+    cycle(100); servo_standstill();
+    assert(servo_command(0,1600)==2); /* maximum step */
+    client.remote_speed_measured[3]=1;
+    assert(servo_command(0,1550)==1); servo_standstill();
+    client.remote_speed_targets[2]=1;
+    assert(servo_command(0,1550)==1); servo_standstill();
+    client.remote_speed_valid_mask=7;
+    assert(servo_command(0,1550)==1); servo_standstill();
+    client.remote_speed_rx_ms=now-200;
+    assert(servo_command(0,1550)==1); servo_standstill();
+    before=servo_writes;
+    packet(p,REMOTE_OPCODE_SERVO); p[12]=0; link_put_u16(p+14,1550);
+    assert(remote_bridge_receive(&bridge,p,20,now,now));
+    remote_bridge_status(&bridge,4,status);
+    assert(!remote_bridge_receive(&bridge,p,20,now,now) && servo_writes==before+1); /* replay */
+    remote_bridge_stop(&bridge,REMOTE_REASON_STOP,now);
+    assert(bridge.servo_us[0]==1550 && bridge.servo_us[1]==1500); /* no release/drop */
+    assert(!remote_bridge_receive(&bridge,p,20,now,now)); /* stale session */
+    cycle(350); servo_standstill();
+    before=servo_writes;
+    packet(p,REMOTE_OPCODE_SERVO); link_put_u16(p+14,1575);
+    assert(!remote_bridge_receive(&bridge,p,20,now-200,now) && before==servo_writes);
+    cycle(350); servo_standstill();
+    packet(p,REMOTE_OPCODE_SERVO); link_put_u16(p+14,2000);
+    assert(!remote_bridge_receive(&bridge,p,20,now,now) && before==servo_writes);
+    cycle(350); servo_standstill();
+    packet(p,REMOTE_OPCODE_ARM); assert(remote_bridge_receive(&bridge,p,20,now,now));
+    packet(p,REMOTE_OPCODE_SERVO); link_put_u16(p+14,1575);
+    assert(!remote_bridge_receive(&bridge,p,20,now,now) && before==servo_writes && !bridge.control.armed);
+    cycle(350); servo_standstill();
+    servo_hardware_ok=0;
+    assert(servo_command(0,1575)==4 && bridge.servo_us[0]==1550);
+    servo_hardware_ok=1;
+    assert(servo_command(0,0)==0 && bridge.servo_us[0]==0);
+    remote_bridge_stop(&bridge,REMOTE_REASON_LINK,now);
+    cycle(350); servo_standstill();
+    assert(bridge.servo_us[0]==0 && bridge.servo_us[1]==1500);
+    assert(servo_command(0,1525)==2); /* released channel must be explicitly enabled */
+    puts("PASS servo ACK, two channels, replay/session/age, startup and step bounds, rate, physical standstill, STOP hold, release and HAL error");
+}
+
 int main(void)
 {
     actuation_guard_t g={0};
@@ -159,5 +234,5 @@ int main(void)
     assert(actuation_guard_allows(&g,LINK_CONTROL,34));
     puts("PASS physical output mode guard across STOP, new session and clock wrap");
     test_config_ack(); test_drive_stop_lease(); test_fault_and_telemetry();
-    test_watchdog_fault_diagnostics(); return 0;
+    test_watchdog_fault_diagnostics(); test_servos(); return 0;
 }

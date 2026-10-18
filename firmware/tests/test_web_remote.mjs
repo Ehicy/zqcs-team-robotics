@@ -242,3 +242,44 @@ test('clear fault uses wheel 255 ACK and never arms; sequence wraps safely', asy
   f.controller.ingest(ack({ sequence: item.sequence, wheel: 255 }), f.generation); await clearing;
   assert.equal(f.controller.state.armed, false);
 });
+
+function servoStatus({ session=71, pulses=[0,0], available=true }={}) {
+  const b=packet(4), v=new DataView(b.buffer);
+  b[2]=Number(!!pulses[0]) | Number(!!pulses[1])*2; b[3]=available ? 7 : 0;
+  v.setUint32(4,session,true); pulses.forEach((p,i)=>v.setUint16(8+2*i,p,true));
+  [1300,1700,25,100].forEach((p,i)=>v.setUint16(12+2*i,p,true));
+  return decodeStatus(b);
+}
+test('servo codec bounds and capability telemetry', () => {
+  const b=encodeCommand(OP.SERVO,{...header,channel:1,pulseUs:1500});
+  assert.equal(b[12],1); assert.equal(new DataView(b.buffer).getUint16(14,true),1500);
+  assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:2,pulseUs:1500}));
+  for(const p of [NaN,1299,1701,-1,1500.5]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:0,pulseUs:p}));
+  assert.deepEqual(servoStatus({pulses:[1500,1550]}).pulses,[1500,1550]);
+});
+test('servo cannot write old firmware, stale status, wrong session or armed chassis', async () => {
+  const f=fixture(), c=f.controller;
+  await assert.rejects(c.servo(0,1500));
+  assert.equal(c.ingest(servoStatus({session:99}),f.generation),false);
+  c.ingest(servoStatus(),f.generation); assert.ok(c.servoAvailable(0));
+  await assert.rejects(c.servo(0,1600));
+  c.state.armed=true; await assert.rejects(c.servo(0,1500)); c.state.armed=false;
+  f.advance(501); await assert.rejects(c.servo(0,1500));
+  assert.equal(f.writes.length,0);
+});
+test('servo waits for matching ACK, respects STOP cancellation and never auto-enables', async () => {
+  const f=fixture(), c=f.controller;
+  c.ingest(servoStatus(),f.generation);
+  const task=c.servo(0,1500); await flush();
+  assert.equal(c.state.configBusy,true);
+  const sent=info(f.writes.at(-1));
+  c.ingest(ack({sequence:sent.sequence,wheel:254}),f.generation);
+  await task; assert.equal(c.servoStatus.pulses[0],1500);
+  await assert.rejects(c.servo(0,1550));
+  const pending=c.servo(0,1510); const rejected=assert.rejects(pending);
+  await flush(); await c.stop(); await rejected;
+  assert.equal(info(f.writes.at(-1)).op,OP.STOP);
+  c.ingest(main({session:72}),f.generation);
+  assert.equal(c.servoStatus,null); assert.equal(c.servoAvailable(0),false);
+  c.disconnect(); assert.equal(c.servoStatus,null);
+});

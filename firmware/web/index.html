@@ -7,6 +7,7 @@
   <title>下层车遥控 · 最强初生</title>
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.js"></script>
+<link rel="stylesheet" href="servo-panel.css?v=1">
 </head>
 <body>
 <main class="shell">
@@ -51,6 +52,8 @@
     <div class="utility-buttons"><button id="ledOnButton" class="button secondary" disabled>板载灯亮</button><button id="ledOffButton" class="button secondary" disabled>板载灯灭</button><button id="clearFaultButton" class="button secondary" disabled>清除故障</button></div>
   </section>
 
+  <section id="servoPanel" class="card servo-panel" aria-label="机械臂舵机控制"></section>
+
   <details class="card calibration" id="calibrationPanel">
     <summary><span><strong>四轮校准</strong><small>实测后确认 · 写入仅保存在 RAM</small></span><span class="chevron">⌄</span></summary>
     <p class="notice">初值按编码器 <strong>13PPR 为单相周期、减速比 34:1</strong> 假设：前三轮 4 倍计数为 1768，M4 双沿 2 倍计数为 884。轮径 65mm、PI 参数均是待验证初值，不能直接视为实测标定。</p>
@@ -60,7 +63,7 @@
     </form>
     <p class="hint">逐包等待 STM32 确认，失败立即中止后续配置。保持车轮静止；重启 STM32 后需重新写入。记住表单不会自动下发、解锁或行驶；重新打开页面时“实测确认”会清除。</p>
   </details>
-  <section class="card help"><h2>使用边界</h2><p>请使用 Android Chrome，并通过 HTTPS 打开本页。普通手机局域网 HTTP 地址无法使用 Web Bluetooth；localhost 仅指当前设备本机。</p><p>离开页面、锁屏、失联或页面调度停顿后都会锁定。重新连接必须再次手动解锁。软件停止不代替整车物理断电；车体停止距离需实测。</p><p>本页为底盘手动调试面板；四目标自动导航和舵机动作尚未接入。</p></section>
+  <section class="card help"><h2>使用边界</h2><p>请使用 Android Chrome，并通过 HTTPS 打开本页。普通手机局域网 HTTP 地址无法使用 Web Bluetooth；localhost 仅指当前设备本机。</p><p>离开页面、锁屏、失联或页面调度停顿后都会锁定。重新连接必须再次手动解锁。软件停止不代替整车物理断电；车体停止距离需实测。</p><p>本页为底盘手动调试面板；四目标自动导航尚未接入；舵机调节需配套新版固件。</p></section>
   <footer>CRTC-Lower-Car · BLE v1 <span id="sessionText">会话 —</span></footer>
 </main>
 <div class="stop-dock"><button id="stopButton" class="stop-button"><span>■</span><strong>停止并锁定</strong><small>STOP</small></button></div>

@@ -118,6 +118,11 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
             ttl > REMOTE_CONTROL_MAX_TTL_MS)
             return stop_reject(s, a, REMOTE_REASON_INVALID);
         break;
+    case REMOTE_OPCODE_SERVO:
+        if (p[12] > 1U || p[13] != 0U || !all_zero(p, 16U) ||
+            (get_u16(p+14) != 0U && (get_u16(p+14) < 1300U || get_u16(p+14) > 1700U)))
+            return stop_reject(s, a, REMOTE_REASON_INVALID);
+        break;
     case REMOTE_OPCODE_LED:
         if (p[12] > 1U || !all_zero(p, 13U))
             return stop_reject(s, a, REMOTE_REASON_INVALID);
@@ -153,7 +158,7 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         return reject(s);
     }
     if (opcode == REMOTE_OPCODE_MECHANICAL || opcode == REMOTE_OPCODE_TUNING ||
-        opcode == REMOTE_OPCODE_CLEAR_FAULT) {
+        opcode == REMOTE_OPCODE_CLEAR_FAULT || opcode == REMOTE_OPCODE_SERVO) {
         if (s->armed || s->active) return stop_reject(s, a, REMOTE_REASON_LOCKED);
     }
     if (opcode == REMOTE_OPCODE_ARM || opcode == REMOTE_OPCODE_DRIVE) {
@@ -174,6 +179,10 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         s->armed = 1;
         s->reason = REMOTE_REASON_READY;
         a->kind = REMOTE_ACTION_ARM;
+        return 1;
+    case REMOTE_OPCODE_SERVO:
+        a->kind = REMOTE_ACTION_SERVO;
+        a->wheel = p[12]; a->servo_us = get_u16(p+14);
         return 1;
     case REMOTE_OPCODE_LED:
         a->kind = REMOTE_ACTION_LED;

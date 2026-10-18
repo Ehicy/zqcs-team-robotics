@@ -22,6 +22,7 @@
 #define LINK_HELLO_PERIOD_MS       100U
 #define LINK_TARGET_LIMIT_MM_S    1000
 #define LINK_PWM_LIMIT_PERMILLE    250 /* first open-loop bench firmware: 25% */
+#define LINK_SPEED_PWM_LIMIT_PERMILLE 500 /* closed-loop ceiling: 50%; verify on suspended wheels */
 #define LINK_ACTUATION_ENABLED       0 /* legacy board-link target invariant;
                                        use the separate lower-motor target for PWM */
 /* Resource reservation for the confirmed two TB6612 boards and four MG370s.
@@ -40,8 +41,9 @@
 #define LINK_STM_MOTOR_IN2_PINS     {1,4,12,14} /* all GPIOB */
 #define LINK_ENCODER_SAMPLE_MAX_AGE_MS 200U
 #define LINK_ENCODER_PERIOD_MS     100U
-#define LINK_ESP_ARM_SERVO_GPIO       7 /* reserved DS3128 arm signal, not initialized; GPIO4 is UART TX */
-#define LINK_ESP_FOREARM_SERVO_GPIO   5 /* reserved MG995 forearm signal, not initialized */
+#define LINK_ESP_ARM_SERVO_GPIO      12 /* DS3128 arm, ESP32 LEDC */
+#define LINK_ESP_FOREARM_SERVO_GPIO  13 /* MG995 forearm, ESP32 LEDC */
+#define LINK_SERVO_POSITION_MASK     3U /* MG995 180deg and DS3128 360deg POSITION types confirmed */
 #if LINK_ACTUATION_ENABLED != 0
 #error Do not enable board-link this way: build the separate lower-motor target
 #endif

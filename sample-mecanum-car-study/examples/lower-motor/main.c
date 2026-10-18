@@ -6,8 +6,11 @@
 #include "actuation_guard.h"
 #include "motor_hal.h"
 
-#if LINK_PWM_LIMIT_PERMILLE != MOTOR_MAX_PERMILLE || LINK_PWM_LIMIT_PERMILLE != LOWER_MOTOR_PWM_LIMIT
-#error PWM limits must agree across protocol, control and hardware
+#if LINK_PWM_LIMIT_PERMILLE != MOTOR_MAX_PERMILLE
+#error Open-loop PWM protocol and controller limits must agree
+#endif
+#if SPEED_PWM_LIMIT != LOWER_MOTOR_PWM_LIMIT || MOTOR_MAX_PERMILLE > LOWER_MOTOR_PWM_LIMIT
+#error Hardware must support both controllers and match the speed PWM ceiling
 #endif
 
 #if LINK_STM_UART != 2 || LINK_STM_TX_PIN != 2 || LINK_STM_RX_PIN != 3
@@ -22,6 +25,7 @@ static speed_control_t speeds;
 static actuation_guard_t actuation_guard; /* Retained across STOP/new session. */
 static uint8_t watchdog_fault_seen;
 volatile uint32_t board_link_tx_frames, board_link_transport_errors;
+volatile uint32_t board_link_reset_cause;
 volatile uint8_t board_link_led_pin_high;
 volatile uint8_t board_link_outputs_inhibited=1;
 
@@ -118,7 +122,9 @@ int main(void)
     uint8_t wire[LINK_WIRE_MAX];
     int32_t initial_counts[4];
     uint32_t now, seed;
-    lower_motor_init(); led_init(); delay_init();
+    board_link_reset_cause=RCC->CSR;
+    RCC->CSR|=RCC_CSR_RMVF; /* Retain this boot's cause in RAM; clear sticky flags. */
+    lower_motor_init(); led_init(); delay_init(); lower_encoder_start();
     /* UID + cycle timing is a generation seed, NOT cryptographic entropy.
      * HELLO also mixes in the ESP's boot id. No flash is written. */
     seed=*(const uint32_t *)0x1ffff7e8UL ^ *(const uint32_t *)0xe0001004UL;

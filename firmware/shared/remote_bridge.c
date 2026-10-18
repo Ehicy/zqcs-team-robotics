@@ -88,6 +88,33 @@ int remote_bridge_receive(remote_bridge_t *b,const uint8_t *p,size_t size,uint32
         link_node_cancel_input(n);
     } else if(a.kind==REMOTE_ACTION_LED) {
         (void)link_node_request_led(n,a.led_on,now);
+    } else if(a.kind==REMOTE_ACTION_SERVO) {
+        unsigned i; uint8_t result=0;
+        if(b->config_pending || b->ack_pending) {
+            remote_bridge_stop(b,REMOTE_REASON_QUEUE,now); return 0;
+        }
+        b->config_wheel=254; b->config_session=b->control.session;
+        b->config_source_sequence=a.source_sequence;
+        /* Release is possible even with a chassis fault; setting a pulse
+         * requires fresh, zero, valid feedback from every wheel. */
+        if(!b->servo_write) result=4;
+        if(a.servo_us) {
+            if(!(LINK_SERVO_POSITION_MASK & (1U<<a.wheel))) result=5;
+            int delta=(int)a.servo_us-(int)b->servo_us[a.wheel];
+            if(n->remote_speed_fault || n->remote_speed_valid_mask!=15 ||
+               (uint32_t)(now-n->remote_speed_rx_ms)>=200U || n->input_enable ||
+               !(n->remote_flags&LINK_FLAG_OUTPUT_INHIBITED)) result=1;
+            for(i=0;i<4;i++) if(n->remote_speed_measured[i] || n->remote_speed_targets[i]) result=1;
+            if((!b->servo_us[a.wheel] && a.servo_us!=1500U) ||
+               (b->servo_us[a.wheel] && (delta>25 || delta< -25))) result=2;
+            if(b->servo_changed[a.wheel] && (uint32_t)(now-b->servo_changed_ms[a.wheel])<100U) result=2;
+        }
+        if(!result && !b->servo_write(a.wheel,a.servo_us)) result=4;
+        if(!result) {
+            b->servo_us[a.wheel]=a.servo_us;
+            b->servo_changed[a.wheel]=1; b->servo_changed_ms[a.wheel]=now;
+        }
+        acknowledge(b,result);
     } else if(a.kind>=REMOTE_ACTION_MECHANICAL && a.kind<=REMOTE_ACTION_CLEAR_FAULT) {
         if(b->config_pending || b->ack_pending) {
             remote_bridge_stop(b,REMOTE_REASON_QUEUE,now); return 0;
@@ -115,7 +142,14 @@ void remote_bridge_status(remote_bridge_t *b,uint8_t kind,uint8_t p[20])
     link_node_t *n=b->link; unsigned i;
     if(b->ack_pending) { memcpy(p,b->ack,20); b->ack_pending=0; return; }
     memset(p,0,20); p[0]=1; p[1]=kind;
-    if(kind==1) {
+    if(kind==4) {
+        p[2]=(b->servo_us[0]?1:0)|(b->servo_us[1]?2:0);
+        p[3]=b->servo_write?(1U|(LINK_SERVO_POSITION_MASK<<1)):0;
+        link_put_u32(p+4,b->control.session);
+        link_put_u16(p+8,b->servo_us[0]); link_put_u16(p+10,b->servo_us[1]);
+        link_put_u16(p+12,1300); link_put_u16(p+14,1700);
+        link_put_u16(p+16,25); link_put_u16(p+18,100);
+    } else if(kind==1) {
         p[2]=n->remote_encoder_valid_mask;
         for(i=0;i<4;i++) link_put_u32(p+4+4*i,(uint32_t)n->remote_encoder_counts[i]);
     } else if(kind==2) {

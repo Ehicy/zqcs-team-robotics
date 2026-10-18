@@ -124,9 +124,12 @@ void delay_us(uint16_t us)
 void delay_ms(uint16_t ms)
 {
     uint32_t start = delay_millis();
-    /* Main context with interrupts enabled only. Deliberately does not feed
-     * either watchdog; a blocking operation must not sustain motor output. */
-    while ((uint32_t)(delay_millis() - start) < (uint32_t)ms) __WFI();
+    /* Main context with interrupts enabled only. M4 timestamps/IRQ budgets
+     * use DWT core cycles: keep the core clock running during this wait rather
+     * than depending on debug-dependent sleep clock gating. This intentionally
+     * spends idle CPU power. A future sleep path needs a peripheral timebase.
+     * Do not feed either watchdog here: a blocked owner must still stop. */
+    while ((uint32_t)(delay_millis() - start) < (uint32_t)ms) __NOP();
 }
 
 void lower_motor_watchdog_feed(void)

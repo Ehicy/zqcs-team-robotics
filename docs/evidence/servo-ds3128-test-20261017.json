@@ -1,0 +1,86 @@
+{
+  "channel": 0,
+  "gpio": 12,
+  "model": "DS3128",
+  "motion_writes": 3,
+  "events": [
+    {
+      "t": 123266.312,
+      "kind": "write",
+      "op": 3,
+      "pulse_us": 0,
+      "sequence": 1
+    },
+    {
+      "t": 123267.625,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 1500,
+      "sequence": 2
+    },
+    {
+      "t": 123267.796,
+      "kind": "confirmed",
+      "pulse_us": 1500
+    },
+    {
+      "t": 123268.515,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 1525,
+      "sequence": 3
+    },
+    {
+      "t": 123268.656,
+      "kind": "confirmed",
+      "pulse_us": 1525
+    },
+    {
+      "t": 123269.656,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 1500,
+      "sequence": 4
+    },
+    {
+      "t": 123269.89,
+      "kind": "confirmed",
+      "pulse_us": 1500
+    },
+    {
+      "t": 123270.593,
+      "kind": "write",
+      "op": 8,
+      "pulse_us": 0,
+      "sequence": 5
+    },
+    {
+      "t": 123270.765,
+      "kind": "confirmed",
+      "pulse_us": 0
+    },
+    {
+      "t": 123270.765,
+      "kind": "write",
+      "op": 3,
+      "pulse_us": 0,
+      "sequence": 6
+    },
+    {
+      "t": 123270.859,
+      "kind": "complete",
+      "visual_confirmation_required": true
+    }
+  ],
+  "release_confirmed": true,
+  "date": "2026-10-17",
+  "firmware": "crtc-lower-servo-v1",
+  "firmware_sha256": "257f1f82644fd266a0548635518e44e5371f5d0fba05167b66b5a6cf75a706c0",
+  "flash_port": "COM4",
+  "flash_upload_hash_verified": true,
+  "independent_readback_performed": false,
+  "usb_info_version_verified": true,
+  "visual_confirmation": "User observed DS3128 rotate and return to the previous position",
+  "stm32_flashed": false,
+  "acceptance_scope": "Small pulse excursion only; full range, angle accuracy, mechanical limits and loaded operation unverified"
+}

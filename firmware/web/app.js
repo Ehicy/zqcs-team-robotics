@@ -1,3 +1,4 @@
+import { installServoPanel } from './servo-panel.js';
 import { UUID, WHEELS, DEFAULT_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js';
 
 const $ = id => document.getElementById(id);
@@ -243,3 +244,5 @@ if (!window.isSecureContext) {
   warning.textContent = '此浏览器没有 Web Bluetooth。请在支持蓝牙的 Android Chrome 中打开 HTTPS 页面，并开启系统蓝牙。'; warning.hidden = false;
 } else supported = true;
 render();
+
+installServoPanel(controller);

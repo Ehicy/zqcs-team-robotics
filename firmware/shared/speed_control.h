@@ -1,6 +1,7 @@
 #ifndef CRTC_SPEED_CONTROL_H
 #define CRTC_SPEED_CONTROL_H
 #include <stdint.h>
+#include "board_link_config.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -9,7 +10,7 @@ extern "C" {
 #define SPEED_SAMPLE_MS 10U
 #define SPEED_MAX_UPDATE_GAP_MS 50U
 #define SPEED_MAX_TTL_MS 200U
-#define SPEED_PWM_LIMIT 250
+#define SPEED_PWM_LIMIT LINK_SPEED_PWM_LIMIT_PERMILLE
 #define SPEED_REVERSE_HOLD_MS 50U
 #define SPEED_STALL_MS 500U
 #define SPEED_DIRECTION_MS 100U
@@ -44,6 +45,11 @@ typedef struct {
     int8_t last_direction[SPEED_WHEELS];
     uint8_t tracking_stall[SPEED_WHEELS], tracking_direction[SPEED_WHEELS];
     uint8_t feedback_valid_mask;
+    /* First encoder fault snapshot for diagnosis; STOP does not overwrite it.
+     * Raw signed deltas precede encoder_sign, so physical wiring stays visible. */
+    uint8_t fault_encoder_mask;
+    uint32_t fault_sample_ms, fault_sample_dt;
+    int32_t fault_raw_delta[SPEED_WHEELS];
 } speed_control_t;
 
 /* Defaults are provisional, NOT physical calibration: 13 single-channel
@@ -66,7 +72,7 @@ int speed_control_clear_fault(speed_control_t *state);
 /* Single owner. Update continuously, including while disabled/faulted. The
  * 10ms sample uses actual elapsed time, modular 32-bit encoder deltas, and the
  * ORIGINAL command_ms/TTL. Zero, disabled, expired or invalid requests coast.
- * No floating point. The PI clamps to +/-250 and cannot reverse PWM against
+ * No floating point. The PI clamps to +/-SPEED_PWM_LIMIT and cannot reverse PWM against
  * its ramped target; reversal first ramps to zero then coasts for 50ms.
  * The output already includes motor_sign and goes directly to the HAL; do NOT
  * apply a second motor_control slew limiter. All four configs must be confirmed.
