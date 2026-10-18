@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-18",
+  "baseline_branch": "main",
+  "baseline_commit": "d0bde24",
+  "source_state": "local uncommitted changes",
+  "firmware": "crtc-lower-pid-servo3-v3",
+  "hardware_flashed": false,
+  "motor_or_servo_test_executed": false,
+  "coefficients": {
+    "kp_milli": 1000,
+    "ki_milli": 2000,
+    "kd_milli": 0,
+    "source": "ESP32 RAM defaults, asynchronous ACK to STM32",
+    "persistent_flash_settings": false
+  },
+  "architecture": {
+    "pid": "four independent histories in STM32, common 10ms cadence",
+    "shuttle": "Dashboard only; ESP32 normal bridge/telemetry",
+    "shared_chassis_states": [
+      "WAIT_LINK",
+      "WAIT_PID",
+      "WAIT_CALIBRATION",
+      "LOCKED",
+      "ARMED",
+      "RUNNING",
+      "FAULT"
+    ]
+  },
+  "limits": {
+    "command_mm_s": 1000,
+    "closed_loop_pwm_percent": 100,
+    "open_loop_pwm_percent": 25
+  },
+  "load_validation": {
+    "source": "user explicitly reported verified driver/battery/boost load capacity",
+    "agent_repeated_physical_validation": false
+  },
+  "tests": {
+    "web_logic_passed": 72,
+    "offline_dom_entrypoints_passed": 2,
+    "host_suites_passed": [
+      "pid",
+      "speed",
+      "remote",
+      "bridge",
+      "protocol",
+      "motor",
+      "encoder",
+      "upper-car regression"
+    ],
+    "UBSan_passed": false,
+    "UBSan_reason": "host linker cannot find -lubsan; final host runs explicitly SANITIZE=0",
+    "hardware_qualification": false
+  },
+  "artifacts": {
+    "output/pid-20261018/esp32/bootloader.bin": {
+      "bytes": 15104
+    },
+    "output/pid-20261018/esp32/firmware.bin": {
+      "bytes": 937536
+    },
+    "output/pid-20261018/esp32/firmware.elf": {
+      "bytes": 19296680
+    },
+    "output/pid-20261018/esp32/partitions.bin": {
+      "bytes": 3072
+    },
+    "output/pid-20261018/stm32/lower-motor.bin": {
+      "bytes": 14656
+    },
+    "output/pid-20261018/stm32/lower-motor.elf": {
+      "bytes": 576736
+    },
+    "output/pid-20261018/stm32/lower-motor.hex": {
+      "bytes": 41297
+    }
+  },
+  "updated_by": "USB + third servo + sliders on2026-10-18",
+  "installation_evidence": "docs/evidence/usb-servo3-20261018.json"
+}

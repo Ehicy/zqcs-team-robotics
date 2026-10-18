@@ -1,7 +1,9 @@
+import { installPidPanel } from './pid-panel.js';
 import { installServoPanel } from './servo-panel.js';
 import { UUID, WHEELS, DEFAULT_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js';
 
 const $ = id => document.getElementById(id);
+let pidPanel = null;
 const directionButtons = [...document.querySelectorAll('.direction')];
 const storageKey = 'crtc-lower-car-calibration-v2-rf-lf-rr-lr';
 let connection = null, connecting = false, attempt = 0, heldPointer = null, heldButton = null, heldKey = null;
@@ -59,6 +61,7 @@ function render(state = controller.state) {
   $('rememberButton').disabled = state.configBusy;
   $('resetFormButton').disabled = state.configBusy;
   $('sessionText').textContent = state.session ? `会话 ${state.session.toString(16).padStart(8, '0')}` : '会话 —';
+  pidPanel?.render();
   renderTelemetry();
 }
 function renderTelemetry() {
@@ -141,17 +144,18 @@ function readCalibration() {
     return validateCalibration({ wheel,
       motorNegative: field('motor').value === '-1', encoderNegative: field('encoder').value === '-1',
       confirmed: field('confirmed').checked, diameterTenthMm: Math.round(diameter * 10),
-      countsPerRev: Number(field('cpr').value), kpMilli: Number(field('kp').value),
-      kiMilli: Number(field('ki').value), maxMmS: Number(field('max').value),
+      countsPerRev: Number(field('cpr').value), ...pidPanel.read(),
+       maxMmS: Number(field('max').value),
     });
   });
 }
 function setCalibration(values) {
+  pidPanel.set(values[0]);
   WHEELS.forEach((_, wheel) => {
     const value = values[wheel], field = name => $(`wheel${wheel}_${name}`);
     field('diameter').value = value.diameterTenthMm / 10; field('cpr').value = value.countsPerRev;
     field('motor').value = value.motorNegative ? '-1' : '1'; field('encoder').value = value.encoderNegative ? '-1' : '1';
-    field('confirmed').checked = value.confirmed; field('kp').value = value.kpMilli; field('ki').value = value.kiMilli; field('max').value = value.maxMmS;
+    field('confirmed').checked = value.confirmed; field('max').value = value.maxMmS;
   });
 }
 function buildCalibration() {
@@ -160,9 +164,9 @@ function buildCalibration() {
     <label for="wheel${i}_cpr">每轮每圈计数<input id="wheel${i}_cpr" type="number" min="1" max="1000000" step="1" required inputmode="numeric"></label>
     <label for="wheel${i}_motor">电机方向<select id="wheel${i}_motor"><option value="1">+ 正向</option><option value="-1">− 反向</option></select></label>
     <label for="wheel${i}_encoder">编码器方向<select id="wheel${i}_encoder"><option value="1">+ 正向</option><option value="-1">− 反向</option></select></label>
-    <label for="wheel${i}_kp">Kp_milli<input id="wheel${i}_kp" type="number" min="0" max="20000" step="1" required inputmode="numeric"></label>
-    <label for="wheel${i}_ki">Ki_milli<input id="wheel${i}_ki" type="number" min="0" max="20000" step="1" required inputmode="numeric"></label>
-    <label for="wheel${i}_max">最大轮速 mm/s<input id="wheel${i}_max" type="number" min="1" max="300" step="1" required inputmode="numeric"></label>
+
+
+    <label for="wheel${i}_max">最大轮速 mm/s<input id="wheel${i}_max" type="number" min="1" max="1000" step="1" required inputmode="numeric"></label>
     </div><label class="confirmation"><input id="wheel${i}_confirmed" type="checkbox"><span>我已实测核对本轮的方向、每圈计数和轮径</span></label></fieldset>`).join('');
   let values = DEFAULT_CALIBRATION.map(value => ({ ...value }));
   try {
@@ -176,6 +180,7 @@ function buildCalibration() {
 }
 
 $('telemetryRows').innerHTML = WHEELS.map((name, i) => `<tr><td>${name}</td><td id="count${i}">—</td><td id="wheelSpeed${i}">— / —</td></tr>`).join('');
+pidPanel = installPidPanel({ root: $('pidPanel'), controller, error: showError, log: typeof log === 'function' ? log : () => {} });
 buildCalibration();
 
 $('connectButton').addEventListener('click', () => safely(connect()));

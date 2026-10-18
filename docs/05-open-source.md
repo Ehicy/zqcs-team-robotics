@@ -37,3 +37,9 @@ ESP32 配置位于 [platformio.ini](../firmware/esp32/platformio.ini)：`espress
 ## 团队桌面 BLE 面板贡献
 
 桌面 `dashboard.html/css/js`、`dashboard-input.js` 及对应 Node 测试从协作者 Ehicy 的 [PR #6](https://github.com/Seroliya/zuiqiangchusheng/pull/6)（`97b631d76df932e2efe4dae2a7919c5fbb6dec17`）接入后继续适配。当前版本修正实测轮位和左右混控，新增里程计地图、场地图叠加及双舵机面板，共用现行 BLE 协议。PR 中的旧实板问题报告、旧接线工具与当时的浏览器测试保留在该 PR 历史中，不作为当前固件或接线依据。PR #6 由整合 PR #7 取代，不重复合入旧版面板。
+
+## 2026-10-18 USB loader 与离线页面测试依赖
+
+USB底层来自 [STM32duino-bootloader](https://github.com/rogerclarkmelbourne/STM32duino-bootloader/tree/df689808b6030280480c0d151ee9c552ecf6b405)，固定提交`df689808b6030280480c0d151ee9c552ecf6b405`。LeafLabs MIT与ST库原文件声明完整保留，复制范围及修改文件列于`firmware/stm32-usb-bootloader/UPSTREAM.json`。本项目重写下载状态机与更新校验核，增加Flash/USB边界、PB15禁用、向量最后提交、WinUSB兼容描述符和偏移构建；不使用上游演示APP组合BIN。USB下载器为外部dfu-util0.11，未将其可执行文件或驱动打包入仓库。
+
+仓库根`package-lock.json`固定离线测试依赖linkedom0.18.13与@resvg/resvg-js2.6.2，仅用于DOM测试及SVG预览，非机器人固件依赖。`node_modules`和编译`.o`中间产物不提交；对应上游许可由npm包自带文件及锁文件记录保留。

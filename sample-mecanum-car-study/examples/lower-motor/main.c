@@ -4,6 +4,7 @@
 #include "motor_control.h"
 #include "speed_control.h"
 #include "actuation_guard.h"
+#include "chassis_state.h"
 #include "motor_hal.h"
 
 #if LINK_PWM_LIMIT_PERMILLE != MOTOR_MAX_PERMILLE
@@ -24,6 +25,7 @@ static motor_control_t motors;
 static speed_control_t speeds;
 static actuation_guard_t actuation_guard; /* Retained across STOP/new session. */
 static uint8_t watchdog_fault_seen;
+volatile chassis_state_t chassis_phase=CHASSIS_WAIT_LINK;
 volatile uint32_t board_link_tx_frames, board_link_transport_errors;
 volatile uint32_t board_link_reset_cause;
 volatile uint8_t board_link_led_pin_high;
@@ -90,6 +92,7 @@ static void transport_fault(uint32_t now)
     link_node_transport_error(&controller,now); board_link_transport_errors++;
     (void)motor_control_update(&motors,now,0,0,now,0);
     speed_control_stop(&speeds,now);
+    speeds.pid_initialized=0; /* Next UART session must obtain coefficients from ESP32. */
     board_link_outputs_inhibited=1;
     link_node_set_motor_state(&controller,1,1);
     led_apply();
@@ -154,6 +157,7 @@ int main(void)
                 now=delay_millis(); actuation_guard_stop(&actuation_guard,now);
                 (void)motor_control_update(&motors,now,0,0,now,0);
                 speed_control_stop(&speeds,now);
+                speeds.pid_initialized=0;
             }
             /* Buffer residence consumes the lease; it is not fresh input. */
             if(controller.accepted_controls!=accepted) {
@@ -192,7 +196,12 @@ int main(void)
              * while a command/output is enabled or measured wheels move. */
             if(!controller.requested_enable && !motors.active && !speeds.active &&
                actuation_guard_idle(&actuation_guard,now)) {
-                if(controller.config_wheel==255) {
+                if(controller.config_wheel==253) {
+                    const uint8_t *p=controller.config_payload;
+                    result=speed_control_configure_pid(&speeds,link_get_u16(p),
+                        link_get_u16(p+2),link_get_u16(p+4))?0:2;
+                }
+                else if(controller.config_wheel==255) {
                     result=2;
                     if(speed_control_clear_fault(&speeds)) {
                         lower_motor_watchdog_clear();
@@ -203,15 +212,25 @@ int main(void)
                     const uint8_t *p=controller.config_payload; speed_config_t cfg;
                     cfg.motor_sign=(p[1]&1)?-1:1; cfg.encoder_sign=(p[1]&2)?-1:1;
                     cfg.confirmed=(p[1]&4)?1:0; cfg.diameter_tenth_mm=link_get_u16(p+2);
-                    cfg.counts_per_rev=link_get_u32(p+4); cfg.kp_milli=link_get_u16(p+8);
-                    cfg.ki_milli=link_get_u16(p+10); cfg.max_mm_s=link_get_u16(p+12);
+                    cfg.counts_per_rev=link_get_u32(p+4);
+                    /* Gains belong to the unified ESP32 PID transaction, not
+                     * individual mechanical/max-speed calibration messages. */
+                    cfg.kp_milli=speeds.config[controller.config_wheel].kp_milli;
+                    cfg.ki_milli=speeds.config[controller.config_wheel].ki_milli;
+                    cfg.kd_milli=speeds.config[controller.config_wheel].kd_milli;
+                    cfg.max_mm_s=link_get_u16(p+12);
                     cfg.accel_mm_s2=link_get_u16(p+14);
                     result=speed_control_configure(&speeds,controller.config_wheel,&cfg)?0:2;
                 }
             }
-            link_node_finish_config(&controller,result,speeds.ready_mask,reported_fault());
+            link_node_finish_config(&controller,result,speeds.pid_initialized?speeds.ready_mask:0,reported_fault());
         }
-        if(controller.requested_mode==LINK_CONTROL) lower_motor_write(speeds.pwm_permille,speeds.active);
+        chassis_phase=chassis_state_update(controller.connected,
+            controller.requested_mode==LINK_PWM || speeds.pid_initialized,
+            controller.requested_mode==LINK_PWM || speeds.ready_mask==15,reported_fault()!=0,controller.command_valid && controller.requested_enable,
+            speeds.active || motors.active);
+        if(chassis_phase!=CHASSIS_ARMED && chassis_phase!=CHASSIS_RUNNING) lower_motor_emergency_stop();
+        else if(controller.requested_mode==LINK_CONTROL) lower_motor_write(speeds.pwm_permille,speeds.active);
         else lower_motor_write(motors.output_permille,motors.active);
         board_link_outputs_inhibited=lower_motor_is_enabled()?0U:1U;
         if(!board_link_outputs_inhibited) actuation_guard_record(&actuation_guard,controller.requested_mode,delay_millis());
@@ -219,7 +238,7 @@ int main(void)
         link_node_set_motor_state(&controller,1,board_link_outputs_inhibited);
         link_node_publish_encoders(&controller,counts,encoder_mask,now);
         link_node_publish_speed(&controller,speeds.measured_mm_s,speeds.ramped_mm_s,
-                                speeds.feedback_valid_mask,speeds.ready_mask,reported_fault(),now);
+                                speeds.feedback_valid_mask,speeds.pid_initialized?speeds.ready_mask:0,reported_fault(),now);
         led_apply();
         length=link_node_transmit(&controller,now,wire,sizeof(wire));
         if(length) {

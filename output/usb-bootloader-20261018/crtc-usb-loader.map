@@ -1,0 +1,1238 @@
+Archive member included to satisfy reference by file (symbol)
+
+D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a(libc_a-memset.o)
+                              D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o (memset)
+
+Discarded input sections
+
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .text.dfuGetState
+                0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .text.dfuSetState
+                0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0xcd D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x8e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x51 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000      0x103 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x6a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000      0x1df D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000      0x1eb D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00000000       0xd6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000       0x8e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000       0x51 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000      0x103 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000       0x6a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000      0x1df D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .text.readPin  0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .text.nvicInit
+                0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .text.flashErasePages
+                0x00000000       0x30 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .text.getFlashEnd
+                0x00000000        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0xcd D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x8e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x51 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000      0x103 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x6a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000      0x1df D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000      0x1eb D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .text.usbAppInit
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .text.usbDsbISR
+                0x00000000       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0xcd D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x8e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x51 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000      0x103 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x6a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000      0x1df D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000      0x1eb D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00000000       0xd6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .bss.u8_usbStringInterface
+                0x00000000        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .data.u8_usbStringAlt1
+                0x00000000       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0xcd D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x8e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x51 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000      0x103 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x6a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000      0x1df D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000      0x1eb D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetCNTR  0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetCNTR  0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetISTR  0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetISTR  0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetFNR   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetDADDR
+                0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetDADDR
+                0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetBTABLE
+                0x00000000       0x14 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetBTABLE
+                0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetENDPOINT
+                0x00000000        0xe D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetENDPOINT
+                0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPType
+                0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPType
+                0x00000000       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPRxStatus
+                0x00000000       0x2a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetDouBleBuffEPStall
+                0x00000000       0x26 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPTxStatus
+                0x00000000       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPRxStatus
+                0x00000000       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPTxValid
+                0x00000000       0x1e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEP_KIND
+                0x00000000       0x1e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.Set_Status_Out
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPDoubleBuff
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.ClearEPDoubleBuff
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetTxStallStatus
+                0x00000000       0x1a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetRxStallStatus
+                0x00000000       0x1a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.ClearEP_CTR_RX
+                0x00000000       0x18 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.ClearEP_CTR_TX
+                0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.ToggleDTOG_RX
+                0x00000000       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.ToggleDTOG_TX
+                0x00000000       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPAddress
+                0x00000000       0x1e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPAddress
+                0x00000000       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPTxAddr
+                0x00000000       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPRxAddr
+                0x00000000       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPCountRxReg
+                0x00000000       0x26 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPTxCount
+                0x00000000       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPDblBuffAddr
+                0x00000000       0x40 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPDblBuf0Addr
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPDblBuf1Addr
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPDblBuf0Addr
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPDblBuf1Addr
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPDblBuffCount
+                0x00000000       0xb4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPDblBuf0Count
+                0x00000000       0x60 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.SetEPDblBuf1Count
+                0x00000000       0x60 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPDblBuf0Count
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPDblBuf1Count
+                0x00000000        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.GetEPDblBufDir
+                0x00000000       0x4c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.FreeUserBuffer
+                0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.ToWord   0x00000000        0x6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .text.ByteSwap
+                0x00000000        0x6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .text.CTR_HP   0x00000000       0x7c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .bss.SaveState
+                0x00000000        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .text.NOP_Process
+                0x00000000        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0xcd D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x8e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x51 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000      0x103 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x6a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000      0x1df D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000      0x1eb D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .group         0x00000000        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .text          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_macro   0x00000000      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_macro   0x00000000       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_macro   0x00000000      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_macro   0x00000000       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_macro   0x00000000       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .text          0x00000000       0x14 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+ .text          0x00000000       0x7a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .data          0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .bss           0x00000000        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .debug_line    0x00000000       0xa3 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .debug_line_str
+                0x00000000       0x64 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .debug_info    0x00000000       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .debug_abbrev  0x00000000       0x14 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .debug_aranges
+                0x00000000       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .debug_str     0x00000000       0x72 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .ARM.attributes
+                0x00000000       0x21 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+ .text          0x00000000        0x0 D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a(libc_a-memset.o)
+ .data          0x00000000        0x0 D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a(libc_a-memset.o)
+ .bss           0x00000000        0x0 D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a(libc_a-memset.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+FLASH            0x08000000         0x00002000         xr
+RAM              0x20000000         0x00005000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+LOAD D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_cortexm3_macro.s.o
+START GROUP
+LOAD D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a
+LOAD D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/thumb/v7-m/nofp\libgcc.a
+END GROUP
+                0x20005000                        _estack = (ORIGIN (RAM) + LENGTH (RAM))
+
+.isr_vector     0x08000000       0xf0
+ *(.isr_vector)
+ .isr_vector    0x08000000       0xf0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+                0x08000000                g_pfnVectors
+
+.text           0x080000f0     0x1d18
+ *(.text*)
+ .text.startup.main
+                0x080000f0       0x8c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+                0x080000f0                main
+ .text.read_word
+                0x0800017c        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .text.write_word
+                0x08000180        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .text.erase_page
+                0x08000184        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .text.error.isra.0
+                0x08000188       0x30 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .text.dfuInit  0x080001b8       0x4c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x080001b8                dfuInit
+ .text.dfuNewSetup
+                0x08000204       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x08000204                dfuNewSetup
+ .text.dfuStatusIn
+                0x08000220       0x48 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x08000220                dfuStatusIn
+ .text.dfuUpdateByRequest
+                0x08000268      0x17c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x08000268                dfuUpdateByRequest
+ .text.dfuUpdateByReset
+                0x080003e4       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x080003e4                dfuUpdateByReset
+ .text.dfuCopyState
+                0x08000404       0x18 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x08000404                dfuCopyState
+ .text.dfuCopyStatus
+                0x0800041c       0x18 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x0800041c                dfuCopyStatus
+ .text.dfuCopyDNLOAD
+                0x08000434       0x38 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x08000434                dfuCopyDNLOAD
+ .text.dfuCopyUPLOAD
+                0x0800046c        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x0800046c                dfuCopyUPLOAD
+ .text.dfuUploadStarted
+                0x08000470        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x08000470                dfuUploadStarted
+ .text.dfuFinishUpload
+                0x0800047c        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x0800047c                dfuFinishUpload
+ .text.le32     0x08000484        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .text.update_crc
+                0x08000488       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+                0x08000488                update_crc
+ .text.update_vectors_valid
+                0x080004b0       0x4c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+                0x080004b0                update_vectors_valid
+ .text.update_init
+                0x080004fc        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+                0x080004fc                update_init
+ .text.update_accept
+                0x08000508      0x170 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+                0x08000508                update_accept
+ .text.update_finish
+                0x08000678       0xa4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+                0x08000678                update_finish
+ .text.gpio_write_bit
+                0x0800071c       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x0800071c                gpio_write_bit
+ *fill*         0x0800072e        0x2
+ .text.readButtonState
+                0x08000730       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000730                readButtonState
+ .text.strobePin
+                0x08000740       0x64 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000740                strobePin
+ .text.systemReset
+                0x080007a4       0x3c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x080007a4                systemReset
+ .text.setupLEDAndButton
+                0x080007e0       0x30 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x080007e0                setupLEDAndButton
+ .text.setupFLASH
+                0x08000810       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000810                setupFLASH
+ .text.checkUserCode
+                0x0800082c       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x0800082c                checkUserCode
+ .text.setMspAndJump
+                0x08000848       0x2c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000848                setMspAndJump
+ .text.bkp10Write
+                0x08000874       0x30 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000874                bkp10Write
+ .text.checkAndClearBootloaderFlag
+                0x080008a4       0x48 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x080008a4                checkAndClearBootloaderFlag
+ .text.nvicDisableInterrupts
+                0x080008ec       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x080008ec                nvicDisableInterrupts
+ .text.jumpToUser
+                0x08000910       0x58 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000910                jumpToUser
+ .text.systemHardReset
+                0x08000968       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000968                systemHardReset
+ .text.setupCLK
+                0x08000988       0x94 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000988                setupCLK
+ .text.flashErasePage
+                0x08000a1c       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000a1c                flashErasePage
+ .text.flashWriteWord
+                0x08000a88       0x90 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000a88                flashWriteWord
+ .text.flashLock
+                0x08000b18        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000b18                flashLock
+ .text.flashUnlock
+                0x08000b24       0x18 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000b24                flashUnlock
+ .text.crMask   0x08000b3c       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000b3c                crMask
+ .text.getFlashPageSize
+                0x08000b4e        0x6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000b4e                getFlashPageSize
+ .text.boot_feed
+                0x08000b54       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000b54                boot_feed
+ .text.boot_safe_early
+                0x08000b64       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+                0x08000b64                boot_safe_early
+ .text.usbStatusOut
+                0x08000bd0        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000bd0                usbStatusOut
+ .text.usbGetInterfaceSetting
+                0x08000bd2       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000bd2                usbGetInterfaceSetting
+ .text.usbSetConfiguration
+                0x08000be4       0x18 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000be4                usbSetConfiguration
+ .text.usbSetDeviceAddress
+                0x08000bfc        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000bfc                usbSetDeviceAddress
+ .text.usbReset
+                0x08000c08       0xb8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000c08                usbReset
+ .text.usbStatusIn
+                0x08000cc0        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000cc0                usbStatusIn
+ .text.usbDataSetup
+                0x08000cc4       0x94 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000cc4                usbDataSetup
+ .text.usbNoDataSetup
+                0x08000d58       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000d58                usbNoDataSetup
+ .text.ms_compat_copy
+                0x08000d80        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .text.usbGetDeviceDescriptor
+                0x08000d8c        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000d8c                usbGetDeviceDescriptor
+ .text.usbGetConfigDescriptor
+                0x08000d98        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000d98                usbGetConfigDescriptor
+ .text.usbGetFunctionalDescriptor
+                0x08000da4        0xc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000da4                usbGetFunctionalDescriptor
+ .text.usbGetStringDescriptor
+                0x08000db0       0x2c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000db0                usbGetStringDescriptor
+ .text.usbGetConfiguration
+                0x08000ddc        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000ddc                usbGetConfiguration
+ .text.usbGetInterface
+                0x08000dde        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000dde                usbGetInterface
+ .text.usbSetInterface
+                0x08000de0        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000de0                usbSetInterface
+ .text.usbGetStatus
+                0x08000de2        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000de2                usbGetStatus
+ .text.usbClearFeature
+                0x08000de4        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000de4                usbClearFeature
+ .text.usbSetEndpointFeature
+                0x08000de6        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000de6                usbSetEndpointFeature
+ .text.usbSetDeviceFeature
+                0x08000de8        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000de8                usbSetDeviceFeature
+ .text.nothingProc
+                0x08000dea        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000dea                nothingProc
+ .text.setupUSB
+                0x08000dec       0x8c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000dec                setupUSB
+ .text.usbSuspend
+                0x08000e78       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000e78                usbSuspend
+ .text.usbResumeInit
+                0x08000e98       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000e98                usbResumeInit
+ .text.usbResume
+                0x08000eb8       0x88 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000eb8                usbResume
+ .text.usbPowerOn
+                0x08000f40       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000f40                usbPowerOn
+ .text.usbPowerOff
+                0x08000f68       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000f68                usbPowerOff
+ .text.usbDsbBus
+                0x08000f84       0x2c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000f84                usbDsbBus
+ .text.usbEnbISR
+                0x08000fb0       0x18 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000fb0                usbEnbISR
+ .text.usbInit  0x08000fc8       0x40 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08000fc8                usbInit
+ .text.USB_LP_CAN1_RX0_IRQHandler
+                0x08001008       0xcc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x08001008                USB_LP_CAN1_RX0_IRQHandler
+ .text.SetEPTxStatus
+                0x080010d4       0x2a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x080010d4                SetEPTxStatus
+ .text.SetEPRxValid
+                0x080010fe       0x1e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x080010fe                SetEPRxValid
+ .text.ClearEP_KIND
+                0x0800111c       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x0800111c                ClearEP_KIND
+ .text.Clear_Status_Out
+                0x08001138        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x08001138                Clear_Status_Out
+ .text.ClearDTOG_RX
+                0x0800113c       0x26 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x0800113c                ClearDTOG_RX
+ .text.ClearDTOG_TX
+                0x08001162       0x26 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x08001162                ClearDTOG_TX
+ .text.GetEPTxAddr
+                0x08001188       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x08001188                GetEPTxAddr
+ .text.GetEPRxAddr
+                0x080011a8       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x080011a8                GetEPRxAddr
+ .text.SetEPTxCount
+                0x080011c8       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x080011c8                SetEPTxCount
+ .text.SetEPRxCount
+                0x080011e8       0x44 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x080011e8                SetEPRxCount
+ .text.GetEPRxCount
+                0x0800122c       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+                0x0800122c                GetEPRxCount
+ .text.CTR_LP   0x08001250      0x18c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+                0x08001250                CTR_LP
+ .text.USB_Init
+                0x080013dc       0x34 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+                0x080013dc                USB_Init
+ .text.Standard_GetConfiguration
+                0x08001410       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001410                Standard_GetConfiguration
+ .text.Standard_GetInterface
+                0x08001434       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001434                Standard_GetInterface
+ .text.Standard_GetStatus
+                0x08001458       0x84 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001458                Standard_GetStatus
+ .text.DataStageIn
+                0x080014dc       0xb0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .text.Standard_SetConfiguration
+                0x0800158c       0x38 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x0800158c                Standard_SetConfiguration
+ .text.Standard_SetInterface
+                0x080015c4       0x48 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x080015c4                Standard_SetInterface
+ .text.Standard_ClearFeature
+                0x0800160c       0xe8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x0800160c                Standard_ClearFeature
+ .text.Standard_SetEndPointFeature
+                0x080016f4       0x7c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x080016f4                Standard_SetEndPointFeature
+ .text.Standard_SetDeviceFeature
+                0x08001770       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001770                Standard_SetDeviceFeature
+ .text.Standard_GetDescriptorData
+                0x08001794       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001794                Standard_GetDescriptorData
+ .text.Post0_Process
+                0x080017b0       0x40 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x080017b0                Post0_Process
+ .text.Setup0_Process
+                0x080017f0      0x33c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x080017f0                Setup0_Process
+ .text.Out0_Process
+                0x08001b2c       0xf0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001b2c                Out0_Process
+ .text.SetDeviceAddress
+                0x08001c1c       0x3c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001c1c                SetDeviceAddress
+ .text.In0_Process
+                0x08001c58       0x5c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x08001c58                In0_Process
+ .text.UserToPMABufferCopy
+                0x08001cb4       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+                0x08001cb4                UserToPMABufferCopy
+ .text.PMAToUserBufferCopy
+                0x08001cdc       0x2e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+                0x08001cdc                PMAToUserBufferCopy
+ *fill*         0x08001d0a        0x2
+ .text.Reset_Handler
+                0x08001d0c       0x44 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+                0x08001d0c                Reset_Handler
+ .text.Default_Handler
+                0x08001d50        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+                0x08001d50                EXTI2_IRQHandler
+                0x08001d50                DebugMon_Handler
+                0x08001d50                TIM1_CC_IRQHandler
+                0x08001d50                HardFault_Handler
+                0x08001d50                SysTick_Handler
+                0x08001d50                PVD_IRQHandler
+                0x08001d50                PendSV_Handler
+                0x08001d50                NMI_Handler
+                0x08001d50                EXTI3_IRQHandler
+                0x08001d50                EXTI0_IRQHandler
+                0x08001d50                I2C2_EV_IRQHandler
+                0x08001d50                UsageFault_Handler
+                0x08001d50                ADC1_2_IRQHandler
+                0x08001d50                SPI1_IRQHandler
+                0x08001d50                TAMPER_IRQHandler
+                0x08001d50                DMA1_Channel4_IRQHandler
+                0x08001d50                USART3_IRQHandler
+                0x08001d50                RTC_IRQHandler
+                0x08001d50                DMA1_Channel7_IRQHandler
+                0x08001d50                CAN1_RX1_IRQHandler
+                0x08001d50                TIM4_IRQHandler
+                0x08001d50                I2C1_EV_IRQHandler
+                0x08001d50                DMA1_Channel6_IRQHandler
+                0x08001d50                TIM3_IRQHandler
+                0x08001d50                RCC_IRQHandler
+                0x08001d50                TIM1_TRG_COM_IRQHandler
+                0x08001d50                DMA1_Channel1_IRQHandler
+                0x08001d50                Default_Handler
+                0x08001d50                EXTI15_10_IRQHandler
+                0x08001d50                EXTI9_5_IRQHandler
+                0x08001d50                SPI2_IRQHandler
+                0x08001d50                MemManage_Handler
+                0x08001d50                SVC_Handler
+                0x08001d50                DMA1_Channel5_IRQHandler
+                0x08001d50                EXTI4_IRQHandler
+                0x08001d50                USB_HP_CAN1_TX_IRQHandler
+                0x08001d50                DMA1_Channel3_IRQHandler
+                0x08001d50                TIM1_UP_IRQHandler
+                0x08001d50                WWDG_IRQHandler
+                0x08001d50                TIM2_IRQHandler
+                0x08001d50                TIM1_BRK_IRQHandler
+                0x08001d50                EXTI1_IRQHandler
+                0x08001d50                RTCAlarm_IRQHandler
+                0x08001d50                USART2_IRQHandler
+                0x08001d50                I2C2_ER_IRQHandler
+                0x08001d50                DMA1_Channel2_IRQHandler
+                0x08001d50                CAN1_SCE_IRQHandler
+                0x08001d50                FLASH_IRQHandler
+                0x08001d50                BusFault_Handler
+                0x08001d50                USART1_IRQHandler
+                0x08001d50                I2C1_ER_IRQHandler
+                0x08001d50                USBWakeUp_IRQHandler
+ *fill*         0x08001d52        0x2
+ .text.memset   0x08001d54       0x9c D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a(libc_a-memset.o)
+                0x08001d54                memset
+ *(.rodata*)
+ .rodata.io     0x08001df0       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .rodata.magic.0
+                0x08001e00        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+                0x08001e08                        . = ALIGN (0x4)
+
+.glue_7         0x08001e08        0x0
+ .glue_7        0x08001e08        0x0 linker stubs
+
+.glue_7t        0x08001e08        0x0
+ .glue_7t       0x08001e08        0x0 linker stubs
+
+.vfp11_veneer   0x08001e08        0x0
+ .vfp11_veneer  0x08001e08        0x0 linker stubs
+
+.v4_bx          0x08001e08        0x0
+ .v4_bx         0x08001e08        0x0 linker stubs
+
+.iplt           0x08001e08        0x0
+ .iplt          0x08001e08        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+
+.rel.dyn        0x08001e08        0x0
+ .rel.iplt      0x08001e08        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+
+.ARM.extab
+ *(.ARM.extab*)
+
+.ARM.exidx
+ *(.ARM.exidx*)
+                0x08001e08                        _sidata = LOADADDR (.data)
+
+.data           0x20000000      0x1ec load address 0x08001e08
+                0x20000000                        . = ALIGN (0x4)
+                0x20000000                        _sdata = .
+ *(.data*)
+ .data.pEpInt_OUT
+                0x20000000       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x20000000                pEpInt_OUT
+ .data.pEpInt_IN
+                0x2000001c       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x2000001c                pEpInt_IN
+ .data.User_Standard_Requests
+                0x20000038       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x20000038                User_Standard_Requests
+ .data.Device_Property
+                0x2000005c       0x34 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x2000005c                Device_Property
+ .data.Device_Table
+                0x20000090        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x20000090                Device_Table
+ *fill*         0x20000092        0x2
+ .data.ms_compat_descriptor
+                0x20000094        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .data.ms_os_descriptor
+                0x2000009c        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .data.ms_compat
+                0x200000a4       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .data.ms_os_string
+                0x200000cc       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ *fill*         0x200000de        0x2
+ .data.usbStringDescriptor
+                0x200000e0       0x38 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x200000e0                usbStringDescriptor
+ .data.u8_usbStringAlt2
+                0x20000118       0x1e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x20000118                u8_usbStringAlt2
+ .data.u8_usbStringAlt0
+                0x20000136       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x20000136                u8_usbStringAlt0
+ .data.u8_usbStringSerial
+                0x20000148       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x20000148                u8_usbStringSerial
+ .data.u8_usbStringProduct
+                0x20000158       0x14 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x20000158                u8_usbStringProduct
+ .data.u8_usbStringVendor
+                0x2000016c       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x2000016c                u8_usbStringVendor
+ .data.u8_usbStringLangId
+                0x2000017e        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x2000017e                u8_usbStringLangId
+ *fill*         0x20000182        0x2
+ .data.usbConfigDescriptorDFU
+                0x20000184        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x20000184                usbConfigDescriptorDFU
+ .data.u8_usbConfigDescriptorDFU
+                0x2000018c       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x2000018c                u8_usbConfigDescriptorDFU
+ *fill*         0x200001b9        0x3
+ .data.usbFunctionalDescriptor
+                0x200001bc        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x200001bc                usbFunctionalDescriptor
+ .data.u8_usbFunctionalDescriptor
+                0x200001c4        0x9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x200001c4                u8_usbFunctionalDescriptor
+ *fill*         0x200001cd        0x3
+ .data.usbDeviceDescriptorDFU
+                0x200001d0        0x8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x200001d0                usbDeviceDescriptorDFU
+ .data.u8_usbDeviceDescriptorDFU
+                0x200001d8       0x12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+                0x200001d8                u8_usbDeviceDescriptorDFU
+                0x200001ec                        . = ALIGN (0x4)
+ *fill*         0x200001ea        0x2
+                0x200001ec                        _edata = .
+
+.igot.plt       0x200001ec        0x0 load address 0x08001ff4
+ .igot.plt      0x200001ec        0x0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+
+.bss            0x200001ec      0x470 load address 0x08001ff4
+                0x200001ec                        . = ALIGN (0x4)
+                0x200001ec                        _sbss = .
+ *(.bss*)
+ .bss.dfuBusy   0x200001ec        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+                0x200001ec                dfuBusy
+ .bss.manifest_pending
+                0x200001ed        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.receiving
+                0x200001ee        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.block_ready
+                0x200001ef        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.block_number
+                0x200001f0        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.block_size
+                0x200001f2        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.buffer    0x200001f4      0x400 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.update    0x200005f4       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.status    0x20000614        0x6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .bss.ResumeS   0x2000061a        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x2000061a                ResumeS
+ .bss.bIntPackSOF
+                0x2000061c        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x2000061c                bIntPackSOF
+ *fill*         0x2000061d        0x1
+ .bss.wIstr     0x2000061e        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x2000061e                wIstr
+ .bss.bDeviceState
+                0x20000620        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x20000620                bDeviceState
+ .bss.wTransferSize
+                0x20000624        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+                0x20000624                wTransferSize
+ .bss.SaveTState
+                0x20000626        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+                0x20000626                SaveTState
+ .bss.SaveRState
+                0x20000628        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+                0x20000628                SaveRState
+ *fill*         0x2000062a        0x2
+ .bss.pUser_Standard_Requests
+                0x2000062c        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+                0x2000062c                pUser_Standard_Requests
+ .bss.Device_Info
+                0x20000630       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+                0x20000630                Device_Info
+ .bss.wInterrupt_Mask
+                0x2000064c        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+                0x2000064c                wInterrupt_Mask
+ *fill*         0x2000064e        0x2
+ .bss.pProperty
+                0x20000650        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+                0x20000650                pProperty
+ .bss.pInformation
+                0x20000654        0x4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+                0x20000654                pInformation
+ .bss.EPindex   0x20000658        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+                0x20000658                EPindex
+ .bss.Data_Mul_MaxPacketSize
+                0x20000659        0x1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x20000659                Data_Mul_MaxPacketSize
+ .bss.StatusInfo
+                0x2000065a        0x2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+                0x2000065a                StatusInfo
+ *(COMMON)
+                0x2000065c                        . = ALIGN (0x4)
+                0x2000065c                        _ebss = .
+                0x00000001                        ASSERT ((_ebss <= (_estack - 0x1000)), Insufficient RAM for 4 KiB boot stack)
+OUTPUT(D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\crtc-usb-loader.elf elf32-littlearm)
+LOAD linker stubs
+
+.debug_info     0x00000000     0x55c8
+ .debug_info    0x00000000      0x27f D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_info    0x0000027f      0x990 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_info    0x00000c0f      0x6d2 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_info    0x000012e1      0xcb5 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_info    0x00001f96      0xf12 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_info    0x00002ea8      0x24c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_info    0x000030f4      0xd0a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_info    0x00003dfe      0x277 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_info    0x00004075      0x435 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_info    0x000044aa      0xf7c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_info    0x00005426      0x172 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_info    0x00005598       0x30 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+
+.debug_abbrev   0x00000000     0x1b2b
+ .debug_abbrev  0x00000000      0x162 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_abbrev  0x00000162      0x348 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_abbrev  0x000004aa      0x250 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_abbrev  0x000006fa      0x4cb D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_abbrev  0x00000bc5      0x4cf D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_abbrev  0x00001094       0xc1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_abbrev  0x00001155      0x24b D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_abbrev  0x000013a0      0x131 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_abbrev  0x000014d1      0x125 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_abbrev  0x000015f6      0x450 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_abbrev  0x00001a46       0xc1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_abbrev  0x00001b07       0x24 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+
+.debug_loclists
+                0x00000000     0x21ea
+ .debug_loclists
+                0x00000000       0x59 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_loclists
+                0x00000059      0x229 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_loclists
+                0x00000282      0x3ce D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_loclists
+                0x00000650      0x4ec D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_loclists
+                0x00000b3c      0x24f D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_loclists
+                0x00000d8b      0x9b5 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_loclists
+                0x00001740      0x13d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_loclists
+                0x0000187d      0x802 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_loclists
+                0x0000207f      0x16b D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+
+.debug_aranges  0x00000000      0x648
+ .debug_aranges
+                0x00000000       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_aranges
+                0x00000020       0xa0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_aranges
+                0x000000c0       0x48 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_aranges
+                0x00000108       0xe8 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_aranges
+                0x000001f0      0x120 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_aranges
+                0x00000310       0x18 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_aranges
+                0x00000328      0x1f0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_aranges
+                0x00000518       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_aranges
+                0x00000540       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_aranges
+                0x00000560       0x98 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_aranges
+                0x000005f8       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_aranges
+                0x00000620       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+
+.debug_rnglists
+                0x00000000      0x6c8
+ .debug_rnglists
+                0x00000000       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_rnglists
+                0x00000020       0x74 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_rnglists
+                0x00000094       0x7e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_rnglists
+                0x00000112      0x177 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_rnglists
+                0x00000289       0xe4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_rnglists
+                0x0000036d      0x1f1 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_rnglists
+                0x0000055e       0x1a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_rnglists
+                0x00000578       0x13 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_rnglists
+                0x0000058b      0x10b D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_rnglists
+                0x00000696       0x19 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_rnglists
+                0x000006af       0x19 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+
+.debug_macro    0x00000000     0x226a
+ .debug_macro   0x00000000      0x135 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000135      0xac6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000bfb       0xcd D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000cc8       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000d0e       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000d30       0x8e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000dbe       0x51 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000e0f      0x103 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000f12       0x6a D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00000f7c      0x1df D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x0000115b       0x22 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x0000117d       0x1c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00001199      0x1eb D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00001384       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00001394      0x3d9 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x0000176d       0x28 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00001795       0x6c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00001801       0x10 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00001811       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x00001857       0xd6 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_macro   0x0000192d      0x13d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_macro   0x00001a6a       0x7b D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_macro   0x00001ae5      0x133 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_macro   0x00001c18      0x13b D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00001d53       0x16 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_macro   0x00001d69      0x14e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_macro   0x00001eb7       0x5d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_macro   0x00001f14       0x5d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_macro   0x00001f71       0x5d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_macro   0x00001fce      0x16f D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x0000213d       0xd0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_macro   0x0000220d       0x5d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+
+.debug_line     0x00000000     0x4d43
+ .debug_line    0x00000000      0x3d5 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_line    0x000003d5      0x8cf D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_line    0x00000ca4      0x63c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_line    0x000012e0      0xd0c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_line    0x00001fec      0xa46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_line    0x00002a32      0x308 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_line    0x00002d3a      0xa3f D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_line    0x00003779      0x308 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_line    0x00003a81      0x12f D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_line    0x00003bb0      0xf61 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_line    0x00004b11      0x1be D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_line    0x00004ccf       0x74 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+
+.debug_str      0x00000000     0x885f
+ .debug_str     0x00000000     0x885f D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+                               0x6d1c (size before relaxing)
+ .debug_str     0x0000885f     0x705e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_str     0x0000885f     0x3fee D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_str     0x0000885f     0x6e78 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_str     0x0000885f     0x773e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_str     0x0000885f     0x6c2e D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .debug_str     0x0000885f     0x4ffa D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_str     0x0000885f     0x4c82 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_str     0x0000885f     0x4fb0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_str     0x0000885f     0x773d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_str     0x0000885f     0x4c58 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_str     0x0000885f       0xcc D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+
+.comment        0x00000000       0x46
+ .comment       0x00000000       0x46 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+                                 0x47 (size before relaxing)
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .comment       0x00000046       0x47 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+
+.ARM.attributes
+                0x00000000       0x2b
+ .ARM.attributes
+                0x00000000       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .ARM.attributes
+                0x0000002d       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .ARM.attributes
+                0x0000005a       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .ARM.attributes
+                0x00000087       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .ARM.attributes
+                0x000000b4       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .ARM.attributes
+                0x000000e1       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_descriptor.c.o
+ .ARM.attributes
+                0x0000010e       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .ARM.attributes
+                0x0000013b       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .ARM.attributes
+                0x00000168       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .ARM.attributes
+                0x00000195       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .ARM.attributes
+                0x000001c2       0x2d D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .ARM.attributes
+                0x000001ef       0x21 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o
+ .ARM.attributes
+                0x00000210       0x2d D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a(libc_a-memset.o)
+
+.debug_frame    0x00000000      0xd58
+ .debug_frame   0x00000000       0x34 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\main.c.o
+ .debug_frame   0x00000034      0x164 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\dfu.c.o
+ .debug_frame   0x00000198       0xac D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\update_core.c.o
+ .debug_frame   0x00000244      0x214 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_hardware.c.o
+ .debug_frame   0x00000458      0x294 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb.c.o
+ .debug_frame   0x000006ec      0x3d0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_regs.c.o
+ .debug_frame   0x00000abc       0x4c D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_int.c.o
+ .debug_frame   0x00000b08       0x20 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_init.c.o
+ .debug_frame   0x00000b28      0x1d4 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_core.c.o
+ .debug_frame   0x00000cfc       0x30 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_usb_lib_usb_mem.c.o
+ .debug_frame   0x00000d2c       0x2c D:/DEVELOP/CQU_AI/tools/arm-gnu-14.3/bin/../lib/gcc/arm-none-eabi/14.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp\libc.a(libc_a-memset.o)
+
+.debug_line_str
+                0x00000000       0xb0
+ .debug_line_str
+                0x00000000       0xb0 D:\DEVELOP\CQU_AI\CRTC2026备赛\zqcs_repo\output\usb-bootloader-20261018\objects\vendor_stm32_lib_c_only_startup.s.o

@@ -21,6 +21,7 @@ static void stopped(const speed_control_t *s)
 static void confirm(speed_control_t *s)
 {
     unsigned i;
+    assert(speed_control_configure_pid(s,1000,2000,0));
     for(i=0;i<4;i++) {
         speed_config_t c=s->config[i]; c.confirmed=1;
         assert(speed_control_configure(s,i,&c));
@@ -197,6 +198,7 @@ static void plant_init(plant_t *p)
     unsigned i;
     memset(p,0,sizeof(*p)); p->gain=1.2; p->load=20;
     speed_control_init(&p->controller,0,p->counts);
+    assert(speed_control_configure_pid(&p->controller,1000,2000,0));
     for(i=0;i<4;i++) {
         speed_config_t c=p->controller.config[i];
         p->motor_sign[i]=(i&1)?-1:1; p->encoder_sign[i]=(i==1 || i==2)?-1:1;
@@ -241,7 +243,7 @@ static void test_plant_saturation_recovery(void)
     const int16_t fast[4]={300,300,300,300};
     const int16_t slow[4]={80,80,80,80};
     plant_init(&p); p.gain=0.2; p.load=0;
-    plant_run(&p,fast,200);
+    plant_run(&p,fast,800); /* 100% ceiling needs longer to reach saturation than the old 50% ceiling. */
     for(i=0;i<4;i++) saturated_integral[i]=p.controller.integral_micro[i];
     plant_run(&p,fast,600);
     for(i=0;i<4;i++) {

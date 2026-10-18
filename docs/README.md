@@ -45,3 +45,6 @@
 ## 开源使用说明
 
 本项目上层控制基于 [Serialist/sample-mecanum-car](https://github.com/Serialist/sample-mecanum-car)，基线提交 `1fa85bbdcd6c62f33f871284b642959cea975805`；原工程 [GPLv3 许可证](../sample-mecanum-car-study/LICENSE) 和厂商版权声明保留。下层 STM32 使用同仓的 CMSIS/标准外设库，ESP32 使用 Espressif Arduino 框架及 PlatformIO。完整来源、版本、使用范围与修改边界见 [开源与第三方使用说明](05-open-source.md)。各功能文档末尾也分别说明来源。
+
+- [统一 PID 与 Dashboard 往复测试（2026-10-18，新版待烧录）](12-unified-pid-test.md)
+- [USB loader、三路角度滑块与GPIO14开门舵机（双板已更新）](13-usb-loader-door-servo.md)

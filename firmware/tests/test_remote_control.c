@@ -175,7 +175,7 @@ static void test_bad_configuration_and_payloads(void)
         case 3: put16(p+16,20001); break;
         case 4: put16(p+14,0); break;
         case 5: put16(p+18,0); break;
-        case 6: put16(p+18,301); break;
+        case 6: put16(p+18,1001); break;
         case 7: p[1]=REMOTE_OPCODE_MECHANICAL; p[13]=8; break;
         case 8: p[1]=REMOTE_OPCODE_MECHANICAL; put16(p+14,0); break;
         case 9: p[1]=REMOTE_OPCODE_MECHANICAL; put16(p+14,5001); break;
@@ -215,7 +215,7 @@ static void test_lengths_and_ranges(void)
         case 1: put16(p+12,(uint16_t)-1001); break;
         case 2: put16(p+14,1001); break;
         case 3: put16(p+14,(uint16_t)-1001); break;
-        case 4: put16(p+16,301); break;
+        case 4: put16(p+16,1001); break;
         case 5: put16(p+18,49); break;
         case 6: put16(p+18,201); break;
         }
@@ -284,6 +284,34 @@ static void test_mix_envelope(void)
         }
 }
 
+static void test_servo_target_payloads(void)
+{
+    remote_control_t s; remote_action_t a; uint8_t p[20]; unsigned i;
+    ready(&s);
+    packet(p,REMOTE_OPCODE_SERVO_TARGET,s.session,1); p[12]=2;
+    put16(p+14,2000); put16(p+16,1000);
+    assert(remote_control_receive(&s,p,20,0,0,&a));
+    assert(a.kind==REMOTE_ACTION_SERVO && a.flags==1 && a.wheel==2);
+    assert(a.servo_us==2000 && a.servo_reference_us==1000);
+    assert(!remote_control_receive(&s,p,20,0,1,&a)); /* replay */
+    for(i=0;i<8;i++) {
+        ready(&s); packet(p,REMOTE_OPCODE_SERVO_TARGET,s.session,1);
+        put16(p+14,1700); put16(p+16,1300);
+        switch(i) {
+        case 0: p[12]=3; break;
+        case 1: p[13]=1; break;
+        case 2: put16(p+14,1701); break;
+        case 3: put16(p+16,1299); break;
+        case 4: p[18]=1; break;
+        case 5: p[19]=1; break;
+        case 6: put16(p+14,0); break; /* release plus reference invalid */
+        case 7: arm(&s,1,0); put32(p+8,2); break;
+        }
+        assert(!remote_control_receive(&s,p,20,0,0,&a));
+        assert(a.kind==REMOTE_ACTION_STOP && !s.armed);
+    }
+}
+
 int main(void)
 {
     test_arm_and_gate();
@@ -296,6 +324,7 @@ int main(void)
     test_wrap_and_expiry_before_receive();
     test_physical_turn_directions();
     test_mix_envelope();
-    puts("remote control: 10 groups passed (physical turns, 6,561 normalized mixes; all opcodes, lease/fault gates)");
+    test_servo_target_payloads();
+    puts("remote control: 11 groups passed (physical turns, 6,561 normalized mixes; target/reference opcode, lease/fault gates)");
     return 0;
 }

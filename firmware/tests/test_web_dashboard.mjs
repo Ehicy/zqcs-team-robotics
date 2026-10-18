@@ -18,7 +18,7 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 function mainPacket({ session = 71, sequence = 0, armed = false, active = false, ready = true, fault = false, uart = true, calibratedMask = 15, limit = 100 } = {}) {
   const bytes = new Uint8Array(20), view = new DataView(bytes.buffer);
   bytes[0] = 1; bytes[1] = 0;
-  bytes[2] = Number(uart) | (Number(armed) << 1) | (Number(active) << 2) | (Number(ready) << 3) | (Number(fault) << 4);
+  bytes[2] = Number(uart) | (Number(armed) << 1) | (Number(active) << 2) | (Number(ready) << 3) | (Number(fault) << 4) | 32;
   view.setUint32(4, session, true); view.setUint32(8, sequence, true); view.setUint16(16, limit, true);
   bytes[18] = calibratedMask;
   return decodeStatus(bytes);

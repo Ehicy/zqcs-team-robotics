@@ -4,12 +4,12 @@ export const UUID = Object.freeze({
   control: '2c4b0002-6f1a-4c9e-9b72-3c06f42b7d11',
   status: '2c4b0003-6f1a-4c9e-9b72-3c06f42b7d11',
 });
-export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7, SERVO: 8 });
+export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7, SERVO: 8, PID: 9, SERVO_TARGET: 10 });
 export const WHEELS = Object.freeze(['M1 右前', 'M2 左前', 'M3 右后', 'M4 左后']);
 export const DEFAULT_CALIBRATION = Object.freeze(WHEELS.map((_, wheel) => Object.freeze({
   wheel, motorNegative: wheel % 2 === 1, encoderNegative: wheel % 2 === 0, confirmed: false,
   diameterTenthMm: 650, countsPerRev: wheel === 3 ? 884 : 1768,
-  kpMilli: 1000, kiMilli: 2000, maxMmS: 300,
+  kpMilli: 1000, kiMilli: 2000, kdMilli: 0, maxMmS: 300,
 })));
 
 function integer(value, min, max, name) {
@@ -36,13 +36,14 @@ export function validateCalibration(value) {
     countsPerRev: integer(value.countsPerRev, 1, 1000000, '每轮每圈计数'),
     kpMilli: integer(value.kpMilli, 0, 20000, 'Kp_milli'),
     kiMilli: integer(value.kiMilli, 0, 20000, 'Ki_milli'),
-    maxMmS: integer(value.maxMmS, 1, 300, '最大轮速'),
+    kdMilli: integer(value.kdMilli ?? 0, 0, 20000, 'Kd_milli'),
+    maxMmS: integer(value.maxMmS, 1, 1000, '最大轮速'),
   };
   if (item.kpMilli === 0 && item.kiMilli === 0) throw new RangeError('Kp 与 Ki 不能同时为 0');
   return item;
 }
 export function encodeCommand(op, args) {
-  integer(op, 1, 8, '操作码');
+  integer(op, 1, 10, '操作码');
   const bytes = new Uint8Array(20), v = new DataView(bytes.buffer);
   bytes[0] = 1; bytes[1] = op;
   v.setUint32(4, integer(args.session, 1, 0xffffffff, '会话'), true);
@@ -50,11 +51,18 @@ export function encodeCommand(op, args) {
   if (op === OP.DRIVE) {
     v.setInt16(12, integer(args.throttle, -1000, 1000, '前后量'), true);
     v.setInt16(14, integer(args.steer, -1000, 1000, '转向量'), true);
-    v.setUint16(16, integer(args.limit, 0, 300, '速度上限'), true);
+    v.setUint16(16, integer(args.limit, 0, 1000, '速度上限'), true);
     v.setUint16(18, integer(args.ttl ?? 200, 50, 200, '有效期'), true);
-  } else if (op === OP.SERVO) {
-    bytes[12] = integer(args.channel, 0, 1, '舵机通道');
-    v.setUint16(14, args.pulseUs === 0 ? 0 : integer(args.pulseUs, 1300, 1700, '脉宽 μs'), true);
+  } else if (op === OP.SERVO || op === OP.SERVO_TARGET) {
+    bytes[12] = integer(args.channel, 0, 2, '舵机通道');
+    v.setUint16(14, args.pulseUs === 0 ? 0 : integer(args.pulseUs,
+      args.channel === 2 ? 1000 : 1300, args.channel === 2 ? 2000 : 1700, '脉宽 μs'), true);
+    if (op === OP.SERVO_TARGET) {
+      const referenceUs = args.referenceUs ?? 0;
+      if (!args.pulseUs && referenceUs) throw new RangeError('释放时不能设置起点');
+      v.setUint16(16, referenceUs === 0 ? 0 : integer(referenceUs,
+        args.channel === 2 ? 1000 : 1300, args.channel === 2 ? 2000 : 1700, '起点参考 μs'), true);
+    }
   } else if (op === OP.LED) {
     bytes[12] = integer(args.on, 0, 1, '灯状态');
   } else if (op === OP.MECHANICAL) {
@@ -63,12 +71,17 @@ export function encodeCommand(op, args) {
       (Number(bit(args.encoderNegative, '编码器方向')) << 1) | (Number(bit(args.confirmed, '实测确认')) << 2);
     v.setUint16(14, integer(args.diameterTenthMm, 1, 5000, '轮径'), true);
     v.setUint32(16, integer(args.countsPerRev, 1, 1000000, '每圈计数'), true);
+  } else if (op === OP.PID) {
+    v.setUint16(14, integer(args.kpMilli, 0, 20000, 'Kp_milli'), true);
+    v.setUint16(16, integer(args.kiMilli, 0, 20000, 'Ki_milli'), true);
+    v.setUint16(18, integer(args.kdMilli, 0, 20000, 'Kd_milli'), true);
+    if (!args.kpMilli && !args.kiMilli) throw new RangeError('Kp 与 Ki 不能同时为 0');
   } else if (op === OP.TUNING) {
     bytes[12] = integer(args.wheel, 0, 3, '轮号');
     v.setUint16(14, integer(args.kpMilli, 0, 20000, 'Kp_milli'), true);
     v.setUint16(16, integer(args.kiMilli, 0, 20000, 'Ki_milli'), true);
     if (!args.kpMilli && !args.kiMilli) throw new RangeError('Kp 与 Ki 不能同时为 0');
-    v.setUint16(18, integer(args.maxMmS, 1, 300, '最大轮速'), true);
+    v.setUint16(18, integer(args.maxMmS, 1, 1000, '最大轮速'), true);
   }
   return bytes;
 }
@@ -77,8 +90,8 @@ export function decodeStatus(bytes) {
   if (v.byteLength !== 20 || v.getUint8(0) !== 1) throw new Error('状态包长度或版本不符');
   const kind = v.getUint8(1), flags = v.getUint8(2), extra = v.getUint8(3);
   if (kind === 0) {
-    if (flags & ~31 || v.getUint8(18) & ~15 || v.getUint16(16, true) > 300) throw new Error('主状态字段越界');
-    return { kind, flags, reason: extra, session: v.getUint32(4, true), lastSequence: v.getUint32(8, true),
+    if (flags & ~63 || (extra >> 4) > 6 || v.getUint8(18) & ~15 || v.getUint16(16, true) > 1000) throw new Error('主状态字段越界');
+    return { kind, flags, reason: extra & 15, phase: extra >> 4, pidReady: !!(flags & 32), session: v.getUint32(4, true), lastSequence: v.getUint32(8, true),
       uart: !!(flags & 1), armed: !!(flags & 2), active: !!(flags & 4), ready: !!(flags & 8), fault: !!(flags & 16),
       left: v.getInt16(12, true), right: v.getInt16(14, true), limit: v.getUint16(16, true),
       calibratedMask: v.getUint8(18), faultCode: v.getUint8(19) };
@@ -94,7 +107,7 @@ export function decodeStatus(bytes) {
       targets: [0, 1, 2, 3].map(i => v.getInt16(12 + 2 * i, true)) };
   }
   if (kind === 3) {
-    if (flags > 3 && flags !== 254 && flags !== 255) throw new Error('配置确认轮号无效');
+    if (flags > 3 && flags !== 253 && flags !== 254 && flags !== 255) throw new Error('配置确认轮号无效');
     for (let i = 12; i < 20; i++) if (v.getUint8(i)) throw new Error('配置确认保留位无效');
     return { kind, wheel: flags, result: extra, session: v.getUint32(4, true), sourceSequence: v.getUint32(8, true) };
   }
@@ -104,6 +117,22 @@ export function decodeStatus(bytes) {
         v.getUint16(12,true) !== 1300 || v.getUint16(14,true) !== 1700 ||
         v.getUint16(16,true) !== 25 || v.getUint16(18,true) !== 100) throw new Error('舵机状态字段无效');
     return { kind, session: v.getUint32(4,true), pulses, available: !!(extra & 1), positionMask: (extra>>1)&3 };
+  }
+  if (kind === 5) {
+    const pulses = [8,10,12].map(offset => v.getUint16(offset,true));
+    if (flags & ~7 || extra & ~143 || pulses.some((p,i) =>
+        p !== 0 && (p < (i===2?1000:1300) || p > (i===2?2000:1700)) || !!p !== !!(flags & (1<<i))) ||
+        v.getUint16(14,true)!==1000 || v.getUint16(16,true)!==2000 || v.getUint16(18,true)!==25)
+      throw new Error('三舵机状态字段无效');
+    return { kind, session:v.getUint32(4,true), pulses, available:!!(extra&1), positionMask:(extra>>1)&7, slew:!!(extra&128) };
+  }
+  if (kind === 6) {
+    const targets = [8,10,12].map(offset => v.getUint16(offset,true));
+    if (flags & ~7 || extra & ~7 || targets.some((p,i) => p && (p<(i===2?1000:1300) || p>(i===2?2000:1700)) || !p && (flags&(1<<i))) ||
+        v.getUint16(14,true)!==100 || v.getUint16(16,true)!==200 || v.getUint16(18,true)!==500)
+      throw new Error('舵机轨迹状态字段无效');
+    return {kind, session:v.getUint32(4,true), targets, movingMask:flags, errorMask:extra,
+      speedUsS:100, accelerationUsS2:200, leaseMs:500};
   }
   throw new Error('未知状态类型');
 }
@@ -202,11 +231,13 @@ export class RemoteController {
     this.now = now; this.changed = changed; this.locked = locked; this.transportError = transportError;
     this.queue = new WriteQueue({ now, onError: error => { this.disconnect(); transportError(error); } });
     this.acks = new AckRegistry(now); this.sequence = 0; this.generation = 0;
+    this.stopGeneration = 0; this.servoOwner = null;
     this.state = { connected: false, session: 0, armed: false, armPending: false, remoteArmed: false,
-      uart: false, ready: false, active: false, fault: false, faultCode: 0, reason: 0,
+      uart: false, ready: false, pidReady: false, phase: 0, active: false, fault: false, faultCode: 0, reason: 0,
       calibratedMask: 0, left: 0, right: 0, limit: 100, configBusy: false, note: '尚未连接' };
     this.throttle = 0; this.steer = 0; this.lastTick = now(); this.lastDrive = -Infinity;
-    this.servoStatus = null; this.servoStatusAt = -Infinity;
+    this.servoMotion = null; this.servoMotionAt = -Infinity;
+    this.servoStatus = null; this.servoStatusAt = -Infinity; this.appliedCalibration = null;
     this.mainStatusAt = -Infinity; this.armSequence = null; this.unsolicitedArmedStopped = false;
     this.armRequestedAt = -Infinity;
   }
@@ -217,10 +248,11 @@ export class RemoteController {
     return this.generation;
   }
   disconnect() {
-    this.servoStatus = null; this.servoStatusAt = -Infinity;
+    this.servoMotion = null; this.servoMotionAt = -Infinity;
+    this.servoStatus = null; this.servoStatusAt = -Infinity; this.appliedCalibration = null;
     this.generation++; this.queue.setWriter(null); this.acks.clear('连接已断开');
     Object.assign(this.state, { connected: false, session: 0, armed: false, armPending: false,
-      remoteArmed: false, uart: false, ready: false, active: false, calibratedMask: 0, note: '连接已断开，保持锁定' });
+      remoteArmed: false, uart: false, ready: false, pidReady: false, phase: 0, active: false, calibratedMask: 0, note: '连接已断开，保持锁定' });
     this.throttle = this.steer = 0; this.armSequence = null; this.mainStatusAt = -Infinity;
     this.locked(); this.notify();
   }
@@ -230,6 +262,7 @@ export class RemoteController {
     return { bytes: encodeCommand(op, { ...args, session: this.state.session, sequence }), sequence };
   }
   lockLocally(note) {
+    this.stopGeneration++;
     this.throttle = this.steer = 0; this.armSequence = null;
     this.state.armed = false; this.state.armPending = false; this.state.note = note;
     this.acks.clear(note); this.queue.cancelPending(note); this.locked(); this.notify();
@@ -240,12 +273,12 @@ export class RemoteController {
     return this.queue.offer(this.packet(OP.STOP).bytes, { kind: 'stop', expiresAt: this.now() + 500 });
   }
   canArm() {
-    return this.state.connected && !!this.state.session && this.state.uart && this.state.ready &&
-      !this.state.fault && !this.state.active && !this.state.remoteArmed && !this.state.configBusy &&
+    return this.state.connected && !!this.state.session && this.state.uart && this.state.ready && this.state.pidReady &&
+      !this.servoOwner && !this.servoMotion?.movingMask && !this.state.fault && !this.state.active && !this.state.remoteArmed && !this.state.configBusy &&
       this.state.calibratedMask === 15 && this.now() - this.mainStatusAt < 500;
   }
   async arm() {
-    if (!this.canArm()) throw new Error('需要 UART 在线、四轮已确认、闭环就绪且无故障，停稳后才能解锁');
+    if (!this.canArm()) throw new Error('需要 UART 在线、统一 PID 初始化已确认、四轮已确认且无故障，停稳后才能解锁');
     const packet = this.packet(OP.ARM); this.armSequence = packet.sequence;
     this.armRequestedAt = this.now();
     this.state.armPending = true; this.state.note = '等待主控确认解锁'; this.notify();
@@ -259,7 +292,7 @@ export class RemoteController {
     if (throttle === 0 && steer === 0) this.sendDrive();
     return true;
   }
-  setLimit(limit) { this.state.limit = integer(limit, 0, 300, '速度上限'); this.notify(); }
+  setLimit(limit) { this.state.limit = integer(limit, 0, 1000, '速度上限'); this.notify(); }
   sendDrive() {
     if (!this.state.armed || !this.state.connected) return;
     const packet = this.packet(OP.DRIVE, { throttle: this.throttle, steer: this.steer, limit: this.state.limit, ttl: 200 });
@@ -285,7 +318,11 @@ export class RemoteController {
   ingest(packet, generation) {
     if (generation !== this.generation || !this.state.connected) return false;
     if (packet.kind === 3) { this.acks.accept(packet); return true; }
-    if (packet.kind === 4) {
+    if (packet.kind === 6) {
+      if (packet.session !== this.state.session) return false;
+      this.servoMotion=packet; this.servoMotionAt=this.now(); this.notify(); return true;
+    }
+    if (packet.kind === 4 || packet.kind === 5) {
       if (packet.session !== this.state.session) return false;
       this.servoStatus = packet; this.servoStatusAt = this.now(); this.notify(); return true;
     }
@@ -293,6 +330,7 @@ export class RemoteController {
     if (!packet.session) return false;
     const changedSession = packet.session !== this.state.session;
     if (changedSession) {
+      this.servoMotion = null; this.servoMotionAt = -Infinity;
       this.servoStatus = null; this.servoStatusAt = -Infinity;
       this.state.session = packet.session;
       this.unsolicitedArmedStopped = false;
@@ -301,10 +339,10 @@ export class RemoteController {
       this.lockLocally('会话已更新，请手动解锁');
     }
     this.mainStatusAt = this.now();
-    Object.assign(this.state, { uart: packet.uart, ready: packet.ready, remoteArmed: packet.armed,
+    Object.assign(this.state, { uart: packet.uart, ready: packet.ready, pidReady: packet.pidReady, phase: packet.phase, remoteArmed: packet.armed,
       active: packet.active, fault: packet.fault, faultCode: packet.faultCode, reason: packet.reason,
       calibratedMask: packet.calibratedMask, left: packet.left, right: packet.right });
-    if (packet.fault || !packet.uart || !packet.ready || packet.calibratedMask !== 15) {
+    if (packet.fault || !packet.uart || !packet.ready || !packet.pidReady || packet.calibratedMask !== 15) {
       if (this.state.armed || this.state.armPending) {
         this.unsolicitedArmedStopped = packet.armed;
         this.stop('底盘未就绪或故障，已锁定').catch(() => {});
@@ -323,24 +361,26 @@ export class RemoteController {
   }
   servoAvailable(channel, release = false) {
     const s = this.servoStatus;
-    return !!(s && s.available && s.session === this.state.session && this.now()-this.servoStatusAt < 500 &&
+    return !!(Number.isInteger(channel) && channel>=0 && s && channel<s.pulses.length &&
+      s.available && s.session === this.state.session && this.now()-this.servoStatusAt < 500 &&
       this.state.connected && this.state.uart && !this.state.armed && !this.state.armPending &&
       !this.state.remoteArmed && !this.state.active && !this.state.configBusy &&
-      this.now()-this.mainStatusAt < 500 && (release || !this.state.fault && (s.positionMask & (1<<channel))));
+      this.now()-this.mainStatusAt < 500 && (release || s.slew && this.servoMotion && this.now()-this.servoMotionAt<500 &&
+        !(this.servoMotion.errorMask & (1<<channel)) && !this.state.fault && (s.positionMask & (1<<channel))));
   }
-  async servo(channel, pulseUs) {
+  async servo(channel, pulseUs, owner = null, referenceUs = 0) {
+    if (this.servoOwner && this.servoOwner !== owner) throw new Error('其他舵机操作正在运行，请先停止');
     this.assertStopped();
-    if (!this.servoAvailable(channel, pulseUs === 0)) throw new Error('舵机固件未就绪、类型待确认或状态已过期');
+    if (!this.servoAvailable(channel, pulseUs === 0)) throw new Error('需缓启动固件与新鲜状态，且底盘已锁定停稳');
     const old = this.servoStatus.pulses[channel];
-    if (pulseUs && ((!old && pulseUs !== 1500) || (old && Math.abs(old-pulseUs)>25)))
-      throw new Error('首次仅允许 1500μs，后续每次最多改变 25μs');
+    if (pulseUs && (!old && !referenceUs || old && referenceUs))
+      throw new Error('PWM释放后需要起点参考；已启用时不能重设起点');
     this.state.configBusy = true; this.notify();
     try {
-      await this.acknowledged(OP.SERVO, { channel, pulseUs }, 254);
-      // ACK confirms the owner task updated PWM, not a measured shaft angle.
-      if (this.servoStatus) this.servoStatus = { ...this.servoStatus,
-        pulses: this.servoStatus.pulses.map((p,i) => i === channel ? pulseUs : p) };
-      this.state.note = pulseUs ? '舵机脉宽已确认；实际角度需观察' : '舵机 PWM 已释放，请托住机构';
+      await this.acknowledged(this.servoStatus.slew ? OP.SERVO_TARGET : OP.SERVO,
+        { channel, pulseUs, referenceUs }, 254);
+      // ACK accepts a TARGET. Only status5 reports the current PWM command.
+      this.state.note = pulseUs ? '目标已接受，ESP32限速跟随；实际角度需观察' : 'PWM释放请求已确认，请支撑机构';
     } finally { this.state.configBusy = false; this.notify(); }
   }
   async led(on) {
@@ -357,19 +397,33 @@ export class RemoteController {
         this.state.armPending || this.state.remoteArmed || this.state.active || this.state.configBusy ||
         this.now() - this.mainStatusAt >= 500) throw new Error('请连接主控、停止锁定并等待停稳状态');
   }
+  async configurePid(gains) {
+    this.assertStopped(); this.state.configBusy = true; this.notify();
+    try {
+      await this.acknowledged(OP.PID, gains, 253);
+      if (this.appliedCalibration) this.appliedCalibration = this.appliedCalibration.map(v => ({ ...v, ...gains }));
+      this.state.note = '统一 Kp/Ki/Kd 已由 STM32 确认，四轮独立计算；仍保持锁定';
+    } finally { this.state.configBusy = false; this.notify(); }
+  }
   async configure(values) {
     this.assertStopped();
     if (!Array.isArray(values) || values.length !== 4) throw new Error('需要四轮配置');
     const items = values.map(validateCalibration);
     if (items.some((item, index) => item.wheel !== index)) throw new Error('配置必须按 M1–M4 顺序');
+    if (items.some(item => ['kpMilli', 'kiMilli', 'kdMilli'].some(key => item[key] !== items[0][key])))
+      throw new Error('四轮使用同一组 Kp/Ki/Kd，请在统一 PID 区调整');
+    this.appliedCalibration = null;
     this.state.configBusy = true; this.notify();
     try {
+      this.state.note = '正在下发统一 PID 参数'; this.notify();
+      await this.acknowledged(OP.PID, items[0], 253);
       for (const item of items) {
         this.state.note = `正在写入 ${WHEELS[item.wheel]} 配置`; this.notify();
         await this.acknowledged(OP.MECHANICAL, item, item.wheel);
         await this.acknowledged(OP.TUNING, item, item.wheel);
       }
-      this.state.note = '四轮配置已确认，仅保存至 STM32 RAM；仍保持锁定';
+      this.appliedCalibration = items.map(v => ({ ...v }));
+      this.state.note = '统一 PID 与四轮配置均已确认，仅保存 RAM；仍保持锁定';
     } finally { this.state.configBusy = false; this.notify(); }
   }
   async clearFault() {

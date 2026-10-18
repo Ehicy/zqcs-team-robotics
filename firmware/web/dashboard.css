@@ -226,3 +226,15 @@ fieldset.wheel-config legend { color: var(--muted); font-size: 12px; padding: 0 
 .log li { display: flex; gap: 10px; border-bottom: 1px solid rgba(38, 50, 65, .45); padding: 3px 0; }
 .log time { color: #6b7784; flex: 0 0 66px; }
 .log li.error span { color: #ffb3ae; }
+
+/* Structured, browser-accessible agent console; JSON never overflows mobile. */
+.agent-panel { grid-column: 1 / -1; min-width: 0; }
+#agentTitle { scroll-margin-top: 120px; }
+.agent-link { color: var(--accent); font-size: 12px; }
+.agent-panel textarea { display: block; width: 100%; margin: 6px 0 10px; padding: 10px;
+  border: 1px solid var(--line); border-radius: 6px; background: #10161d; color: var(--text);
+  font: 12px/1.6 Consolas, monospace; resize: vertical; }
+.agent-panel pre { max-height: 360px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere;
+  font: 12px/1.6 Consolas, monospace; background: #10161d; padding: 10px; border-radius: 6px; }
+.agent-panel details { margin-top: 12px; }
+.agent-panel summary { cursor: pointer; color: var(--muted); }

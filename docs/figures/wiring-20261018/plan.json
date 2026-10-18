@@ -1,0 +1,2343 @@
+{
+  "version": 1,
+  "title": "下层车完整接线 · 2S电池 / 无线继电器 / 升压12V / 降压5V",
+  "board": {
+    "width": 2400,
+    "height": 2550
+  },
+  "modules": [
+    {
+      "id": "battery",
+      "title": "2S 电池组",
+      "type": "battery",
+      "x": 50,
+      "y": 660,
+      "w": 280,
+      "h": 250,
+      "note": "用户已确认2S锂电池，标称7.4V、满电8.4V。正极经靠近电池的保险和手动总开关；应有匹配的2S保护与充电方案。",
+      "pins": [
+        {
+          "id": "POS",
+          "label": "输出＋",
+          "side": "right",
+          "offset": 100,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "NEG",
+          "label": "输出−",
+          "side": "right",
+          "offset": 180,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "caption": "7.4V / 满电 8.4V",
+      "optional": false
+    },
+    {
+      "id": "fuse",
+      "title": "总保险 / 总开关",
+      "type": "switch",
+      "x": 400,
+      "y": 760,
+      "w": 320,
+      "h": 210,
+      "note": "电池正极先经保险/手动总开关，再分两根线给继电器COM与+V。保险按电池、线材、触点及变换器输入电流能力选择，不能按12V输出电流直接套用。",
+      "pins": [
+        {
+          "id": "IN",
+          "label": "输入＋",
+          "side": "left",
+          "offset": 100,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "OUT",
+          "label": "输出＋",
+          "side": "right",
+          "offset": 100,
+          "role": "power",
+          "voltage": 7.4
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "relay",
+      "title": "无线继电器 · COM → NO",
+      "type": "relay",
+      "x": 50,
+      "y": 1000,
+      "w": 520,
+      "h": 230,
+      "note": "背面焊点朝你、丝印正立，左→右NC / COM / NO / +V / −V；正面会镜像。COM与+V分别接保险/总开关后的电池正极；NO只接升压IN+；升压OUT+分到两块驱动VM及降压IN+；−V接电池负极/公共地，NC不接。+V必须接触点前，不能接NO。PCB标5–80V，蓝色5V字样是内部线圈电压；实物输入与带载能力仍须核验。",
+      "pins": [
+        {
+          "id": "NC",
+          "label": "NC",
+          "side": "bottom",
+          "offset": 60,
+          "role": "signal"
+        },
+        {
+          "id": "COM",
+          "label": "COM",
+          "side": "bottom",
+          "offset": 160,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "NO",
+          "label": "NO",
+          "side": "bottom",
+          "offset": 260,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "VPLUS",
+          "label": "+V",
+          "side": "bottom",
+          "offset": 360,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "VMINUS",
+          "label": "−V",
+          "side": "bottom",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0
+        }
+      ]
+    },
+    {
+      "id": "boost",
+      "title": "电机升压 · 12V",
+      "type": "converter",
+      "x": 660,
+      "y": 1100,
+      "w": 380,
+      "h": 250,
+      "note": "IN+接继电器NO（受控2S电池正极），IN−接公共地。断开两块驱动VM，先空载将OUT调到12.0V；OUT+分到两块TB6612的VM，OUT−接公共地。本图按非隔离升压模块；四电机启动电流和制动回馈能力未验证。普通XL6009小板不能凭标称芯片电流认定可带四轮。 用户报告驱动板、电池、升压器已通过带载验证；本轮未复核堵转电流或制动回馈。",
+      "pins": [
+        {
+          "id": "IN_POS",
+          "label": "IN＋电池",
+          "side": "left",
+          "offset": 80,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "IN_NEG",
+          "label": "IN−",
+          "side": "left",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "OUT_POS",
+          "label": "OUT＋12V",
+          "side": "right",
+          "offset": 80,
+          "role": "power",
+          "voltage": 12
+        },
+        {
+          "id": "OUT_NEG",
+          "label": "OUT−",
+          "side": "right",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        }
+      ]
+    },
+    {
+      "id": "buck",
+      "title": "主控降压模块",
+      "type": "converter",
+      "x": 470,
+      "y": 1430,
+      "w": 380,
+      "h": 250,
+      "note": "按用户现有接法：IN+接升压OUT+（12V），空载调OUT+到5.0V后供两主控。非隔离模块IN−/OUT−与电池负极共地。主控供电依赖升压器稳定，电机启动掉压可能引起重启；舵机不能默认由此逻辑电源供电。",
+      "pins": [
+        {
+          "id": "IN_POS",
+          "label": "IN＋",
+          "side": "left",
+          "offset": 80,
+          "role": "power",
+          "voltage": 12
+        },
+        {
+          "id": "IN_NEG",
+          "label": "IN−",
+          "side": "left",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "OUT_POS",
+          "label": "OUT＋5V",
+          "side": "right",
+          "offset": 80,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "OUT_NEG",
+          "label": "OUT−",
+          "side": "right",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "ground",
+      "title": "公共GND · 同一网络",
+      "type": "ground",
+      "x": 50,
+      "y": 1350,
+      "w": 300,
+      "h": 620,
+      "note": "所有GND电气上同网。下列BAT/STM/TB等只是逻辑支路名称，不代表必须有同等数量的实体排针；实体分电端可按线径和电流选用。TB所有引出GND按模块要求接好，动力回流直接回分电点。",
+      "pins": [
+        {
+          "id": "BAT",
+          "label": "BAT",
+          "side": "left",
+          "offset": 80,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "BUCK_IN",
+          "label": "BUCK_IN",
+          "side": "left",
+          "offset": 260,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "BUCK_OUT",
+          "label": "BUCK_OUT",
+          "side": "left",
+          "offset": 305,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "STM",
+          "label": "STM",
+          "side": "left",
+          "offset": 350,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "ESP",
+          "label": "ESP",
+          "side": "left",
+          "offset": 395,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "PS2",
+          "label": "PS2",
+          "side": "left",
+          "offset": 440,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "TB1_1",
+          "label": "TB1_1",
+          "side": "left",
+          "offset": 485,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "TB1_2",
+          "label": "TB1_2",
+          "side": "left",
+          "offset": 530,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "TB1_3",
+          "label": "TB1_3",
+          "side": "right",
+          "offset": 80,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "TB2_1",
+          "label": "TB2_1",
+          "side": "right",
+          "offset": 125,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "TB2_2",
+          "label": "TB2_2",
+          "side": "right",
+          "offset": 170,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "TB2_3",
+          "label": "TB2_3",
+          "side": "right",
+          "offset": 215,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "M1",
+          "label": "M1",
+          "side": "right",
+          "offset": 260,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "M2",
+          "label": "M2",
+          "side": "right",
+          "offset": 305,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "M3",
+          "label": "M3",
+          "side": "right",
+          "offset": 350,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "M4",
+          "label": "M4",
+          "side": "right",
+          "offset": 395,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "PULLDOWN",
+          "label": "PULLDOWN",
+          "side": "right",
+          "offset": 440,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "STLINK",
+          "label": "STLINK",
+          "side": "right",
+          "offset": 485,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "RELAY",
+          "label": "RELAY",
+          "side": "right",
+          "offset": 530,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "SERVO",
+          "label": "SERVO",
+          "side": "right",
+          "offset": 575,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "BOOST_IN",
+          "label": "BOOST_IN",
+          "side": "left",
+          "offset": 125,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "BOOST_OUT",
+          "label": "BOOST_OUT",
+          "side": "left",
+          "offset": 170,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "stm",
+      "title": "STM32 · 底盘控制",
+      "type": "controller",
+      "x": 1200,
+      "y": 650,
+      "w": 480,
+      "h": 1000,
+      "note": "四电机控制线与四路编码器全部在STM32。UART PA2 TX / PA3 RX。PB15控制两STBY并接10k下拉。 USB bootloader已安装，USB下载/读回和复位启动通过。BOOT0=0、BOOT1=1后复位进入DFU，写完BOOT1=0再复位运行；下载前断开电机电源。",
+      "pins": [
+        {
+          "id": "PB6",
+          "label": "PB6 · M1 PWM",
+          "side": "left",
+          "offset": 110,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB0",
+          "label": "PB0 · M1 IN1",
+          "side": "left",
+          "offset": 152,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB1",
+          "label": "PB1 · M1 IN2",
+          "side": "left",
+          "offset": 194,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA0",
+          "label": "PA0 · M1 A",
+          "side": "right",
+          "offset": 110,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA1",
+          "label": "PA1 · M1 B",
+          "side": "right",
+          "offset": 152,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB7",
+          "label": "PB7 · M2 PWM",
+          "side": "left",
+          "offset": 260,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB3",
+          "label": "PB3 · M2 IN1",
+          "side": "left",
+          "offset": 302,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB4",
+          "label": "PB4 · M2 IN2",
+          "side": "left",
+          "offset": 344,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA6",
+          "label": "PA6 · M2 A",
+          "side": "right",
+          "offset": 215,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA7",
+          "label": "PA7 · M2 B",
+          "side": "right",
+          "offset": 257,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB8",
+          "label": "PB8 · M3 PWM",
+          "side": "left",
+          "offset": 410,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB5",
+          "label": "PB5 · M3 IN1",
+          "side": "left",
+          "offset": 452,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB12",
+          "label": "PB12 · M3 IN2",
+          "side": "left",
+          "offset": 494,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA8",
+          "label": "PA8 · M3 A",
+          "side": "right",
+          "offset": 320,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA9",
+          "label": "PA9 · M3 B",
+          "side": "right",
+          "offset": 362,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB9",
+          "label": "PB9 · M4 PWM",
+          "side": "left",
+          "offset": 560,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB13",
+          "label": "PB13 · M4 IN1",
+          "side": "left",
+          "offset": 602,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB14",
+          "label": "PB14 · M4 IN2",
+          "side": "left",
+          "offset": 644,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB10",
+          "label": "PB10 · M4 A",
+          "side": "right",
+          "offset": 425,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB11",
+          "label": "PB11 · M4 B",
+          "side": "right",
+          "offset": 467,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PB15",
+          "label": "PB15 · 两板 STBY",
+          "side": "left",
+          "offset": 750,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA2",
+          "label": "PA2 · USART2 TX",
+          "side": "right",
+          "offset": 600,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA3",
+          "label": "PA3 · USART2 RX",
+          "side": "right",
+          "offset": 660,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "V5",
+          "label": "5V 输入",
+          "side": "top",
+          "offset": 80,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "V3",
+          "label": "3V3 输出",
+          "side": "top",
+          "offset": 240,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "top",
+          "offset": 400,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "PA13",
+          "label": "PA13 · SWDIO",
+          "side": "bottom",
+          "offset": 80,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PA14",
+          "label": "PA14 · SWCLK",
+          "side": "bottom",
+          "offset": 240,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "USB",
+          "label": "板载 USB 接口",
+          "side": "right",
+          "offset": 850,
+          "role": "signal"
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "esp",
+      "title": "ESP32-S3 · BLE / UART",
+      "type": "controller",
+      "x": 1840,
+      "y": 1000,
+      "w": 430,
+      "h": 650,
+      "note": "当前方案为BLE遥控。GPIO4 TX→PA3 RX，GPIO6 RX←PA2 TX；两块板3V3输出不互连。GPIO12为DS3128大臂、GPIO13为MG995小臂、GPIO14为MG995门；ESP32 v3已更新，三路角度滑块待实物端点标定。5V IN接降压OUT+（5V），USB与外部5V需避免直接并供。",
+      "pins": [
+        {
+          "id": "GPIO4",
+          "label": "GPIO4 · UART1 TX",
+          "side": "left",
+          "offset": 110,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GPIO6",
+          "label": "GPIO6 · UART1 RX",
+          "side": "left",
+          "offset": 170,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "V5",
+          "label": "5V 输入",
+          "side": "left",
+          "offset": 280,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "V3",
+          "label": "3V3（不并接STM）",
+          "side": "left",
+          "offset": 345,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "left",
+          "offset": 420,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "USB",
+          "label": "原生 USB · 下载/控制台",
+          "side": "right",
+          "offset": 285,
+          "role": "signal"
+        },
+        {
+          "id": "GPIO15",
+          "label": "GPIO15 · DAT",
+          "side": "top",
+          "offset": 55,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GPIO16",
+          "label": "GPIO16 · CMD",
+          "side": "top",
+          "offset": 155,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GPIO17",
+          "label": "GPIO17 · CS",
+          "side": "top",
+          "offset": 255,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GPIO18",
+          "label": "GPIO18 · CLK",
+          "side": "top",
+          "offset": 355,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GPIO12",
+          "label": "12·大臂",
+          "side": "bottom",
+          "offset": 100,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GPIO13",
+          "label": "13·小臂",
+          "side": "bottom",
+          "offset": 215,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GPIO14",
+          "label": "14·门",
+          "side": "bottom",
+          "offset": 345,
+          "role": "signal",
+          "voltage": 3.3
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "ps2",
+      "title": "PS2 接收器 · 备选",
+      "type": "receiver",
+      "x": 1850,
+      "y": 500,
+      "w": 430,
+      "h": 350,
+      "note": "当前主分支遥控输入是BLE。此处仅保留PS2备选接法；已确认宽压转接板可5V输入，但DAT必须3.3V逻辑，不能套用于裸接收器。",
+      "pins": [
+        {
+          "id": "VCC",
+          "label": "转接板 VCC 输入",
+          "side": "left",
+          "offset": 100,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "left",
+          "offset": 200,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "DAT",
+          "label": "DAT",
+          "side": "bottom",
+          "offset": 55,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "CMD",
+          "label": "CMD",
+          "side": "bottom",
+          "offset": 155,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "CS",
+          "label": "CS",
+          "side": "bottom",
+          "offset": 255,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "CLK",
+          "label": "CLK",
+          "side": "bottom",
+          "offset": 355,
+          "role": "signal",
+          "voltage": 3.3
+        }
+      ],
+      "optional": true
+    },
+    {
+      "id": "ps2pad",
+      "title": "PS2 无线手柄",
+      "type": "receiver",
+      "x": 1200,
+      "y": 2090,
+      "w": 480,
+      "h": 215,
+      "note": "2.4G 无线对码，无需接线。按 MODE/ANALOG 切到模拟模式后摇杆才有效；长时间不用会休眠，按 START 唤醒。",
+      "pins": [],
+      "optional": true
+    },
+    {
+      "id": "tb1",
+      "title": "TB① · 前轮 M1 / M2",
+      "type": "driver",
+      "x": 650,
+      "y": 160,
+      "w": 350,
+      "h": 550,
+      "note": "D103A：芯片面朝你、黄电容在上，左右各8针。三个GND在同一网络；引出脚仍按实物接好。VM=12V，VCC=3V3，STBY是控制信号不是电源。",
+      "pins": [
+        {
+          "id": "VM",
+          "label": "VM",
+          "side": "left",
+          "offset": 110,
+          "role": "power",
+          "voltage": 12
+        },
+        {
+          "id": "VCC",
+          "label": "VCC",
+          "side": "left",
+          "offset": 160,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND1",
+          "label": "GND",
+          "side": "left",
+          "offset": 210,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "AO1",
+          "label": "AO1",
+          "side": "left",
+          "offset": 260,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "AO2",
+          "label": "AO2",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "BO2",
+          "label": "BO2",
+          "side": "left",
+          "offset": 360,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "BO1",
+          "label": "BO1",
+          "side": "left",
+          "offset": 410,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "GND2",
+          "label": "GND",
+          "side": "left",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "PWMA",
+          "label": "PWMA",
+          "side": "right",
+          "offset": 110,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "AIN2",
+          "label": "AIN2",
+          "side": "right",
+          "offset": 160,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "AIN1",
+          "label": "AIN1",
+          "side": "right",
+          "offset": 210,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "STBY",
+          "label": "STBY",
+          "side": "right",
+          "offset": 260,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "BIN1",
+          "label": "BIN1",
+          "side": "right",
+          "offset": 310,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "BIN2",
+          "label": "BIN2",
+          "side": "right",
+          "offset": 360,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PWMB",
+          "label": "PWMB",
+          "side": "right",
+          "offset": 410,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND3",
+          "label": "GND",
+          "side": "right",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "tb2",
+      "title": "TB② · 后轮 M3 / M4",
+      "type": "driver",
+      "x": 650,
+      "y": 1800,
+      "w": 350,
+      "h": 550,
+      "note": "D103A：芯片面朝你、黄电容在上，左右各8针。三个GND在同一网络；引出脚仍按实物接好。VM=12V，VCC=3V3，STBY是控制信号不是电源。",
+      "pins": [
+        {
+          "id": "VM",
+          "label": "VM",
+          "side": "left",
+          "offset": 110,
+          "role": "power",
+          "voltage": 12
+        },
+        {
+          "id": "VCC",
+          "label": "VCC",
+          "side": "left",
+          "offset": 160,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND1",
+          "label": "GND",
+          "side": "left",
+          "offset": 210,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "AO1",
+          "label": "AO1",
+          "side": "left",
+          "offset": 260,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "AO2",
+          "label": "AO2",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "BO2",
+          "label": "BO2",
+          "side": "left",
+          "offset": 360,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "BO1",
+          "label": "BO1",
+          "side": "left",
+          "offset": 410,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "GND2",
+          "label": "GND",
+          "side": "left",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "PWMA",
+          "label": "PWMA",
+          "side": "right",
+          "offset": 110,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "AIN2",
+          "label": "AIN2",
+          "side": "right",
+          "offset": 160,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "AIN1",
+          "label": "AIN1",
+          "side": "right",
+          "offset": 210,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "STBY",
+          "label": "STBY",
+          "side": "right",
+          "offset": 260,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "BIN1",
+          "label": "BIN1",
+          "side": "right",
+          "offset": 310,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "BIN2",
+          "label": "BIN2",
+          "side": "right",
+          "offset": 360,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "PWMB",
+          "label": "PWMB",
+          "side": "right",
+          "offset": 410,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND3",
+          "label": "GND",
+          "side": "right",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m1",
+      "title": "M1 · 右前",
+      "type": "motor",
+      "x": 1900,
+      "y": 70,
+      "w": 350,
+      "h": 360,
+      "note": "M1 · 右前：同编号电机与编码器配对。实测轮位来自PROJECT.md。线色与插头观察面不能仅凭照片推定。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "right",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC",
+          "side": "right",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A",
+          "side": "right",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B",
+          "side": "right",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND",
+          "side": "right",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "right",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m2",
+      "title": "M2 · 左前",
+      "type": "motor",
+      "x": 50,
+      "y": 120,
+      "w": 350,
+      "h": 360,
+      "note": "M2 · 左前：同编号电机与编码器配对。实测轮位来自PROJECT.md。线色与插头观察面不能仅凭照片推定。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "left",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC",
+          "side": "left",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A",
+          "side": "left",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B",
+          "side": "left",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND",
+          "side": "left",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m3",
+      "title": "M3 · 右后",
+      "type": "motor",
+      "x": 1900,
+      "y": 2110,
+      "w": 350,
+      "h": 360,
+      "note": "M3 · 右后：同编号电机与编码器配对。实测轮位来自PROJECT.md。线色与插头观察面不能仅凭照片推定。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "right",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC",
+          "side": "right",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A",
+          "side": "right",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B",
+          "side": "right",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND",
+          "side": "right",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "right",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m4",
+      "title": "M4 · 左后",
+      "type": "motor",
+      "x": 50,
+      "y": 2070,
+      "w": 350,
+      "h": 360,
+      "note": "M4 · 左后：同编号电机与编码器配对。实测轮位来自PROJECT.md。线色与插头观察面不能仅凭照片推定。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "left",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC",
+          "side": "left",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A",
+          "side": "left",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B",
+          "side": "left",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND",
+          "side": "left",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "pulldown",
+      "title": "10kΩ 下拉",
+      "type": "resistor",
+      "x": 1010,
+      "y": 1880,
+      "w": 160,
+      "h": 180,
+      "note": "实物电阻一端STBY共接点，另一端接地；复位期间默认禁用。",
+      "pins": [
+        {
+          "id": "A",
+          "label": "STBY",
+          "side": "top",
+          "offset": 80,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "B",
+          "label": "GND",
+          "side": "bottom",
+          "offset": 80,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "servo",
+      "title": "三舵机 · 独立电源",
+      "type": "reserved",
+      "x": 1840,
+      "y": 1800,
+      "w": 430,
+      "h": 240,
+      "note": "DS3128大臂信号GPIO12，MG995小臂GPIO13，MG995开门（约90°行程）GPIO14。三路电源按舵机实物规格独立稳压并共地；严禁12V或主控3V3。门1000/2000μs只是参考端点，装配后逐步校准，不能按标称角度硬顶限位。",
+      "pins": [
+        {
+          "id": "ARM",
+          "label": "大臂 S",
+          "side": "left",
+          "offset": 60,
+          "role": "signal"
+        },
+        {
+          "id": "FOREARM",
+          "label": "小臂 S",
+          "side": "left",
+          "offset": 120,
+          "role": "signal"
+        },
+        {
+          "id": "VPLUS",
+          "label": "独立 V+",
+          "side": "right",
+          "offset": 60,
+          "role": "power"
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "right",
+          "offset": 120,
+          "role": "ground"
+        },
+        {
+          "id": "DOOR",
+          "label": "门 S · MG995",
+          "side": "left",
+          "offset": 180,
+          "role": "signal"
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "stlink",
+      "title": "ST-Link · STM下载接口",
+      "type": "programmer",
+      "x": 1200,
+      "y": 1780,
+      "w": 480,
+      "h": 260,
+      "note": "只连SWDIO/SWCLK/GND，本图不接ST-Link供电输出，主板另有正常电源。",
+      "pins": [
+        {
+          "id": "SWDIO",
+          "label": "SWDIO",
+          "side": "top",
+          "offset": 80,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "SWCLK",
+          "label": "SWCLK",
+          "side": "top",
+          "offset": 240,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "left",
+          "offset": 130,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "USB",
+          "label": "ST-Link USB",
+          "side": "right",
+          "offset": 130,
+          "role": "signal"
+        }
+      ],
+      "optional": true
+    },
+    {
+      "id": "pc",
+      "title": "电脑 · 下载与控制台",
+      "type": "computer",
+      "x": 1200,
+      "y": 70,
+      "w": 420,
+      "h": 350,
+      "note": "USB线仅示意整根下载/通信线，不代表可将USB 5V与车载5V输出硬并。下载前隔离ESP32外部5V路径并确认独立供电；USB可能绕过继电器负载断电。ST-Link只接SWDIO/SWCLK/GND，不连接其供电输出。",
+      "pins": [
+        {
+          "id": "USB_ESP",
+          "label": "USB → ESP原生USB",
+          "side": "bottom",
+          "offset": 110,
+          "role": "signal"
+        },
+        {
+          "id": "USB_STLINK",
+          "label": "USB → ST-Link",
+          "side": "bottom",
+          "offset": 310,
+          "role": "signal"
+        }
+      ],
+      "optional": true
+    }
+  ],
+  "wires": [
+    {
+      "id": "w001",
+      "from": "battery.POS",
+      "to": "fuse.IN",
+      "kind": "battery",
+      "group": "power",
+      "label": "2S电池正极 → 保险/手动总开关",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w002",
+      "from": "boost.OUT_POS",
+      "to": "tb1.VM",
+      "kind": "power12",
+      "group": "power",
+      "label": "升压OUT＋12V → TB① VM",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w004",
+      "from": "boost.OUT_POS",
+      "to": "buck.IN_POS",
+      "kind": "power12",
+      "group": "power",
+      "label": "升压OUT＋12V → 降压IN＋（先升压再降压）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w006",
+      "from": "stm.V3",
+      "to": "tb1.VCC",
+      "kind": "power3",
+      "group": "power",
+      "label": "3V3逻辑 → TB1 VCC",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w007",
+      "from": "boost.OUT_POS",
+      "to": "tb2.VM",
+      "kind": "power12",
+      "group": "power",
+      "label": "升压OUT＋12V → TB② VM",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w008",
+      "from": "stm.V3",
+      "to": "tb2.VCC",
+      "kind": "power3",
+      "group": "power",
+      "label": "3V3逻辑 → TB2 VCC",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w009",
+      "from": "buck.OUT_POS",
+      "to": "stm.V5",
+      "kind": "power5",
+      "group": "power",
+      "label": "5V → STM32 输入",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w010",
+      "from": "buck.OUT_POS",
+      "to": "esp.V5",
+      "kind": "power5",
+      "group": "power",
+      "label": "5V → ESP32 输入",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w011",
+      "from": "buck.OUT_POS",
+      "to": "ps2.VCC",
+      "kind": "power5",
+      "group": "power",
+      "label": "5V → 已确认宽压转接板输入",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w012",
+      "from": "battery.NEG",
+      "to": "ground.BAT",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w016",
+      "from": "buck.IN_NEG",
+      "to": "ground.BUCK_IN",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w017",
+      "from": "buck.OUT_NEG",
+      "to": "ground.BUCK_OUT",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w018",
+      "from": "stm.GND",
+      "to": "ground.STM",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w019",
+      "from": "esp.GND",
+      "to": "ground.ESP",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w020",
+      "from": "ps2.GND",
+      "to": "ground.PS2",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w021",
+      "from": "pulldown.B",
+      "to": "ground.PULLDOWN",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w022",
+      "from": "stlink.GND",
+      "to": "ground.STLINK",
+      "kind": "ground",
+      "group": "tools",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w023",
+      "from": "tb1.GND1",
+      "to": "ground.TB1_1",
+      "kind": "ground",
+      "group": "power",
+      "label": "驱动功率地直接回汇流点",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w024",
+      "from": "tb1.GND2",
+      "to": "ground.TB1_2",
+      "kind": "ground",
+      "group": "power",
+      "label": "驱动功率地直接回汇流点",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w025",
+      "from": "tb1.GND3",
+      "to": "ground.TB1_3",
+      "kind": "ground",
+      "group": "power",
+      "label": "驱动功率地直接回汇流点",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w026",
+      "from": "tb2.GND1",
+      "to": "ground.TB2_1",
+      "kind": "ground",
+      "group": "power",
+      "label": "驱动功率地直接回汇流点",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w027",
+      "from": "tb2.GND2",
+      "to": "ground.TB2_2",
+      "kind": "ground",
+      "group": "power",
+      "label": "驱动功率地直接回汇流点",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w028",
+      "from": "tb2.GND3",
+      "to": "ground.TB2_3",
+      "kind": "ground",
+      "group": "power",
+      "label": "驱动功率地直接回汇流点",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w029",
+      "from": "m1.p5",
+      "to": "ground.M1",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w030",
+      "from": "m2.p5",
+      "to": "ground.M2",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w031",
+      "from": "m3.p5",
+      "to": "ground.M3",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w032",
+      "from": "m4.p5",
+      "to": "ground.M4",
+      "kind": "ground",
+      "group": "power",
+      "label": "公共 GND",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w033",
+      "from": "stm.PB6",
+      "to": "tb1.PWMA",
+      "kind": "pwm",
+      "group": "M1",
+      "label": "M1 PWM → TB1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w034",
+      "from": "stm.PB0",
+      "to": "tb1.AIN1",
+      "kind": "direction",
+      "group": "M1",
+      "label": "M1 方向 IN1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w035",
+      "from": "stm.PB1",
+      "to": "tb1.AIN2",
+      "kind": "direction",
+      "group": "M1",
+      "label": "M1 方向 IN2",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w036",
+      "from": "tb1.AO1",
+      "to": "m1.p6",
+      "kind": "motor",
+      "group": "M1",
+      "label": "M1 ⑥电机＋（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w037",
+      "from": "tb1.AO2",
+      "to": "m1.p1",
+      "kind": "motor",
+      "group": "M1",
+      "label": "M1 ①电机−（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w038",
+      "from": "stm.V3",
+      "to": "m1.p2",
+      "kind": "power3",
+      "group": "power",
+      "label": "M1 编码器②VCC：3V3",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w039",
+      "from": "m1.p3",
+      "to": "stm.PA0",
+      "kind": "encoder",
+      "group": "M1",
+      "label": "M1 ③A反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w040",
+      "from": "m1.p4",
+      "to": "stm.PA1",
+      "kind": "encoder",
+      "group": "M1",
+      "label": "M1 ④B反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w041",
+      "from": "stm.PB7",
+      "to": "tb1.PWMB",
+      "kind": "pwm",
+      "group": "M2",
+      "label": "M2 PWM → TB1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w042",
+      "from": "stm.PB3",
+      "to": "tb1.BIN1",
+      "kind": "direction",
+      "group": "M2",
+      "label": "M2 方向 IN1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w043",
+      "from": "stm.PB4",
+      "to": "tb1.BIN2",
+      "kind": "direction",
+      "group": "M2",
+      "label": "M2 方向 IN2",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w044",
+      "from": "tb1.BO1",
+      "to": "m2.p6",
+      "kind": "motor",
+      "group": "M2",
+      "label": "M2 ⑥电机＋（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w045",
+      "from": "tb1.BO2",
+      "to": "m2.p1",
+      "kind": "motor",
+      "group": "M2",
+      "label": "M2 ①电机−（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w046",
+      "from": "stm.V3",
+      "to": "m2.p2",
+      "kind": "power3",
+      "group": "power",
+      "label": "M2 编码器②VCC：3V3",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w047",
+      "from": "m2.p3",
+      "to": "stm.PA6",
+      "kind": "encoder",
+      "group": "M2",
+      "label": "M2 ③A反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w048",
+      "from": "m2.p4",
+      "to": "stm.PA7",
+      "kind": "encoder",
+      "group": "M2",
+      "label": "M2 ④B反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w049",
+      "from": "stm.PB8",
+      "to": "tb2.PWMA",
+      "kind": "pwm",
+      "group": "M3",
+      "label": "M3 PWM → TB2",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w050",
+      "from": "stm.PB5",
+      "to": "tb2.AIN1",
+      "kind": "direction",
+      "group": "M3",
+      "label": "M3 方向 IN1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w051",
+      "from": "stm.PB12",
+      "to": "tb2.AIN2",
+      "kind": "direction",
+      "group": "M3",
+      "label": "M3 方向 IN2",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w052",
+      "from": "tb2.AO1",
+      "to": "m3.p6",
+      "kind": "motor",
+      "group": "M3",
+      "label": "M3 ⑥电机＋（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w053",
+      "from": "tb2.AO2",
+      "to": "m3.p1",
+      "kind": "motor",
+      "group": "M3",
+      "label": "M3 ①电机−（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w054",
+      "from": "stm.V3",
+      "to": "m3.p2",
+      "kind": "power3",
+      "group": "power",
+      "label": "M3 编码器②VCC：3V3",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w055",
+      "from": "m3.p3",
+      "to": "stm.PA8",
+      "kind": "encoder",
+      "group": "M3",
+      "label": "M3 ③A反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w056",
+      "from": "m3.p4",
+      "to": "stm.PA9",
+      "kind": "encoder",
+      "group": "M3",
+      "label": "M3 ④B反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w057",
+      "from": "stm.PB9",
+      "to": "tb2.PWMB",
+      "kind": "pwm",
+      "group": "M4",
+      "label": "M4 PWM → TB2",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w058",
+      "from": "stm.PB13",
+      "to": "tb2.BIN1",
+      "kind": "direction",
+      "group": "M4",
+      "label": "M4 方向 IN1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w059",
+      "from": "stm.PB14",
+      "to": "tb2.BIN2",
+      "kind": "direction",
+      "group": "M4",
+      "label": "M4 方向 IN2",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w060",
+      "from": "tb2.BO1",
+      "to": "m4.p6",
+      "kind": "motor",
+      "group": "M4",
+      "label": "M4 ⑥电机＋（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w061",
+      "from": "tb2.BO2",
+      "to": "m4.p1",
+      "kind": "motor",
+      "group": "M4",
+      "label": "M4 ①电机−（初接基准）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w062",
+      "from": "stm.V3",
+      "to": "m4.p2",
+      "kind": "power3",
+      "group": "power",
+      "label": "M4 编码器②VCC：3V3",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w063",
+      "from": "m4.p3",
+      "to": "stm.PB10",
+      "kind": "encoder",
+      "group": "M4",
+      "label": "M4 ③A反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w064",
+      "from": "m4.p4",
+      "to": "stm.PB11",
+      "kind": "encoder",
+      "group": "M4",
+      "label": "M4 ④B反馈",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w065",
+      "from": "stm.PB15",
+      "to": "tb1.STBY",
+      "kind": "stby",
+      "group": "power",
+      "label": "PB15 → TB① STBY",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w066",
+      "from": "stm.PB15",
+      "to": "tb2.STBY",
+      "kind": "stby",
+      "group": "power",
+      "label": "PB15 → TB② STBY",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w067",
+      "from": "stm.PB15",
+      "to": "pulldown.A",
+      "kind": "stby",
+      "group": "power",
+      "label": "STBY 共网 → 10kΩ下拉",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w068",
+      "from": "esp.GPIO4",
+      "to": "stm.PA3",
+      "kind": "uart",
+      "group": "uart",
+      "label": "GPIO4 TX → PA3 RX；115200/8N1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w069",
+      "from": "stm.PA2",
+      "to": "esp.GPIO6",
+      "kind": "uart",
+      "group": "uart",
+      "label": "PA2 TX → GPIO6 RX；115200/8N1",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w070",
+      "from": "ps2.DAT",
+      "to": "esp.GPIO15",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "PS2 DAT ↔ GPIO15",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w071",
+      "from": "esp.GPIO16",
+      "to": "ps2.CMD",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "PS2 CMD ↔ GPIO16",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w072",
+      "from": "esp.GPIO17",
+      "to": "ps2.CS",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "PS2 CS ↔ GPIO17",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w073",
+      "from": "esp.GPIO18",
+      "to": "ps2.CLK",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "PS2 CLK ↔ GPIO18",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w074",
+      "from": "esp.GPIO12",
+      "to": "servo.ARM",
+      "kind": "reserved",
+      "group": "reserved",
+      "label": "GPIO12 → DS3128大臂S",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w075",
+      "from": "esp.GPIO13",
+      "to": "servo.FOREARM",
+      "kind": "reserved",
+      "group": "reserved",
+      "label": "GPIO13 → MG995小臂S",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "w076",
+      "from": "stlink.SWDIO",
+      "to": "stm.PA13",
+      "kind": "reserved",
+      "group": "tools",
+      "label": "SWDIO → PA13；下载时接",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w077",
+      "from": "stlink.SWCLK",
+      "to": "stm.PA14",
+      "kind": "reserved",
+      "group": "tools",
+      "label": "SWCLK → PA14；下载时接",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w079",
+      "from": "pc.USB_ESP",
+      "to": "esp.USB",
+      "kind": "usb",
+      "group": "tools",
+      "label": "USB下载整线（虚线）：电脑 → ESP原生USB；先隔离外5V供电",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "w080",
+      "from": "pc.USB_STLINK",
+      "to": "stlink.USB",
+      "kind": "usb",
+      "group": "tools",
+      "label": "USB下载整线（虚线）：电脑 → ST-Link；不接其供电输出",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "relay_com",
+      "from": "fuse.OUT",
+      "to": "relay.COM",
+      "kind": "battery",
+      "group": "power",
+      "label": "保险后电池＋ → COM",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "relay_supply",
+      "from": "fuse.OUT",
+      "to": "relay.VPLUS",
+      "kind": "battery",
+      "group": "power",
+      "label": "保险后电池＋ → +V（触点前）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "relay_ground",
+      "from": "relay.VMINUS",
+      "to": "ground.RELAY",
+      "kind": "ground",
+      "group": "power",
+      "label": "模块−V → 公共地",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "servo_ground",
+      "from": "servo.GND",
+      "to": "ground.SERVO",
+      "kind": "ground",
+      "group": "reserved",
+      "label": "舵机电源负极 → 公共地",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "boost_input",
+      "from": "relay.NO",
+      "to": "boost.IN_POS",
+      "kind": "battery",
+      "group": "power",
+      "label": "继电器NO → 升压IN＋（2S电池）",
+      "verified": false
+    },
+    {
+      "id": "boost_in_ground",
+      "from": "boost.IN_NEG",
+      "to": "ground.BOOST_IN",
+      "kind": "ground",
+      "group": "power",
+      "label": "升压IN− → 公共地",
+      "verified": false
+    },
+    {
+      "id": "boost_out_ground",
+      "from": "boost.OUT_NEG",
+      "to": "ground.BOOST_OUT",
+      "kind": "ground",
+      "group": "power",
+      "label": "升压OUT− → 公共地",
+      "verified": false
+    },
+    {
+      "id": "door_servo",
+      "from": "esp.GPIO14",
+      "to": "servo.DOOR",
+      "kind": "reserved",
+      "group": "reserved",
+      "label": "GPIO14 → MG995门S · 约90°",
+      "verified": false,
+      "optional": false
+    }
+  ],
+  "notes": [
+    "用户确认：2S电池，标称7.4V、满电8.4V；升压器输出12V。沿用最初接线台样式，只补供电器件与当前正确端子。",
+    "电池＋→保险/手动总开关→分到继电器COM及+V；NO只接升压IN+；继电器−V接公共地，NC留空。",
+    "用户选用统一先升压再降压：升压OUT+为12.0V，分到两TB的VM及降压IN+；降压OUT+为5.0V，供两主控。此时主控也依赖升压输出，需验证电机启动时的12V/5V稳定性。",
+    "背面焊点朝你、丝印正立：NC / COM / NO / +V / −V。元件面会镜像，务必逐个核对丝印；蓝色SRD-05VDC为内部5V线圈，不是模块输入标称。PCB标AG-C106G-(5–80V)V1.2，仍须核验实际规格。",
+    "全部负极/GND共地（非隔离升降压模块）。电机M−不是GND；两电机动力线只接同通道O1/O2。功率回流直达电池/分电点，不穿主控、细杜邦线或面包板。",
+    "继电器+V从触点前取电，不能接自己的NO后，否则断开后会把接收器一起断电。COM/NO没有极性控制信号，ESP32无需再接一根继电器控制GPIO。",
+    "断开VM再接线和调压，先量升压12.0V、降压5.0V及正负极，确认无短路再接负载。接线图不是带载验收。",
+    "升压器电池侧电流≈12V×电机侧总电流÷电池电压÷效率，通常高于12V输出电流；容量、线径、保险和继电器必须按输入侧启动电流选。XL6009等普通小板未证实可同时带四个MG370。",
+    "MG370截图堵转6.2A/只，不能堵转试验。TB6612、升压器、继电器均不能凭低PWM/低速或标称10A视为有硬件限流和足够容量；反推制动回馈也待验证。",
+    "无线继电器不代替电池保险、手动总开关或可靠急停；掉电工作模式、触点粘连和负载残余电压都须实测。USB/ST-Link可能绕过继电器给主控供电，下载前隔离VM并核对唯一供电路径。",
+    "当前源码为 BLE 下层车：ESP32 管遥控、UART和舵机；STM32 管两块TB6612、四电机和四编码器。PS2只作备选接法，不是当前主分支已启用的输入。",
+    "实测轮位为M1右前、M2左前、M3右后、M4左后；TB1的A/B→M1/M2，TB2的A/B→M3/M4。旧图前后轮位已纠正，端子GPIO不随名称互换。",
+    "TB D103A针序：芯片面朝你、黄电容在上。六针霍尔电机：1电机−、2编码器VCC、3A、4B、5编码器GND、6电机＋；插头观察面须对照厂家原图。",
+    "编码器VCC为STM32的3V3，不接5V/12V；M−不是公共GND，电机两根动力线只接同通道O1/O2。两块主控的3V3输出不得硬并。",
+    "STM32 PB15共控两STBY并经10kΩ下拉；不得将STBY硬绑3V3。GPIO12为DS3128大臂、GPIO13为MG995小臂、GPIO14为MG995开门，舵机动力稳压规格待确认，不接12V或主控3V3。"
+  ],
+  "revision": "2026-10-18 / original-style / user-selected-series-boost-then-buck",
+  "warnings": []
+}

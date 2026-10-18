@@ -1,0 +1,14 @@
+{
+  "name": "crtc-robotics-host-tests",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test:web": "node --test --test-timeout=15000 firmware/tests/test_*.mjs && node --experimental-vm-modules firmware/tests/test_web_boot.cjs",
+    "test:wiring": "node --test docs/figures/wiring-20261018/test_editor.cjs",
+    "preview:wiring": "node docs/figures/wiring-20261018/test_editor.cjs --preview"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "linkedom": "0.18.13"
+  }
+}
