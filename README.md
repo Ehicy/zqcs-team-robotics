@@ -2,6 +2,8 @@
 
 队名：**最强初生**；公开仓库：[Seroliya/zuiqiangchusheng](https://github.com/Seroliya/zuiqiangchusheng)。
 
+**中期考核技术文档（2026-10-19）：[完整正文](docs/14-midterm-report-20261019.md)**。记录 2026-09-16 至 2026-10-19 的功能开发、方案演进、学习与验证过程。
+
 **参赛文档入口：[docs/README.md](docs/README.md)**。按《2026CRTC参赛手册 V1.5》第 10 页整理，包含功能开发历程、迭代记录、学习笔记摘编、验证记录和开源使用说明。当前状态截至 2026-10-17。
 
 上层车推送黄块，下层车使用翻转臂和夹爪收集、接料。项目背景与当前决策见 [PROJECT.md](PROJECT.md)。
