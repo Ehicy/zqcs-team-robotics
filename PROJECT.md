@@ -3,7 +3,7 @@
 
 # CRTC2026 双车机器人项目
 
-参赛队名：最强初生；公开仓库为 [Seroliya/zuiqiangchusheng](https://github.com/Seroliya/zuiqiangchusheng)，默认分支 `main`。参赛文档统一从根目录 [docs/README.md](docs/README.md) 阅读；功能历程、迭代记录、学习笔记摘编和开源说明与工程入口分开维护。
+参赛队名：最强初生；公开仓库为 [Seroliya/zuiqiangchusheng](https://github.com/Seroliya/zuiqiangchusheng)，默认分支 `main`。参赛文档统一阅读 [中期考核技术文档](docs/14-midterm-report-20261019.md)；`docs/` 仅保留该正文，旧说明与证据通过 Git 历史追溯。
 
 更新：2026-10-18。现状依据用户核对、当前源码、实板测试及 [2026CRTC参赛手册V1.5](2026CRTC参赛手册V1.5.pdf)。本文件保存当前方案、进度与继续工作的入口；历史过程见功能文档和备份。
 
@@ -32,7 +32,7 @@
 - 用户不负责机械；机构尺寸、运动范围与干涉由机械负责人或最新模型核对。
 - 当前采用面包板搭建；中期考核后改用洞洞板。
 - 舵机：DS3128 为用户确认的 360°位置型大臂舵机，接 GPIO12；MG995 为 180°位置型小臂舵机，接 GPIO13。此前ESP32 `crtc-lower-servo-v1` 已烧录，上传哈希和 INFO 版本核对通过，未独立读回 Flash。50Hz PWM 开机关闭；显式 1500μs 启用，调试窗口 1300–1700μs、单次最多 25μs、间隔至少 100ms。底盘锁定且四轮新鲜反馈为零才接受调节；STOP/断联保持最后脉宽，显式释放才关闭 PWM。没有实际角度反馈，机械限位和带载能力待验收。
-- DS3128 的 1500→1525→1500μs 短测及释放通过，用户确认转动并返回；MG995 同幅度往返及释放有回执/状态确认，目视结果待确认。重试曾在动作前因状态变化取消，未发舵机命令；随后稳定停机 2 秒再测完成。证据见 [DS3128](docs/evidence/servo-ds3128-test-20261017.json)、[MG995 复测](docs/evidence/servo-mg995-retest2-20261017.json)。
+- DS3128 的 1500→1525→1500μs 短测及释放通过，用户确认转动并返回；MG995 同幅度往返及释放有回执/状态确认，目视结果待确认。重试曾在动作前因状态变化取消，未发舵机命令；随后稳定停机 2 秒再测完成。证据见 [DS3128](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/servo-ds3128-test-20261017.json)、[MG995 复测](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/servo-mg995-retest2-20261017.json)。
 
 ### 电源
 
@@ -63,21 +63,21 @@ STM32 板载 3V3 → 两块 TB6612 的逻辑 VCC、四个编码器 VCC
 - Dashboard新增统一PID调节、可调单程距离/次数的前后往复测试及折叠调参说明。往复流程仅在网页运行，ESP32不运行测试专用程序；前台在线、已确认配置及新鲜反馈是启动条件。
 - 用户于2026-10-18明确反馈驱动板、电池和升压器已通过带载验证；本次按该反馈开放目标轮速至1000mm/s、闭环PWM上限100%，允许明确确认后的超额定目标。保留25%开环诊断上限及全部超时/故障保护。该验证来自用户报告，本轮未重新执行实物测试。
 - 额定260rpm为参考，65mm轮约885mm/s。往复测试默认使用四轮配置中最小最高目标的100%，接近端点减速；编码器打滑/滑行影响距离，不能把端点偏差当PID轮速超调。
-- 详情、协议与构建/测试入口见 [统一PID与Dashboard往复测试](docs/12-unified-pid-test.md)。双板已更新：STM32安装8KiB USB loader与偏移PID APP，USB下载/读回及校准页保留通过；ESP32 v3写入与INFO通过，UART连通且输出禁止。未做本轮运动/舵机角度实测。以下旧实板运动记录仍是之前PI/50%基线。
+- 详情、协议与构建/测试入口见 [统一PID与Dashboard往复测试](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/12-unified-pid-test.md)。双板已更新：STM32安装8KiB USB loader与偏移PID APP，USB下载/读回及校准页保留通过；ESP32 v3写入与INFO通过，UART连通且输出禁止。未做本轮运动/舵机角度实测。以下旧实板运动记录仍是之前PI/50%基线。
 
 ### 固件与已验证功能
 
 - 当前 STM32 为独立 `lower-motor` 电机目标；历史 `board-link` 目标仍固定禁用电机，二者不能混用。ESP32现为`crtc-lower-pid-servo3-v3`，包含常规BLE/回传、统一PID下发与三舵机。此节后续旧运动记录不等于新版运动验收。
 - 板间 UART：**ESP32 GPIO4 TX→STM32 PA3 RX，GPIO6 RX←PA2 TX，GND 共地；115200、8N1、3.3V 逻辑。** PC13 灯控、超时/重连和应答已有实板验证。
-- 实测轮位：M1 右前、M2 左前、M3 右后、M4 左后，编码器与同编号电机配对；左侧 M2/M4，右侧 M1/M3。前进定义为轮胎顶部朝车头移动，电机方向 `[+1,-1,+1,-1]`、编码器方向 `[-1,+1,-1,+1]`。粗测 CPR `[1756,1791,1774,898]`、轮径 65mm，仍需精确标定。来源见 [手转与电动校准](docs/evidence/manual-encoder-calibration-20261017.json)。
+- 实测轮位：M1 右前、M2 左前、M3 右后、M4 左后，编码器与同编号电机配对；左侧 M2/M4，右侧 M1/M3。前进定义为轮胎顶部朝车头移动，电机方向 `[+1,-1,+1,-1]`、编码器方向 `[-1,+1,-1,+1]`。粗测 CPR `[1756,1791,1774,898]`、轮径 65mm，仍需精确标定。来源见 [手转与电动校准](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/manual-encoder-calibration-20261017.json)。
 - 编码器前 3 路 TIM2/3/1 四倍计数，第 4 路 EXTI 两倍计数；每 10ms 按实际间隔换算轮速并执行 PI。四轮出厂配置 `confirmed=0`，只存 RAM；网页缓存只保存表单，不自动发送或解锁。初始 PI 为 kp=1000、ki=2000（milli），加速度 500mm/s²，参数需实车调试。
 - TIM4 四路 20kHz PWM；开环上限 25%，闭环硬上限 50%，网页速度可配置至 300mm/s。50% 是允许上限，不代表已验收满占空比带载。反转过零后等待至少 50ms；停止时滑行，不等于机械瞬停。TB6612 共用 STBY 需外接 10kΩ 下拉且不能硬接高电平。
 - 有效期最长 200ms，缓存输入不续期；坏帧/旧序号不刷新期限，重连不续跑。编码器、方向、控制周期异常和驱动期间 500ms 无计数进展会锁存故障；主循环失活 50ms 禁止输出，IWDG 后备复位。普通 STOP 不清故障，故障恢复需要明确操作。
-- 看门狗启动问题已修复并有下载/读回、握手、灯控、故障注入和复位证据，见 [修复记录](docs/11-lower-watchdog-fix.md)。M4 后续故障现场确认 IRQ 预算超限，加入 20μs 脉冲过滤、32 IRQ/ms 预算及现场记录，并移除 WFI 保持 DWT 连续计时；修正版烧录/读回一致。100mm/s 左右转复测用户确认方向正确、转停正常且无故障；长期稳定性和输入干扰仍待验证，不能据短测认定根因唯一，见 [M4 证据](docs/evidence/m4-clock-fix-20261017.json)。
+- 看门狗启动问题已修复并有下载/读回、握手、灯控、故障注入和复位证据，见 [修复记录](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/11-lower-watchdog-fix.md)。M4 后续故障现场确认 IRQ 预算超限，加入 20μs 脉冲过滤、32 IRQ/ms 预算及现场记录，并移除 WFI 保持 DWT 连续计时；修正版烧录/读回一致。100mm/s 左右转复测用户确认方向正确、转停正常且无故障；长期稳定性和输入干扰仍待验证，不能据短测认定根因唯一，见 [M4 证据](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/m4-clock-fix-20261017.json)。
 - 已有逐轮、双轮、三轮及四轮架空短测；四轮 20%/25%、各 5 秒用户确认转停。电脑 BLE 80mm/s、约 2 秒直行在独立 USB 电源下获用户确认四轮向前并停车；网页提速和左右转短测也已确认。历史间歇失联/复位与原外部 5V 供电问题未完成长期验收，不能将灯亮或一次成功当作电源稳定证明。证据集中在 `docs/evidence/`。
 - 桌面 `firmware/web/dashboard.html` 基于 PR #6 面板继续适配：WASD/方向键、空格/Esc 停止；手机 `index.html` 共用 BLE 协议、校准与舵机组件。电脑实连已测试，Android 实连和公网部署仍待验收。
 - `odometry.js` / `live-map.js` 已实现网页编码器里程计、场地图叠加与轨迹显示；只是位置估计，尚未用于自动控制。停车锁定且反馈新鲜才能确认起点，断联/会话变化/参数修改/异常采样冻结轨迹。BLE 计数没有源时间与启动编号，不能保证识别所有复位；四胶轮擦滑会产生误差，实际精度待测。
-- 半自动仍处于方案与地图准备阶段：STM32 定距离/定角度动作、导航里程计、任务协议和路网执行尚未实现；网页黄色 600mm 往返线只是预览，没有自动行驶验收。尺寸已知，见机械段及 [四目标方案](docs/07-semi-auto-plan.md)。
+- 半自动仍处于方案与地图准备阶段：STM32 定距离/定角度动作、导航里程计、任务协议和路网执行尚未实现；网页黄色 600mm 往返线只是预览，没有自动行驶验收。尺寸已知，见机械段及 [四目标方案](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/07-semi-auto-plan.md)。
 - 2026-10-18 合并前复验：协议、桥接、开环、速度环、遥控、编码器和上层回归测试，49 项网页测试，以及 STM32 lower-motor / ESP32 构建。UBSan 因本机缺运行库未运行，不计通过；本轮不重新烧录或驱动实物。
 
 ## 3. 近期工作与验收
@@ -111,15 +111,15 @@ STM32 板载 3V3 → 两块 TB6612 的逻辑 VCC、四个编码器 VCC
 
 | 路径 | 用途 |
 |---|---|
-| [docs/README.md](docs/README.md) | 中期参赛文档目录、规则对照与提交前待办 |
-| [整车接线说明](docs/lower-car-wiring.md) | 下层供电、TB6612/编码器/UART 接线及历史灯控证据 |
-| [电机与编码器说明](docs/06-lower-motor.md)、[速度闭环与手机遥控](docs/08-speed-remote.md)、[半自动方案](docs/07-semi-auto-plan.md) | 台架校准、闭环/BLE 入口与后续四目标导航计划 |
+| [中期考核技术文档](docs/14-midterm-report-20261019.md) | 队伍提供的中期考核正文（2026-10-19） |
+| [整车接线说明](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/lower-car-wiring.md) | 下层供电、TB6612/编码器/UART 接线及历史灯控证据 |
+| [电机与编码器说明](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/06-lower-motor.md)、[速度闭环与手机遥控](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/08-speed-remote.md)、[半自动方案](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/07-semi-auto-plan.md) | 台架校准、闭环/BLE 入口与后续四目标导航计划 |
 | [firmware/shared/board_link_config.h](firmware/shared/board_link_config.h) | 下层引脚、协议参数及开环 PWM 限幅的统一入口 |
 | `firmware/shared/`、`firmware/esp32/`、`firmware/web/` | 双板协议/PI/遥控状态机、ESP32 PlatformIO 工程、Android BLE 静态面板 |
 | `sample-mecanum-car-study/examples/board-link/`、`sample-mecanum-car-study/examples/lower-motor/` | 下层 STM32 禁用输出基线与独立开环/闭环电机目标入口，按构建目标区分输出能力 |
 | `sample-mecanum-car-study/hardware/Src/` | 上层原 TT/DRV8833/PS2 驱动与主循环 |
 | [版本索引](sample-mecanum-car-study/docs/LOCAL_VERSIONS.zh-CN.md)、[S曲线与停车说明](sample-mecanum-car-study/docs/S_CURVE_STOP.zh-CN.md) | 原车固件追溯、构建和操作说明 |
-| `docs/` | 参赛功能文档；旧 V1.4 复核文章只作为历史，不覆盖 V1.5 |
+| `docs/` | 仅保留 `14-midterm-report-20261019.md`；旧功能文档、图片与证据见 Git 历史 |
 | `output/mechanics/` | 最新团队模型见 `team-solidworks-20261017/`（附 SHA-256 清单）；旧 v1–v3 不能自动作为当前机构依据 |
 | `backups/` | 历史快照、固件和实机证据，仅供追溯 |
 
@@ -145,4 +145,4 @@ pio run -d firmware/esp32 -e board-link
 - 待确认的机械参数、模块规格与实测结果明确标注，不从旧讨论推定已经实现。
 - `backups/` 保留当前双板原始 Flash、最终固件及实机证据，以及最近一次主文件清理快照；上层回退固件保留在 `sample-mecanum-car-study/releases/firmware/`。过时文档/CAD 备份及被替代的诊断固件已清理，历史备份不作为现行项目状态入口。
 
-2026-10-18更新：第三路MG995用于开门（约90°），分配ESP32 GPIO14/LEDC2；原两路GPIO12/13。三路网页角度滑块已加入并平滑跟随，门1000–2000μs参考端点可调整；大/小臂原首测窗口不变，角度待标定。USB当前WinUSB自动绑定、alt2整包更新与复位启动已验证，首次完整128KiB备份在仓库外work/usb-bootloader-20261018/hardware。用户偏好后续只保留必要写入读回，不反复哈希。详见[USB与三舵机](docs/13-usb-loader-door-servo.md)。
+2026-10-18更新：第三路MG995用于开门（约90°），分配ESP32 GPIO14/LEDC2；原两路GPIO12/13。三路网页角度滑块已加入并平滑跟随，门1000–2000μs参考端点可调整；大/小臂原首测窗口不变，角度待标定。USB当前WinUSB自动绑定、alt2整包更新与复位启动已验证，首次完整128KiB备份在仓库外work/usb-bootloader-20261018/hardware。用户偏好后续只保留必要写入读回，不反复哈希。详见[USB与三舵机](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/13-usb-loader-door-servo.md)。

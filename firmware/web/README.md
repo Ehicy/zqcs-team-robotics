@@ -1,9 +1,9 @@
 > 2026-10-18 v4更新：舵机面板移除两个确认复选框，直接拖动目标；首次接管使用“起点参考”，不再强制1500μs。
 > ESP32常规固件以100μs/s、200μs/s²生成轨迹，网页只续租与合并目标。首次位置未知时仍不能保证不跳动。
-> 当前v4已编译、待安装，详细协议/状态与限制见 [USB及舵机说明](../../docs/13-usb-loader-door-servo.md)。
+> 当前v4已编译、待安装，详细协议/状态与限制见 [USB及舵机说明](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/13-usb-loader-door-servo.md)。
 > 下方“首次1500/25μs/确认”是此前版本的验证记录，不适用于v4控制流程。
 
-> 2026-10-18 新版：统一PID参数由ESP32初始化下发，四轮PID在STM32独立计算；Dashboard往复测试在浏览器运行。新增目标上限1000mm/s、闭环PWM100%，详细用法与旧版兼容边界见 [统一PID与往复测试](../../docs/12-unified-pid-test.md)。下方旧版测试记录不代表新版已烧录。
+> 2026-10-18 新版：统一PID参数由ESP32初始化下发，四轮PID在STM32独立计算；Dashboard往复测试在浏览器运行。新增目标上限1000mm/s、闭环PWM100%，详细用法与旧版兼容边界见 [统一PID与往复测试](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/12-unified-pid-test.md)。下方旧版测试记录不代表新版已烧录。
 
 # 下层车 Android BLE 控制面板
 
@@ -92,8 +92,8 @@ BLE 扩展仍为 20 字节、版本 1，共用原 session/sequence/replay/200ms 
 
 硬件输出使用 ESP-IDF LEDC 低速模式、50Hz、14位，参考 [Espressif LEDC 文档](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/api-reference/peripherals/ledc.html)。所有写入在 ESP32 主循环执行，BLE 回调只入队，无阻塞扫描动作。
 
-验证：新增桥接测试覆盖双通道、启动与步进边界、限频、非零/失效/过期轮速拒绝、重放/旧会话/过期包拒绝、STOP保留位置、释放与HAL错误；网页共49项测试通过。UBSan未运行。2026-10-17 ESP32 已烧录 `crtc-lower-servo-v1`，上传哈希校验与串口版本核对通过（未独立读回）。DS3128 的1500→1525→1500μs及最终释放均收到回执/状态确认，用户目视确认有转动并回到刚才位置；仅小范围往返通过，完整行程、角度精度、机械限位与带载能力未验收，MG995 随后完成 GPIO13 的同样短测，各步与最终 PWM 释放确认，目视结果待确认，见 [MG995 测试记录](../../docs/evidence/servo-mg995-test-20261017.json)。见 [测试记录](../../docs/evidence/servo-ds3128-test-20261017.json)。
+验证：新增桥接测试覆盖双通道、启动与步进边界、限频、非零/失效/过期轮速拒绝、重放/旧会话/过期包拒绝、STOP保留位置、释放与HAL错误；网页共49项测试通过。UBSan未运行。2026-10-17 ESP32 已烧录 `crtc-lower-servo-v1`，上传哈希校验与串口版本核对通过（未独立读回）。DS3128 的1500→1525→1500μs及最终释放均收到回执/状态确认，用户目视确认有转动并回到刚才位置；仅小范围往返通过，完整行程、角度精度、机械限位与带载能力未验收，MG995 随后完成 GPIO13 的同样短测，各步与最终 PWM 释放确认，目视结果待确认，见 [MG995 测试记录](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/servo-mg995-test-20261017.json)。见 [测试记录](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/servo-ds3128-test-20261017.json)。
 
 ## 2026-10-18 当前版：三路角度滑块
 
-当前ESP32为`crtc-lower-pid-servo3-v3`（已烧录/INFO核对），STM32为USB loader+偏移PID APP（USB下载/读回通过）。新增MG995开门信号GPIO14，三路角度滑块均为平滑跟随、需显式启用，不会自动回中。大/小臂保留首测窗口，门为可校准0–90°参考行程；角度非实测。kind5三通道状态、Agent通道0/1/2、端点与安全流程见[当前说明](../../docs/13-usb-loader-door-servo.md)。72项逻辑与2项离线DOM测试通过；实物舵机行程未验收。
+当前ESP32为`crtc-lower-pid-servo3-v3`（已烧录/INFO核对），STM32为USB loader+偏移PID APP（USB下载/读回通过）。新增MG995开门信号GPIO14，三路角度滑块均为平滑跟随、需显式启用，不会自动回中。大/小臂保留首测窗口，门为可校准0–90°参考行程；角度非实测。kind5三通道状态、Agent通道0/1/2、端点与安全流程见[当前说明](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/13-usb-loader-door-servo.md)。72项逻辑与2项离线DOM测试通过；实物舵机行程未验收。

@@ -4,11 +4,9 @@
 
 **中期考核技术文档（2026-10-19）：[完整正文](docs/14-midterm-report-20261019.md)**。记录 2026-09-16 至 2026-10-19 的功能开发、方案演进、学习与验证过程。
 
-**参赛文档入口：[docs/README.md](docs/README.md)**。按《2026CRTC参赛手册 V1.5》第 10 页整理，包含功能开发历程、迭代记录、学习笔记摘编、验证记录和开源使用说明。当前状态截至 2026-10-17。
-
 上层车推送黄块，下层车使用翻转臂和夹爪收集、接料。项目背景与当前决策见 [PROJECT.md](PROJECT.md)。
 
-下层车 STM32＋ESP32 双板 UART 与灯控已验证，见 [通信与接线说明](docs/lower-car-wiring.md)。独立 [电机与编码器目标](docs/06-lower-motor.md) 已实现开环台架输出、四轮 PI 轮速闭环及故障锁存；[ESP32 BLE 与 Android 网页面板](docs/08-speed-remote.md) 已实现源码，手机限速 300mm/s、输出限幅 25%。2026-10-17 修复并烧入 `lower-motor`，通过通信、灯控与看门狗诊断测试，见 [修复记录](docs/11-lower-watchdog-fix.md)；逐轮架空试转已通过，四轮同时测试触发编码器异常（见电机说明）；实际行驶、闭环调参、手机实连与网页发布仍未验收，四轮校准默认未确认。独立 STM32 `board-link` 目标继续禁用电机。后续按 [四目标半自动方案](docs/07-semi-auto-plan.md) 开发里程计和路径，舵机动作仍未实现。上层原 TT/PS2 工程继续使用，不能混用接线。
+下层车 STM32＋ESP32 双板 UART 与灯控已验证，见 [通信与接线说明](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/lower-car-wiring.md)。独立 [电机与编码器目标](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/06-lower-motor.md) 已实现开环台架输出、四轮 PI 轮速闭环及故障锁存；[ESP32 BLE 与 Android 网页面板](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/08-speed-remote.md) 已实现源码，手机限速 300mm/s、输出限幅 25%。2026-10-17 修复并烧入 `lower-motor`，通过通信、灯控与看门狗诊断测试，见 [修复记录](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/11-lower-watchdog-fix.md)；逐轮架空试转已通过，四轮同时测试触发编码器异常（见电机说明）；实际行驶、闭环调参、手机实连与网页发布仍未验收，四轮校准默认未确认。独立 STM32 `board-link` 目标继续禁用电机。后续按 [四目标半自动方案](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/07-semi-auto-plan.md) 开发里程计和路径，舵机动作仍未实现。上层原 TT/PS2 工程继续使用，不能混用接线。
 
 ## 历史机械设计与试验资料
 

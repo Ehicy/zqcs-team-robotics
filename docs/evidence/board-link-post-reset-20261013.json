@@ -1,3 +1,0 @@
-[
-  "INFO firmware=crtc-board-link-led-v1 transport=1 connected=1 token=4A83ED18 flags=7 encoder_mask=0 parser_errors=0 rejected=0 rx_bytes=28338 tx_bytes=23478 tx_frames=810 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=40547 tx_gpio=4 rx_gpio=6"
-]
