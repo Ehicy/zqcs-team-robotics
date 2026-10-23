@@ -9,6 +9,18 @@
 #define PS2_HALF_CLOCK_US  16U
 #define PS2_BYTE_GAP_US    16U
 
+#ifdef CRTC_FALLBACK
+/* Passive SWD diagnostics. No extra PS2 commands, outputs or timing changes.
+ * Counters retain short button presses between debugger snapshots. Invalid
+ * frames never manufacture a release/re-press. Fields are RAM only. */
+volatile struct
+{
+    uint32_t frames, valid_frames, circle_presses, circle_releases;
+    uint8_t raw[PS2_FRAME_SIZE], last_valid_mode;
+    uint16_t last_valid_buttons;
+} fallback_ps2_diag;
+#endif
+
 /* 用命名引脚和标准库函数代替位带地址宏，便于对应接线。 */
 void ps2_init(void)
 {
@@ -83,15 +95,36 @@ static uint8_t ps2_read_with_mode(ps2_data *data, uint8_t allow_digital)
         delay_us(PS2_BYTE_GAP_US);
     }
     GPIO_SetBits(GPIOB, PS2_CS_PIN | PS2_CMD_PIN);
+#ifdef CRTC_FALLBACK
+    for (byte = 0; byte < PS2_FRAME_SIZE; byte++)
+        fallback_ps2_diag.raw[byte] = received[byte];
+#endif
     /* 第 0 字节是空闲响应；检查模式和固定标志，并非校验和。 */
     if ((received[1] != PS2_MODE_ANALOG &&
          !(allow_digital != 0U && received[1] == 0x41U)) || received[2] != 0x5AU)
     {
+#ifdef CRTC_FALLBACK
+        fallback_ps2_diag.frames++;
+#endif
         return 0;
     }
     data->mode = received[1];
     data->btn1 = (uint8_t)(~received[3]);
     data->btn2 = (uint8_t)(~received[4]);
+#ifdef CRTC_FALLBACK
+    {
+        uint16_t buttons = (uint16_t)data->btn1 | ((uint16_t)data->btn2 << 8);
+        uint16_t circle = (uint16_t)(1U << PS2_BUTTON_CIRCLE);
+        if ((buttons & circle) && !(fallback_ps2_diag.last_valid_buttons & circle))
+            fallback_ps2_diag.circle_presses++;
+        if (!(buttons & circle) && (fallback_ps2_diag.last_valid_buttons & circle))
+            fallback_ps2_diag.circle_releases++;
+        fallback_ps2_diag.last_valid_buttons = buttons;
+        fallback_ps2_diag.last_valid_mode = data->mode;
+        fallback_ps2_diag.valid_frames++;
+        fallback_ps2_diag.frames++;
+    }
+#endif
     if (received[1] == PS2_MODE_ANALOG)
     {
         data->RJoy_LR = received[5];

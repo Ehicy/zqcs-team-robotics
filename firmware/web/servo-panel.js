@@ -2,10 +2,12 @@
 import { DoorControl } from './door-control.js';
 export function installServoPanel(controller) {
   const root=document.getElementById('servoPanel');
+  const gpio=document.body?.dataset?.hardwareProfile==='c3-pa' ? [7,10,0] : [12,13,14];
+  const names=[`DS3128 360°位置型 · 大臂 · GPIO${gpio[0]}`,`MG995 180° · 小臂 · GPIO${gpio[1]}`,`MG995 · 门约90°行程 · GPIO${gpio[2]}`];
   root.innerHTML=`<h2>舵机 · 大臂 / 小臂 / 开门</h2>
     <p class="hint">直接拖动目标滑块。ESP32以100μs/s、200μs/s²缓加减速；显示均为指令参考，并非实测角度。</p>
     <p class="hint">首次接管无位置反馈：把“起点参考”设为当前机构位置，再拖动目标。起点不符仍可能突然转动；软件限速不等于限流或堵转保护。</p>
-    <div class="servo-grid">${['DS3128 360°位置型 · 大臂 · GPIO12','MG995 180° · 小臂 · GPIO13','MG995 · 门约90°行程 · GPIO14'].map((name,i)=>`
+    <div class="servo-grid">${names.map((name,i)=>`
       <fieldset><legend>${name}</legend><output id="servoValue${i}">等待固件状态</output>
       <label for="servoReference${i}">上电 / 释放后的起点参考 <strong id="servoReferenceValue${i}"></strong></label>
       <input id="servoReference${i}" type="range" min="${i===0?144:i===1?72:0}" max="${i===0?216:i===1?108:90}" step="1" value="${i===0?180:i===1?90:45}">

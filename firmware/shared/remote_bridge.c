@@ -1,6 +1,19 @@
 #include "remote_bridge.h"
 #include <string.h>
 
+static void stop_uart(remote_bridge_t *b,uint32_t now)
+{
+#ifdef CRTC_C3_DASHBOARD
+    const int16_t zero[4]={0,0,0,0};
+    link_node_t *n=b->link;
+    if(!link_node_submit_pwm(n,n->have_input_sequence?n->input_sequence+1U:1U,
+                            zero,0,200,now)) link_node_cancel_input(n);
+#else
+    link_node_request_stop(b->link);
+#endif
+    b->link->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
+}
+
 static void freeze_servos(remote_bridge_t *b)
 {
     unsigned i;
@@ -14,11 +27,16 @@ static int servo_moving(const remote_bridge_t *b)
 static int servo_standstill(const remote_bridge_t *b,uint32_t now)
 {
     const link_node_t *n=b->link; unsigned i;
+#ifdef CRTC_C3_DASHBOARD
+    (void)now; (void)i;
+    return n->connected && !n->input_enable && !b->control.active && !b->control.armed;
+#else
     if(!n->connected || n->remote_speed_fault || n->remote_speed_valid_mask!=15 ||
        now-n->remote_speed_rx_ms>=200U || n->input_enable || b->control.armed || b->control.active ||
        !(n->remote_flags&LINK_FLAG_OUTPUT_INHIBITED)) return 0;
     for(i=0;i<4;i++) if(n->remote_speed_measured[i] || n->remote_speed_targets[i]) return 0;
     return 1;
+#endif
 }
 static void tick_servos(remote_bridge_t *b,uint32_t now)
 {
@@ -62,11 +80,20 @@ void remote_bridge_init(remote_bridge_t *b,link_node_t *link,uint32_t session)
 {
     unsigned i; memset(b,0,sizeof(*b)); b->link=link;
     remote_control_init(&b->control,session); b->uart_token=link->token;
+#ifdef CRTC_C3_DASHBOARD
+    b->manual_pwm=1;
+#endif
     b->kp_milli=LINK_PID_KP_MILLI; b->ki_milli=LINK_PID_KI_MILLI;
     b->kd_milli=LINK_PID_KD_MILLI; b->phase=CHASSIS_WAIT_LINK;
     for(i=0;i<4;i++) {
         uint8_t *p=b->configs[i]; p[0]=(uint8_t)i;
-        link_put_u16(p+2,650); link_put_u32(p+4,i==3?884:1768);
+        link_put_u16(p+2,650);
+#ifdef CRTC_C3_DASHBOARD
+        p[1]=(i&1U)?1U:0U; /* Preserve the chassis' left/right motor polarity. */
+        link_put_u32(p+4,i>=2?884:1768);
+#else
+        link_put_u32(p+4,i==3?884:1768);
+#endif
         link_put_u16(p+8,b->kp_milli); link_put_u16(p+10,b->ki_milli);
         link_put_u16(p+12,300); link_put_u16(p+14,500);
     }
@@ -75,7 +102,7 @@ void remote_bridge_stop(remote_bridge_t *b,uint8_t reason,uint32_t now)
 {
     freeze_servos(b);
     remote_control_reset(&b->control,reason);
-    link_node_request_stop(b->link); b->link->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
+    stop_uart(b,now);
     if(b->config_pending) { if(!b->config_initializing) acknowledge(b,3); b->config_pending=0; b->config_initializing=0; }
 }
 static void finish_pid(remote_bridge_t *b)
@@ -136,13 +163,17 @@ void remote_bridge_tick(remote_bridge_t *b,uint32_t now)
         (n->remote_flags&LINK_FLAG_SPEED_SUPPORTED) && n->remote_speed_valid_mask==15 &&
         n->remote_speed_ready_mask==15 && n->remote_speed_fault==0 &&
         !(n->input_enable && n->input_mode==LINK_PWM));
+#ifdef CRTC_C3_DASHBOARD
+    if(b->manual_pwm) ready=(uint8_t)(n->connected && !n->pwm_stop_latched &&
+        (n->remote_flags&LINK_FLAG_PWM_SUPPORTED));
+#endif
     had_motion=b->control.armed || b->control.active;
     if(remote_control_tick(&b->control,now,n->connected,ready) && had_motion) {
-        link_node_request_stop(n); n->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
+        stop_uart(b,now);
     }
     tick_servos(b,now);
     b->phase=chassis_state_update(n->connected,b->pid_initialized,
-        ready,n->remote_speed_fault!=0,b->control.armed,
+        ready,!b->manual_pwm && n->remote_speed_fault!=0,b->control.armed,
         b->control.active && (b->control.left_mm_s || b->control.right_mm_s));
 }
 int remote_bridge_receive(remote_bridge_t *b,const uint8_t *p,size_t size,uint32_t arrival,uint32_t now)
@@ -156,8 +187,19 @@ int remote_bridge_receive(remote_bridge_t *b,const uint8_t *p,size_t size,uint32
     accepted=remote_control_receive(&b->control,p,size,arrival,now,&a);
     if(a.kind==REMOTE_ACTION_STOP) {
         freeze_servos(b);
-        link_node_request_stop(n); n->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
+        stop_uart(b,now);
         if(b->config_pending) { if(!b->config_initializing) acknowledge(b,3); b->config_pending=0; b->config_initializing=0; }
+    } else if(a.kind==REMOTE_ACTION_PWM) {
+        unsigned i;
+        b->manual_pwm=1;
+        /* The protocol keeps physical PWM distinct from mm/s. Encoder/PID
+         * readiness never gates this explicit manual command. */
+        for(i=0;i<4;i++) if(b->configs[i][1]&1U) a.targets[i]=(int16_t)-a.targets[i];
+        if(!link_node_submit_pwm(n,n->have_input_sequence?n->input_sequence+1U:1U,
+                                a.targets,1,a.ttl_ms,now)) {
+            remote_bridge_stop(b,REMOTE_REASON_LINK,now); return 0;
+        }
+        n->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
     } else if(a.kind==REMOTE_ACTION_DRIVE) {
         unsigned i; int32_t peak=0; uint16_t limit=speed_limit(b);
         for(i=0;i<4;i++) { int32_t value=a.targets[i]; if(value<0) value=-value; if(value>peak) peak=value; }
@@ -169,6 +211,7 @@ int remote_bridge_receive(remote_bridge_t *b,const uint8_t *p,size_t size,uint32
         }
         n->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
     } else if(a.kind==REMOTE_ACTION_ARM) {
+        b->manual_pwm=0;
         /* ARM must never emit STOP: STOP rotates UART token and revokes ARM. */
         link_node_cancel_input(n);
     } else if(a.kind==REMOTE_ACTION_LED) {
@@ -285,13 +328,16 @@ void remote_bridge_status(remote_bridge_t *b,uint8_t kind,uint8_t p[20])
             n->connected && (n->remote_flags&LINK_FLAG_COMMAND_VALID) &&
             !(n->remote_flags&LINK_FLAG_OUTPUT_INHIBITED);
         p[1]=0; p[2]=(n->connected?1:0)|(b->control.armed?2:0)|(active?4:0)|
-            (b->control.drive_ready?8:0)|(n->remote_speed_fault?16:0)|(b->pid_initialized?32:0);
+            (b->control.drive_ready?8:0)|(!b->manual_pwm && n->remote_speed_fault?16:0)|(b->pid_initialized?32:0);
+#ifdef CRTC_C3_DASHBOARD
+        p[2]|=64U; /* Explicit direct-PWM opcode supported. */
+#endif
         p[3]=(uint8_t)(((unsigned)b->phase<<4)|(b->control.reason&15U)); link_put_u32(p+4,b->control.session);
         link_put_u32(p+8,b->control.have_sequence?b->control.last_sequence:0);
         if(n->remote_speed_valid_mask==15) {
             link_put_u16(p+12,(uint16_t)(((int32_t)n->remote_speed_measured[1]+n->remote_speed_measured[3])/2));
             link_put_u16(p+14,(uint16_t)(((int32_t)n->remote_speed_measured[0]+n->remote_speed_measured[2])/2));
         }
-        link_put_u16(p+16,speed_limit(b)); p[18]=n->remote_speed_ready_mask; p[19]=n->remote_speed_fault;
+        link_put_u16(p+16,speed_limit(b)); p[18]=n->remote_speed_ready_mask; p[19]=b->manual_pwm?0:n->remote_speed_fault;
     }
 }

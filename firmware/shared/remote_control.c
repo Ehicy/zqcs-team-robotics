@@ -110,6 +110,9 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         if (!all_zero(p, 12U)) return stop_reject(s, a, REMOTE_REASON_INVALID);
         break;
     case REMOTE_OPCODE_DRIVE:
+#ifdef CRTC_C3_DASHBOARD
+    case REMOTE_OPCODE_PWM:
+#endif
         throttle = get_i16(p + 12);
         steer = get_i16(p + 14);
         limit = get_u16(p + 16);
@@ -159,13 +162,20 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
     }
     /* A valid STOP is safe even if old in time or duplicated in sequence. */
     if (opcode == REMOTE_OPCODE_STOP) {
+#ifdef CRTC_C3_DASHBOARD
+        clear_input(s); s->armed=0; s->reason=REMOTE_REASON_STOP;
+        if(!s->have_sequence || sequence_newer(sequence,s->last_sequence)) {
+            s->last_sequence=sequence; s->have_sequence=1;
+        }
+#else
         remote_control_reset(s, REMOTE_REASON_STOP);
+#endif
         a->kind = REMOTE_ACTION_STOP;
         return 1;
     }
     if (s->have_sequence && !sequence_newer(sequence, s->last_sequence)) return reject(s);
     age = now - received_ms;
-    if (age >= REMOTE_CONTROL_MAX_AGE_MS || (opcode == REMOTE_OPCODE_DRIVE && age >= ttl))
+    if (age >= REMOTE_CONTROL_MAX_AGE_MS || ((opcode == REMOTE_OPCODE_DRIVE || opcode == REMOTE_OPCODE_PWM) && age >= ttl))
         return stop_reject(s, a, REMOTE_REASON_EXPIRED);
     if (!s->link_up) {
         s->reason = REMOTE_REASON_LINK;
@@ -240,7 +250,7 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         s->ttl_ms = ttl;
         s->expires_ms = received_ms + ttl;
         s->reason = REMOTE_REASON_READY;
-        a->kind = REMOTE_ACTION_DRIVE;
+        a->kind = opcode==REMOTE_OPCODE_PWM ? REMOTE_ACTION_PWM : REMOTE_ACTION_DRIVE;
         a->ttl_ms = (uint16_t)(ttl - age);
         /* Measured chassis order: M1 RF, M2 LF, M3 RR, M4 LR. */
         a->targets[0] = a->targets[2] = s->right_mm_s;

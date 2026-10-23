@@ -30,6 +30,10 @@ for node in project.findall(".//Cads/VariousControls/IncludePath"):
 print("PASS: Keil source/include paths exist", flush=True)
 
 with tempfile.TemporaryDirectory(prefix="mecanum-tests-") as temp:
+    diag_exe = str(Path(temp) / ("test_ps2_diag.exe" if os.name == "nt" else "test_ps2_diag"))
+    subprocess.run(flags + ["-DCRTC_FALLBACK=1", "-Itests", "tests/test_ps2_diagnostics.c",
+                           "tests/mock_hardware.c", "-o", diag_exe], check=True)
+    subprocess.run([diag_exe], check=True)
     exe = str(Path(temp) / ("test_control.exe" if os.name == "nt" else "test_control"))
     extra = []
     # SANITIZE=0 可用于缺少 UBSan 运行库的 Windows GCC；本次 Linux 验证启用。

@@ -19,7 +19,7 @@ enum {
     REMOTE_OPCODE_ARM=1, REMOTE_OPCODE_DRIVE=2, REMOTE_OPCODE_STOP=3,
     REMOTE_OPCODE_LED=4, REMOTE_OPCODE_MECHANICAL=5,
     REMOTE_OPCODE_TUNING=6, REMOTE_OPCODE_CLEAR_FAULT=7, REMOTE_OPCODE_SERVO=8,
-    REMOTE_OPCODE_PID=9, REMOTE_OPCODE_SERVO_TARGET=10
+    REMOTE_OPCODE_PID=9, REMOTE_OPCODE_SERVO_TARGET=10, REMOTE_OPCODE_PWM=11
 };
 enum {
     REMOTE_REASON_READY=0, REMOTE_REASON_LOCKED=1,
@@ -31,12 +31,13 @@ enum {
     REMOTE_ACTION_NONE=0, REMOTE_ACTION_DRIVE=1, REMOTE_ACTION_STOP=2,
     REMOTE_ACTION_LED=3, REMOTE_ACTION_ARM=4,
     REMOTE_ACTION_MECHANICAL=5, REMOTE_ACTION_TUNING=6,
-    REMOTE_ACTION_CLEAR_FAULT=7, REMOTE_ACTION_SERVO=8, REMOTE_ACTION_PID=9
+    REMOTE_ACTION_CLEAR_FAULT=7, REMOTE_ACTION_SERVO=8, REMOTE_ACTION_PID=9,
+    REMOTE_ACTION_PWM=10
 };
 
 typedef struct {
     uint8_t kind, led_on, wheel, flags;
-    int16_t targets[4]; /* M1 RF, M2 LF, M3 RR, M4 LR; requested mm/s */
+    int16_t targets[4]; /* M1 RF, M2 LF, M3 RR, M4 LR; mm/s, or permille for PWM. */
     uint16_t servo_us, servo_reference_us; /* Explicit first reference, not a sensor reading. */
     uint16_t ttl_ms; /* Remaining ORIGINAL receive-time lease. */
     uint16_t diameter_tenth_mm, kp_milli, ki_milli, kd_milli, max_mm_s;

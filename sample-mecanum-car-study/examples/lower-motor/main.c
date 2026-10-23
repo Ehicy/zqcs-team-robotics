@@ -1,3 +1,6 @@
+/* Preserved PID/encoder profile. NOT built by fallback-motor (2026-10-19).
+ * Its old GPIOB motor mapping must not be used with the new PA-side wiring.
+ * See docs/14-dual-stm32-fallback.md; restore this target only with its wiring. */
 #include "stm32f10x.h"
 #include "delay.h"
 #include "board_link.h"
@@ -6,6 +9,10 @@
 #include "actuation_guard.h"
 #include "chassis_state.h"
 #include "motor_hal.h"
+#ifdef CRTC_PA_CHASSIS
+#include "manual_feedback.h"
+static manual_feedback_t manual_feedback;
+#endif
 
 #if LINK_PWM_LIMIT_PERMILLE != MOTOR_MAX_PERMILLE
 #error Open-loop PWM protocol and controller limits must agree
@@ -14,8 +21,24 @@
 #error Hardware must support both controllers and match the speed PWM ceiling
 #endif
 
+#ifdef CRTC_PA_CHASSIS
+#define CHASSIS_UART USART3
+#define CHASSIS_UART_IRQ USART3_IRQn
+#define CHASSIS_UART_HANDLER USART3_IRQHandler
+#define CHASSIS_GPIO GPIOB
+#define CHASSIS_GPIO_CLOCK RCC_APB2Periph_GPIOB
+#define CHASSIS_UART_CLOCK RCC_APB1Periph_USART3
+volatile uint32_t dashboard_firmware_tag = 0xC3D61022UL;
+#else
 #if LINK_STM_UART != 2 || LINK_STM_TX_PIN != 2 || LINK_STM_RX_PIN != 3
-#error This transport implements USART2 on PA2/PA3; update transport for another mapping
+#error Historical lower-motor transport requires USART2 PA2/PA3
+#endif
+#define CHASSIS_UART USART2
+#define CHASSIS_UART_IRQ USART2_IRQn
+#define CHASSIS_UART_HANDLER USART2_IRQHandler
+#define CHASSIS_GPIO GPIOA
+#define CHASSIS_GPIO_CLOCK RCC_APB2Periph_GPIOA
+#define CHASSIS_UART_CLOCK RCC_APB1Periph_USART2
 #endif
 #define RX_RING_SIZE 128U
 static volatile uint8_t rx_bytes[RX_RING_SIZE], rx_head, rx_tail, rx_fault;
@@ -52,26 +75,26 @@ static void led_apply(void)
 static void uart_init(void)
 {
     GPIO_InitTypeDef gpio; RCC_ClocksTypeDef clocks; NVIC_InitTypeDef irq;
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);
+    RCC_APB2PeriphClockCmd(CHASSIS_GPIO_CLOCK,ENABLE);
+    RCC_APB1PeriphClockCmd(CHASSIS_UART_CLOCK,ENABLE);
     GPIO_StructInit(&gpio); gpio.GPIO_Speed=GPIO_Speed_50MHz;
     gpio.GPIO_Pin=(uint16_t)(1U<<LINK_STM_TX_PIN); gpio.GPIO_Mode=GPIO_Mode_AF_PP;
-    GPIO_Init(GPIOA,&gpio);
+    GPIO_Init(CHASSIS_GPIO,&gpio);
     gpio.GPIO_Pin=(uint16_t)(1U<<LINK_STM_RX_PIN); gpio.GPIO_Mode=GPIO_Mode_IPU;
-    GPIO_Init(GPIOA,&gpio);
+    GPIO_Init(CHASSIS_GPIO,&gpio);
     RCC_GetClocksFreq(&clocks);
-    USART2->CR1=0; USART2->CR2=0; USART2->CR3=0;
-    USART2->BRR=(uint16_t)((clocks.PCLK1_Frequency+LINK_BAUD/2U)/LINK_BAUD);
-    irq.NVIC_IRQChannel=USART2_IRQn; irq.NVIC_IRQChannelPreemptionPriority=1;
+    CHASSIS_UART->CR1=0; CHASSIS_UART->CR2=0; CHASSIS_UART->CR3=0;
+    CHASSIS_UART->BRR=(uint16_t)((clocks.PCLK1_Frequency+LINK_BAUD/2U)/LINK_BAUD);
+    irq.NVIC_IRQChannel=CHASSIS_UART_IRQ; irq.NVIC_IRQChannelPreemptionPriority=1;
     irq.NVIC_IRQChannelSubPriority=0; irq.NVIC_IRQChannelCmd=ENABLE;
     NVIC_Init(&irq);
-    USART2->CR1=USART_CR1_UE|USART_CR1_TE|USART_CR1_RE|USART_CR1_RXNEIE;
+    CHASSIS_UART->CR1=USART_CR1_UE|USART_CR1_TE|USART_CR1_RE|USART_CR1_RXNEIE;
 }
-void USART2_IRQHandler(void)
+void CHASSIS_UART_HANDLER(void)
 {
-    uint32_t status=USART2->SR;
+    uint32_t status=CHASSIS_UART->SR;
     if(status&(USART_SR_RXNE|USART_SR_ORE|USART_SR_FE|USART_SR_NE|USART_SR_PE)) {
-        uint8_t byte=(uint8_t)USART2->DR; /* SR then DR clears RX/errors */
+        uint8_t byte=(uint8_t)CHASSIS_UART->DR; /* SR then DR clears RX/errors */
         uint8_t next=(uint8_t)((rx_head+1U)%RX_RING_SIZE);
         if(status&(USART_SR_ORE|USART_SR_FE|USART_SR_NE|USART_SR_PE)) rx_fault=1;
         else if(next==rx_tail) rx_fault=1;
@@ -99,11 +122,20 @@ static void transport_fault(uint32_t now)
 }
 static uint8_t reported_fault(void)
 {
+#ifdef CRTC_PA_CHASSIS
+    if(controller.requested_mode!=LINK_CONTROL || !controller.requested_enable) return 0;
+#endif
     return lower_motor_watchdog_fault()?SPEED_FAULT_WATCHDOG:speeds.fault;
 }
 static void check_watchdog(uint32_t now)
 {
     uint8_t fault=lower_motor_watchdog_fault();
+#ifdef CRTC_PA_CHASSIS
+    if(fault && !lower_motor_is_enabled()) {
+        lower_motor_watchdog_clear();
+        fault=lower_motor_watchdog_fault();
+    }
+#endif
     /* Revoke an old motion lease ONCE on the fault edge, then let HELLO,
      * telemetry, LED and stopped-only configuration continue. Persistent
      * hardware failure must not erase the receive queue every owner pass. */
@@ -114,9 +146,9 @@ static int uart_write(const uint8_t *bytes,size_t count)
 {
     uint32_t start=delay_millis(); size_t i;
     for(i=0;i<count;i++) {
-        while(!(USART2->SR&USART_SR_TXE))
+        while(!(CHASSIS_UART->SR&USART_SR_TXE))
             if((uint32_t)(delay_millis()-start)>=10U) return 0;
-        USART2->DR=bytes[i];
+        CHASSIS_UART->DR=bytes[i];
     }
     return 1;
 }
@@ -131,11 +163,17 @@ int main(void)
     /* UID + cycle timing is a generation seed, NOT cryptographic entropy.
      * HELLO also mixes in the ESP's boot id. No flash is written. */
     seed=*(const uint32_t *)0x1ffff7e8UL ^ *(const uint32_t *)0xe0001004UL;
+#ifdef CRTC_PA_CHASSIS
+    seed ^= dashboard_firmware_tag; /* Also retain the readable build tag in the image. */
+#endif
     link_node_init(&controller,LINK_CONTROLLER,seed,delay_millis());
     link_node_set_motor_state(&controller,1,1);
     motor_control_init(&motors,delay_millis());
     lower_encoder_sample(initial_counts);
     speed_control_init(&speeds,delay_millis(),initial_counts);
+#ifdef CRTC_PA_CHASSIS
+    manual_feedback_init(&manual_feedback,delay_millis(),initial_counts);
+#endif
     uart_init(); lower_motor_watchdog_feed();
     while(1) {
         size_t length; unsigned budget; int32_t counts[4]; uint8_t enabled, encoder_mask, old_fault;
@@ -177,6 +215,9 @@ int main(void)
         }
         now=delay_millis(); link_node_tick(&controller,now);
         encoder_mask=lower_encoder_sample(counts);
+#ifdef CRTC_PA_CHASSIS
+        manual_feedback_sample(&manual_feedback,now,counts,encoder_mask,speeds.config);
+#endif
         old_fault=speeds.fault;
         enabled=!lower_motor_watchdog_fault() && controller.connected && controller.command_valid &&
             controller.requested_enable && controller.requested_mode==LINK_CONTROL &&
@@ -184,11 +225,24 @@ int main(void)
         (void)speed_control_update(&speeds,now,counts,encoder_mask,controller.requested_mm_s,
                                   enabled,controller.command_ms,controller.command_ttl_ms);
         enabled=!lower_motor_watchdog_fault() && controller.connected && controller.command_valid &&
-            controller.requested_enable && controller.requested_mode==LINK_PWM && !speeds.fault &&
+            controller.requested_enable && controller.requested_mode==LINK_PWM &&
+#ifndef CRTC_PA_CHASSIS
+            !speeds.fault &&
+#endif
             actuation_guard_allows(&actuation_guard,LINK_PWM,now);
         (void)motor_control_update(&motors,now,controller.requested_pwm,enabled,
                                   controller.command_ms,controller.command_ttl_ms);
-        if(motors.fault || (speeds.fault && speeds.fault!=old_fault) || rx_fault) transport_fault(now);
+        if(motors.fault || (speeds.fault && speeds.fault!=old_fault
+#ifdef CRTC_PA_CHASSIS
+            && controller.requested_mode==LINK_CONTROL
+#endif
+            ) || rx_fault) transport_fault(now);
+#ifdef CRTC_PA_CHASSIS
+        /* Valid feedback recovers the optional PID automatically while idle;
+         * no operator clear-fault transaction is required. */
+        if(!controller.requested_enable && speeds.fault && encoder_mask==15)
+            (void)speed_control_clear_fault(&speeds);
+#endif
         check_watchdog(now);
         if(controller.config_received) {
             uint8_t result=1;
@@ -237,6 +291,13 @@ int main(void)
         else actuation_guard_stop(&actuation_guard,delay_millis());
         link_node_set_motor_state(&controller,1,board_link_outputs_inhibited);
         link_node_publish_encoders(&controller,counts,encoder_mask,now);
+#ifdef CRTC_PA_CHASSIS
+        if(controller.requested_mode!=LINK_CONTROL || !controller.requested_enable) {
+            const int16_t no_speed_target[4]={0,0,0,0};
+            link_node_publish_speed(&controller,manual_feedback.measured,no_speed_target,
+                manual_feedback.valid_mask,speeds.ready_mask,0,now);
+        } else
+#endif
         link_node_publish_speed(&controller,speeds.measured_mm_s,speeds.ramped_mm_s,
                                 speeds.feedback_valid_mask,speeds.pid_initialized?speeds.ready_mask:0,reported_fault(),now);
         led_apply();

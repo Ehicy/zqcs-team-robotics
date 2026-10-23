@@ -1,6 +1,8 @@
 # 下层车固件入口
 
-当前烧录状态（2026-10-17）：STM32 闭环 PI 与 HAL 的 PWM 上限为 50%，开环仍为 25%，已烧录并独立读回一致。随后网页四轮 300mm/s 参数已全部 ACK，用户确认直行明显加速，尚未验收实际最高轮速和带载能力。ESP32 的转向修正已在 `crtc-lower-turn-v3` 验证，随后更新为 `crtc-lower-servo-v1`（上传哈希及版本核对通过，舵机版未独立读回），左侧 M2/M4、右侧 M1/M3；烧录、应用区读回和版本核对通过，UART 正常。A/左键原地左转、D/右键原地右转，首次用 100mm/s 核对，用户已确认左右转动并停车、无故障；长期转向稳定性待验收。低目标速度不保证低瞬时占空比。软件测试通过，UBSan 未运行；见 [STM32 证据](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/pwm50-flash-20261017.json)与 [ESP32 转向证据](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/turn-v3-flash-20261017.json)。
+当前竞赛方案（2026-10-22）：LuatOS CORE ESP32-C3 + PA 侧 STM32，Dashboard 默认 PWM 直控，编码器独立测速、PID 可选。详见 [C3 接线、构建与操作](../docs/16-c3-dashboard-encoders.md)。
+
+历史烧录状态（2026-10-17）：STM32 闭环 PI 与 HAL 的 PWM 上限为 50%，开环仍为 25%，已烧录并独立读回一致。随后网页四轮 300mm/s 参数已全部 ACK，用户确认直行明显加速，尚未验收实际最高轮速和带载能力。ESP32 的转向修正已在 `crtc-lower-turn-v3` 验证，随后更新为 `crtc-lower-servo-v1`（上传哈希及版本核对通过，舵机版未独立读回），左侧 M2/M4、右侧 M1/M3；烧录、应用区读回和版本核对通过，UART 正常。A/左键原地左转、D/右键原地右转，首次用 100mm/s 核对，用户已确认左右转动并停车、无故障；长期转向稳定性待验收。低目标速度不保证低瞬时占空比。软件测试通过，UBSan 未运行；见 [STM32 证据](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/pwm50-flash-20261017.json)与 [ESP32 转向证据](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/turn-v3-flash-20261017.json)。
 
 参赛技术正文见 [中期考核技术文档](../docs/14-midterm-report-20261019.md)。
 

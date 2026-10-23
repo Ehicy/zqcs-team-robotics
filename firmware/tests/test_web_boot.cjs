@@ -14,7 +14,8 @@ async function boot(name,entry){
  const context=vm.createContext(globals),cache=new Map();
  function module(file){
   if(cache.has(file))return cache.get(file);
-  const m=new vm.SourceTextModule(fs.readFileSync(file,'utf8'),{context,identifier:file});cache.set(file,m);return m;
+  const diskPath=file.split(/[?#]/,1)[0];
+  const m=new vm.SourceTextModule(fs.readFileSync(diskPath,'utf8'),{context,identifier:file});cache.set(file,m);return m;
  }
  const main=module(path.join(base,entry));
  await main.link((specifier,ref)=>module(path.resolve(path.dirname(ref.identifier),specifier)));await main.evaluate({timeout:5000});
@@ -33,6 +34,9 @@ async function boot(name,entry){
   assert.equal(document.getElementById('pidPercent').value,'100');assert(document.getElementById('pidTestStart').disabled);
   assert(document.querySelector('#pidTestPanel details').textContent.includes('Kp'));
   assert.equal(window.crtcAgent.status().state.connected,false);
+  assert.equal(document.getElementById('driveMode').value,'pwm');
+  assert.equal(document.getElementById('speedValue').textContent,'20');
+  assert(document.getElementById('clearFaultButton').hidden);
  }
  console.log('PASS offline DOM boot:',name,'(PID controls, no automatic movement, no BLE calls)');
 }

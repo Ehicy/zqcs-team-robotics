@@ -8,7 +8,11 @@ extern "C" {
 #endif
 
 /* Open-loop duty requests, NOT wheel speeds or PID targets. */
+#ifdef CRTC_PA_CHASSIS
+#define MOTOR_MAX_PERMILLE 1000
+#else
 #define MOTOR_MAX_PERMILLE 250
+#endif
 #define MOTOR_SLEW_PER_SECOND 1000U
 #define MOTOR_REVERSE_HOLD_MS 50U
 #define MOTOR_MAX_UPDATE_GAP_MS 50U

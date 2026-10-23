@@ -92,7 +92,7 @@ test('decodes every status kind, signed values, offset views and rejects malform
   for (const value of [new Uint8Array(19), new Uint8Array(21), new Uint8Array(20), packet(4)]) assert.throws(() => decodeStatus(value));
   b[3] = 1; assert.throws(() => decodeStatus(b)); b[3] = 0; b[2] = 16; assert.throws(() => decodeStatus(b));
   const badAck = packet(3); badAck[2] = 4; assert.throws(() => decodeStatus(badAck)); badAck[2] = 0; badAck[19] = 1; assert.throws(() => decodeStatus(badAck));
-  const badMain = packet(0); badMain[2] = 64; assert.throws(() => decodeStatus(badMain)); badMain[2] = 0; badMain[18] = 16; assert.throws(() => decodeStatus(badMain));
+  const badMain = packet(0); badMain[2] = 128; assert.throws(() => decodeStatus(badMain)); badMain[2] = 0; badMain[18] = 16; assert.throws(() => decodeStatus(badMain));
 });
 
 test('write queue keeps one in flight and STOP discards queued movement/actions', async () => {

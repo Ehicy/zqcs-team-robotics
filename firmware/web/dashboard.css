@@ -15,6 +15,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html, body { margin: 0; padding: 0; }
 
@@ -71,13 +72,17 @@ h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; l
     "drive telemetry aux"
     "drive telemetry log"
     "servo servo servo"
-    "map map map"
-    "calibration calibration calibration";
+    "pid pid pid"
+    "calibration calibration calibration"
+    "pidtest pidtest pidtest"
+    "map map map";
   align-items: start;
 }
 .drive { grid-area: drive; }
 .telemetry { grid-area: telemetry; }
 .aux { grid-area: aux; }
+.pid-panel { grid-area: pid; }
+.pid-test-panel { grid-area: pidtest; }
 .calibration { grid-area: calibration; }
 .logcard { grid-area: log; }
 .live-map { grid-area: map; }
@@ -93,15 +98,18 @@ h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; l
       "drive telemetry"
       "aux log"
       "servo servo"
-      "map map"
-      "calibration calibration";
+      "pid pid"
+      "calibration calibration"
+      "pidtest pidtest"
+      "map map";
   }
 }
 @media (max-width: 780px) {
-  .layout { grid-template-columns: 1fr; grid-template-areas: "drive" "telemetry" "servo" "map" "aux" "log" "calibration"; padding: 14px; }
+  .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "drive" "telemetry" "servo" "pid" "calibration" "pidtest" "map" "aux" "log"; padding: 14px; }
 }
 
 .card {
+  min-width: 0;
   background: linear-gradient(180deg, var(--card) 0%, #121820 100%);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -216,6 +224,30 @@ fieldset.wheel-config legend { color: var(--muted); font-size: 12px; padding: 0 
 .config-grid input:disabled, .config-grid select:disabled { opacity: .5; }
 .confirmation { display: flex; gap: 8px; align-items: flex-start; margin-top: 10px; font-size: 12px; color: var(--muted); }
 .confirmation input { margin-top: 2px; }
+
+/* PID setup has its own cards; never share the calibration grid area. */
+.pid-panel .config-grid, .pid-test-panel .config-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 840px;
+  margin: 14px 0;
+}
+.pid-panel .config-grid label, .pid-test-panel .config-grid label { color: var(--text); }
+.pid-panel input, .pid-test-panel input { font-variant-numeric: tabular-nums; }
+.pid-panel .field-unit { color: var(--muted); font-size: 11px; }
+.pid-test-panel details { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+.pid-test-panel summary { cursor: pointer; color: var(--accent); }
+.pid-test-panel details ul { padding-left: 20px; max-width: 100ch; }
+.pid-test-panel details li + li { margin-top: 8px; }
+.pid-test-panel #pidTestState, .pid-panel #pidPhase {
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: #10161d; overflow-wrap: anywhere;
+}
+.pid-test-panel #pidTestResults:empty { display: none; }
+@media (max-width: 520px) {
+  .pid-panel .config-grid, .pid-test-panel .config-grid { grid-template-columns: 1fr; }
+  .pid-panel .row button, .pid-test-panel .row button { flex: 1 1 100%; }
+  .config-grid { grid-template-columns: minmax(0, 1fr); }
+}
 
 /* ---------- 日志 ---------- */
 .log {

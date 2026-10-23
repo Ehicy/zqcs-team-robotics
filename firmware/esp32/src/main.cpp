@@ -1,5 +1,12 @@
+/* Historical ESP32 bridge, retained for restoration after hardware repair.
+ * The dual-STM32 fallback targets do not build or run this code.
+ * Current wiring/controls: docs/14-dual-stm32-fallback.md. */
 #include <Arduino.h>
+#if !defined(CRTC_C3_DASHBOARD)
 #include "HWCDC.h"
+#else
+#include "soc/usb_serial_jtag_struct.h"
+#endif
 #include "driver/uart.h"
 #include "driver/gpio.h"
 #include "soc/uart_reg.h"
@@ -11,8 +18,15 @@
 #include "ble_remote.h"
 #include "servo_output.h"
 
-#if !defined(CONFIG_IDF_TARGET_ESP32S3)
-#error This target requires ESP32-S3
+#if defined(CRTC_C3_DASHBOARD)
+#if !defined(CONFIG_IDF_TARGET_ESP32C3)
+#error c3-dashboard requires ESP32-C3
+#endif
+#define CRTC_FIRMWARE_NAME "crtc-c3-direct-pwm-v2"
+#elif !defined(CONFIG_IDF_TARGET_ESP32S3)
+#error The historical target requires ESP32-S3
+#else
+#define CRTC_FIRMWARE_NAME "crtc-lower-servo-slew-v4"
 #endif
 static const uart_port_t port=static_cast<uart_port_t>(LINK_ESP_UART);
 static QueueHandle_t uart_events;
@@ -44,19 +58,24 @@ static void stop_control(uint32_t now)
 static void console_reply(const char *text,unsigned which)
 {
     size_t length=strlen(text);
+#if defined(CRTC_C3_DASHBOARD)
+    (void)which;
+    if(Serial.availableForWrite()>=static_cast<int>(length)) Serial.write(reinterpret_cast<const uint8_t *>(text),length);
+#else
     if(which==0) {
         if(USBSerial && USBSerial.availableForWrite()>=static_cast<int>(length))
             USBSerial.write(reinterpret_cast<const uint8_t *>(text),length);
     } else if(Serial.availableForWrite()>=static_cast<int>(length)) {
         Serial.write(reinterpret_cast<const uint8_t *>(text),length);
     }
+#endif
 }
 static void console_command(const char *line,uint32_t now,unsigned which)
 {
     char response[384];
     if(!strcmp(line,"INFO")) {
         snprintf(response,sizeof(response),
-            "INFO firmware=crtc-lower-servo-slew-v4 transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
+            "INFO firmware=" CRTC_FIRMWARE_NAME " transport=%u connected=%u token=%08lX flags=%u encoder_mask=%u parser_errors=%lu rejected=%lu rx_bytes=%lu tx_bytes=%lu tx_frames=%lu uart_faults=%lu last_uart_event=%d rx_level=%d uptime_ms=%lu tx_gpio=%u rx_gpio=%u\n",
             transport_ready?1U:0U,client.connected,static_cast<unsigned long>(client.token),
             client.remote_flags,client.remote_encoder_valid_mask,
             static_cast<unsigned long>(client.parser.errors),
@@ -122,14 +141,25 @@ static void console_command(const char *line,uint32_t now,unsigned which)
 static void console_poll(uint32_t now)
 {
     console_stop_barrier=false;
-    for(unsigned which=0;which<2;which++) {
+    for(unsigned which=0;which<
+#if defined(CRTC_C3_DASHBOARD)
+        1
+#else
+        2
+#endif
+        ;which++) {
         if(console_used[which] && static_cast<uint32_t>(now-console_last_byte_ms[which])>=500U) {
             console_used[which]=0; console_overflow[which]=true;
             stop_control(now);
         }
         for(unsigned budget=0;budget<16;budget++) {
+#if defined(CRTC_C3_DASHBOARD)
+            if(!Serial.available()) break;
+            int byte=Serial.read();
+#else
             if(!(which==0?USBSerial.available():Serial.available())) break;
             int byte=which==0?USBSerial.read():Serial.read();
+#endif
             if(byte<0) break;
             console_last_byte_ms[which]=now;
             if(byte=='\r') continue;
@@ -184,9 +214,15 @@ static void fail_transport(uint32_t now)
 void setup()
 {
     uart_config_t config={};
+#if !defined(CRTC_C3_DASHBOARD)
     USBSerial.setTxBufferSize(1024);
     USBSerial.setTxTimeoutMs(0);
     USBSerial.begin(115200);
+#else
+    /* Classic LuatOS board: Type-C uses its UART0 bridge. Reclaim the
+     * native USB pads for the dedicated UART1; no eFuse changes. */
+    USB_SERIAL_JTAG.conf0.usb_pad_enable=0;
+#endif
     Serial.setTxBufferSize(1024);
     Serial.begin(115200);
     link_node_init(&client,LINK_CLIENT,esp_random(),millis());

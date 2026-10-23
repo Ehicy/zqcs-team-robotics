@@ -53,7 +53,11 @@ void speed_control_init(speed_control_t *s, uint32_t now, const int32_t counts[4
     s->feedback_valid_mask=counts ? 15 : 0;
     for(i=0;i<SPEED_WHEELS;i++) {
         speed_config_t *c=&s->config[i];
+#ifdef CRTC_PA_CHASSIS
+        c->counts_per_rev=(i>=2)?884U:1768U;
+#else
         c->counts_per_rev=(i==3)?884U:1768U;
+#endif
         c->diameter_tenth_mm=650; c->kp_milli=1000; c->ki_milli=2000;
         c->max_mm_s=300; c->accel_mm_s2=500;
         c->motor_sign=c->encoder_sign=1;

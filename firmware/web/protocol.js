@@ -4,12 +4,17 @@ export const UUID = Object.freeze({
   control: '2c4b0002-6f1a-4c9e-9b72-3c06f42b7d11',
   status: '2c4b0003-6f1a-4c9e-9b72-3c06f42b7d11',
 });
-export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7, SERVO: 8, PID: 9, SERVO_TARGET: 10 });
+export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7, SERVO: 8, PID: 9, SERVO_TARGET: 10, PWM: 11 });
 export const WHEELS = Object.freeze(['M1 右前', 'M2 左前', 'M3 右后', 'M4 左后']);
 export const DEFAULT_CALIBRATION = Object.freeze(WHEELS.map((_, wheel) => Object.freeze({
   wheel, motorNegative: wheel % 2 === 1, encoderNegative: wheel % 2 === 0, confirmed: false,
   diameterTenthMm: 650, countsPerRev: wheel === 3 ? 884 : 1768,
   kpMilli: 1000, kiMilli: 2000, kdMilli: 0, maxMmS: 300,
+})));
+// Current PA-side chassis reserves TIM2 for PWM: M1/M2 x4, M3/M4 x2.
+// These remain unconfirmed estimates until each output wheel is measured.
+export const PA_CHASSIS_CALIBRATION = Object.freeze(DEFAULT_CALIBRATION.map((value, wheel) => Object.freeze({
+  ...value, countsPerRev: wheel >= 2 ? 884 : 1768, confirmed: false,
 })));
 
 function integer(value, min, max, name) {
@@ -43,12 +48,12 @@ export function validateCalibration(value) {
   return item;
 }
 export function encodeCommand(op, args) {
-  integer(op, 1, 10, '操作码');
+  integer(op, 1, 11, '操作码');
   const bytes = new Uint8Array(20), v = new DataView(bytes.buffer);
   bytes[0] = 1; bytes[1] = op;
   v.setUint32(4, integer(args.session, 1, 0xffffffff, '会话'), true);
   v.setUint32(8, integer(args.sequence, 0, 0xffffffff, '序号'), true);
-  if (op === OP.DRIVE) {
+  if (op === OP.DRIVE || op === OP.PWM) {
     v.setInt16(12, integer(args.throttle, -1000, 1000, '前后量'), true);
     v.setInt16(14, integer(args.steer, -1000, 1000, '转向量'), true);
     v.setUint16(16, integer(args.limit, 0, 1000, '速度上限'), true);
@@ -90,11 +95,11 @@ export function decodeStatus(bytes) {
   if (v.byteLength !== 20 || v.getUint8(0) !== 1) throw new Error('状态包长度或版本不符');
   const kind = v.getUint8(1), flags = v.getUint8(2), extra = v.getUint8(3);
   if (kind === 0) {
-    if (flags & ~63 || (extra >> 4) > 6 || v.getUint8(18) & ~15 || v.getUint16(16, true) > 1000) throw new Error('主状态字段越界');
+    if (flags & ~127 || (extra >> 4) > 6 || v.getUint8(18) & ~15 || v.getUint16(16, true) > 1000) throw new Error('主状态字段越界');
     return { kind, flags, reason: extra & 15, phase: extra >> 4, pidReady: !!(flags & 32), session: v.getUint32(4, true), lastSequence: v.getUint32(8, true),
       uart: !!(flags & 1), armed: !!(flags & 2), active: !!(flags & 4), ready: !!(flags & 8), fault: !!(flags & 16),
       left: v.getInt16(12, true), right: v.getInt16(14, true), limit: v.getUint16(16, true),
-      calibratedMask: v.getUint8(18), faultCode: v.getUint8(19) };
+      calibratedMask: v.getUint8(18), faultCode: v.getUint8(19), pwmSupported: !!(flags & 64) };
   }
   if (kind === 1) {
     if (flags & ~15 || extra !== 0) throw new Error('编码器状态保留位无效');
@@ -340,7 +345,7 @@ export class RemoteController {
     }
     this.mainStatusAt = this.now();
     Object.assign(this.state, { uart: packet.uart, ready: packet.ready, pidReady: packet.pidReady, phase: packet.phase, remoteArmed: packet.armed,
-      active: packet.active, fault: packet.fault, faultCode: packet.faultCode, reason: packet.reason,
+      active: packet.active, fault: packet.fault, faultCode: packet.faultCode, reason: packet.reason, pwmSupported: packet.pwmSupported,
       calibratedMask: packet.calibratedMask, left: packet.left, right: packet.right });
     if (packet.fault || !packet.uart || !packet.ready || !packet.pidReady || packet.calibratedMask !== 15) {
       if (this.state.armed || this.state.armPending) {

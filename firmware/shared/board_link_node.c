@@ -242,8 +242,12 @@ static int receive_controller(link_node_t *n,const link_frame_t *f,uint32_t now)
     memset(n->requested_pwm,0,sizeof(n->requested_pwm));
     memcpy(f->type==LINK_PWM?n->requested_pwm:n->requested_mm_s,targets,sizeof(targets));
     n->accepted_controls++;
+#if !defined(CRTC_PA_CHASSIS) && !defined(CRTC_C3_DASHBOARD)
     if((f->type==LINK_PWM && (!f->payload[2] || !any)) ||
        (previous_mode && previous_mode!=f->type)) rotate_token(n);
+#else
+    (void)any; (void)previous_mode; /* Direct STOP needs no re-handshake. */
+#endif
     n->reason=LINK_WAITING; return 1;
 }
 static int receive_client(link_node_t *n,const link_frame_t *f,uint32_t now)

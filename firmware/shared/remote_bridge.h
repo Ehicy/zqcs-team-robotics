@@ -15,6 +15,7 @@ typedef struct {
     uint8_t ack[20], ack_pending;
     uint16_t kp_milli, ki_milli, kd_milli;
     uint8_t pid_initialized, pid_init_failed, config_initializing;
+    uint8_t manual_pwm; /* Fresh PWM input bypasses PID readiness; no manual ARM. */
     chassis_state_t phase;
     /* PWM and trajectories run only in the owner task. STOP freezes at the
      * last successful PWM write, retaining holding torque. */
