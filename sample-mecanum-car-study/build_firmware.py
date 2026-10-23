@@ -8,12 +8,12 @@ import subprocess
 ROOT = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser()
 parser.add_argument("--toolchain", type=Path, help="Directory containing arm-none-eabi-gcc")
-parser.add_argument("--usb-bootloader", action="store_true", help="lower-motor only: relocate APP/VTOR to 0x08002000; does not flash")
-parser.add_argument("--target", choices=("car", "ps2-led", "motor-buttons", "board-link", "lower-motor"), default="car",
+parser.add_argument("--usb-bootloader", action="store_true", help="relocate supported APP/VTOR to 0x08002000; does not flash")
+parser.add_argument("--target", choices=("car", "ps2-led", "motor-buttons", "board-link", "lower-motor", "dashboard-motor", "fallback-remote", "fallback-motor"), default="car",
                     help="car: historical TT; board-link: inhibited; lower-motor: TB6612 PWM + calibrated speed PI")
 args = parser.parse_args()
-if args.usb_bootloader and args.target != "lower-motor":
-    parser.error("--usb-bootloader requires --target lower-motor")
+if args.usb_bootloader and args.target not in ("lower-motor", "fallback-remote", "fallback-motor"):
+    parser.error("--usb-bootloader requires a lower-motor or fallback target")
 
 def tool(name):
     base = "arm-none-eabi-" + name
@@ -44,6 +44,28 @@ if args.target == "ps2-led":
 elif args.target == "motor-buttons":
     sources = [ROOT / "hardware/Src" / name for name in ("delay.c", "ps2.c", "pwm.c")]
     sources += [ROOT / "examples/motor-buttons/main.c"]
+elif args.target.startswith("fallback-"):
+    # Emergency profile: encoder, PID, ESP32 BLE and Dashboard are disabled.
+    # Their original files/old build targets are retained, NOT deleted.
+    shared = ROOT.parent / "firmware/shared"
+    fallback = ROOT.parent / "firmware/fallback"
+    flags += ["-DCRTC_FALLBACK=1", "-I" + str(shared), "-I" + str(fallback),
+              "-Iexamples/fallback-common", "-Iexamples/lower-motor"]
+    if args.target == "fallback-motor":
+        # Keep all 12 wheel signals on PA; USART3 is PB10/PB11.
+        flags += ["-DFB_UART3=1"]
+    sources = [ROOT / "examples" / args.target / n for n in ("main.c", "hal.c")]
+    sources += [ROOT / "examples/fallback-common/uart.c", ROOT / "examples/lower-motor/timing.c",
+                ROOT / "examples/lower-motor/interrupts.c", shared / "board_link.c", shared / "servo_motion.c"]
+    sources += [fallback / n for n in ("fallback_control.c", "fallback_motor.c", "fallback_wire.c", "fallback_runtime.c")]
+    if args.target == "fallback-remote":
+        sources += [ROOT / "hardware/Src/ps2.c", ROOT / "hardware/Src/calibration_flash.c", fallback / "fallback_store.c"]
+elif args.target == "dashboard-motor":
+    shared = ROOT.parent / "firmware/shared"
+    flags += ["-DCRTC_PA_CHASSIS=1", "-I" + str(shared), "-I" + str(ROOT.parent / "firmware/fallback"), "-Iexamples/lower-motor"]
+    sources = [ROOT / "examples/lower-motor" / n for n in ("main.c", "timing.c", "interrupts.c")]
+    sources += [ROOT / "examples/dashboard-motor" / n for n in ("motor_hal.c", "encoder_hal.c")]
+    sources += sorted(shared.glob("*.c"))
 elif args.target in ("board-link", "lower-motor"):
     shared = ROOT.parent / "firmware/shared"
     flags += ["-I" + str(shared)]
@@ -52,7 +74,7 @@ elif args.target in ("board-link", "lower-motor"):
     if args.target == "lower-motor":
         sources = sorted((ROOT / "examples/lower-motor").glob("*.c")) + sorted(shared.glob("*.c"))
 sources += [ROOT / "lib/cmsis/system_stm32f10x.c"]
-if args.target != "lower-motor":
+if args.target not in ("lower-motor", "dashboard-motor", "fallback-remote", "fallback-motor"):
     sources += [ROOT / "lib/cmsis/stm32f10x_it.c"]
 sources += [ROOT / "lib/fwlib/src" / name for name in
             ("misc.c", "stm32f10x_gpio.c", "stm32f10x_rcc.c", "stm32f10x_tim.c", "stm32f10x_flash.c")]
@@ -60,7 +82,7 @@ sources += [ROOT / "gcc/startup_stm32f103.S"]
 objects = []
 for src in sources:
     obj = out / (src.stem + ".o")
-    strict = ["-Werror"] if any(part in src.parts for part in ("hardware", "examples", "shared")) else []
+    strict = ["-Werror"] if any(part in src.parts for part in ("hardware", "examples", "shared", "fallback")) else []
     subprocess.run([tool("gcc"), *flags, *strict, "-c", str(src), "-o", str(obj)], cwd=ROOT, check=True)
     objects.append(str(obj))
 elf = out / ("crtc-motor.elf" if args.target == "car" else args.target + ".elf")

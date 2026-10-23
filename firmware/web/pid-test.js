@@ -113,15 +113,15 @@ export class PidShuttle {
   }
 }
 
-export function installPidTest({ root, controller, telemetry, calibration, foreground, error, log }) {
-  root.innerHTML = `<h2>PID 往复测试</h2><p class="hint">前进 → 停稳 → 后退 → 停稳。默认速度上限100%；接近端点自动减速，短距离不一定达到上限。行程来自编码器，打滑和滑行会造成位置误差。</p>
+export function installPidTest({ root, controller, telemetry, calibration, foreground, error, log, direct = false }) {
+  root.innerHTML = `<h2>3 · PID 往复测试</h2><p class="hint">写入上方两组参数后，设置距离和次数。一次往复 = 前进 → 停稳 → 后退 → 停稳。默认速度上限100%；接近端点自动减速，短距离不一定达到上限。行程来自编码器，打滑和滑行会造成位置误差。</p>
     <div class="config-grid"><label>单程距离 mm<input id="pidDistance" type="number" min="50" max="3000" value="300" step="10"></label>
     <label>往复次数<input id="pidCycles" type="number" min="1" max="20" value="2"></label>
     <label>速度上限比例 %<input id="pidPercent" type="number" min="1" max="100" value="100"></label></div>
     <p id="pidTestSpeedPreview" class="hint"></p><p class="hint">额定参考260rpm：65mm轮约885mm/s。额定值只作参考；最大目标轮速可在四轮配置调至1000mm/s，闭环PWM上限100%，不等于硬件限流。</p>
-    <label class="confirmation"><input id="pidSpace" type="checkbox">已确认前后空间、停车余量及物理断电，车辆落地且有人看护</label>
-    <label class="confirmation"><input id="pidOverspeed" type="checkbox">允许本次超过额定参考目标；已核对电机、驱动、电池与升压器能力</label>
-    <div class="row"><button id="pidTestStart" type="button" class="primary">解锁并开始往复测试</button><button id="pidTestStop" type="button" class="danger">中止并锁定</button></div>
+    <label class="confirmation" ${direct?'hidden':''}><input id="pidSpace" type="checkbox">已确认前后空间、停车余量及物理断电，车辆落地且有人看护</label>
+    <label class="confirmation" ${direct?'hidden':''}><input id="pidOverspeed" type="checkbox">允许本次超过额定参考目标；已核对电机、驱动、电池与升压器能力</label>
+    <div class="row"><button id="pidTestStart" type="button" class="primary">开始往复测试</button><button id="pidTestStop" type="button" class="danger">停止测试</button></div>
     <p id="pidTestState" role="status" class="hint">尚未开始</p><div id="pidTestResults" class="hint"></div>
     <details><summary>如何根据车辆行为调整 PID</summary><ul>
     <li>先用短距离、低速验证方向和停车，再提高速度。检查供电、编码器、轮胎及机械阻力，PID不能弥补接错线或驱动过载。</li>
@@ -129,26 +129,43 @@ export function installPidTest({ root, controller, telemetry, calibration, foreg
     <li>再少量增加 Ki 消除持续偏慢；加速后冲过头、来回摆或松开负载后冲高，应减小 Ki。输出长期顶住100%时先查目标是否可达，勿靠加积分强推。</li>
     <li>最后从 Kd=0 小步增加，观察是否减轻轮速波动；若出现高频抖动、噪声或输出跳动，减小 Kd并检查编码器。D项基于测速而非目标，不能保证减少端点滑行距离。</li>
     <li>前后都偏一个方向优先查轮径、方向、地面与轮胎差异；本模块统一系数、四轮独立计算，不自动生成“最优PID”。端点超程是编码器行程加滑行的结果，不单独代表PID超调。</li>
-    <li>每次停稳并锁定后再写参数；写入ACK只确认参数生效。额定以上目标允许设置，但不能据此判定电机/驱动/升压器能长期承受。</li></ul></details>`;
+    <li>停稳后再写参数；写入ACK只确认参数生效。额定以上目标允许设置，但不能据此判定电机/驱动/升压器能长期承受。</li></ul></details>`;
   const field = id => root.querySelector(`#${id}`);
   const runner = new PidShuttle({ controller, telemetry, calibration, changed: render });
+  let preparing = false, prepareId = 0;
   function render() {
     const s=runner.snapshot();
     try { const max=Math.min(...calibration().map(v=>v.maxMmS)); field('pidTestSpeedPreview').textContent=`当前最高目标 ${max}mm/s，本次上限 ${Math.floor(max*Number(field('pidPercent').value)/100)}mm/s（目标值，非实测速度）`; } catch { field('pidTestSpeedPreview').textContent='请先填写有效四轮配置'; }
-    field('pidTestState').textContent=`${s.phase} · ${s.message} · 本段 ${Math.round(s.travelMm)} / ${s.distanceMm??'—'} mm · 上限 ${s.speedMmS??'—'} mm/s`;
-    field('pidTestStart').disabled=s.active || !controller.canArm(); field('pidTestStop').disabled=!s.active;
-    for (const id of ['pidDistance','pidCycles','pidPercent','pidSpace','pidOverspeed']) field(id).disabled=s.active;
+    const message=direct?s.message.replaceAll('解锁','控制准备').replaceAll('并锁定','').replaceAll('锁定','停止'):s.message;
+    field('pidTestState').textContent=`${s.phase} · ${message} · 本段 ${Math.round(s.travelMm)} / ${s.distanceMm??'—'} mm · 上限 ${s.speedMmS??'—'} mm/s`;
+    const readyToPrepare=controller.state.connected&&controller.state.uart&&controller.state.session&&!controller.state.fault&&!controller.state.configBusy&&!controller.state.armed&&!controller.state.remoteArmed&&!controller.state.active&&!controller.servoOwner&&!controller.servoMotion?.movingMask;
+    field('pidTestStart').disabled=preparing || s.active || !(direct?readyToPrepare:controller.canArm()); field('pidTestStop').disabled=!s.active&&!preparing;
+    if(preparing) field('pidTestState').textContent='准备中 · 正在应用当前参数';
+    for (const id of ['pidDistance','pidCycles','pidPercent','pidSpace','pidOverspeed']) field(id).disabled=s.active||preparing;
     field('pidTestResults').textContent=s.results.map(v=>`第${v.leg}段${v.direction>0?'前进':'后退'}：${v.travelMm.toFixed(1)}mm，端点偏差${v.overshootMm.toFixed(1)}mm`).join('；');
   }
   field('pidTestStart').onclick=async()=>{
     try {
       if(!foreground()) throw new Error('测试需要页面处于前台');
+      if(direct) {
+        const id=++prepareId,session=controller.state.session,generation=controller.generation,stopGeneration=controller.stopGeneration;
+        preparing=true;render();
+        const valid=()=>id===prepareId&&foreground()&&controller.state.connected&&controller.state.session===session&&controller.generation===generation&&controller.stopGeneration===stopGeneration;
+        try {
+          await controller.configure(calibration());
+          const deadline=controller.now()+2000;
+          while(valid()&&!controller.canArm()&&controller.now()<deadline) await new Promise(resolve=>setTimeout(resolve,25));
+          if(!valid())return;
+          if(!controller.canArm())throw new Error('底盘参数或停稳状态未就绪');
+        } finally {if(id===prepareId)preparing=false;}
+      }
       await runner.start({ distanceMm:Number(field('pidDistance').value), cycles:Number(field('pidCycles').value),
-        speedPercent:Number(field('pidPercent').value), spaceConfirmed:field('pidSpace').checked, overspeed:field('pidOverspeed').checked });
+        speedPercent:Number(field('pidPercent').value), spaceConfirmed:direct||field('pidSpace').checked, overspeed:direct||field('pidOverspeed').checked });
       log('用户启动有限次数的PID往复测试');
     } catch(e) { error(e); }
     render();
   };
-  field('pidTestStop').onclick=()=>runner.stop(); render();
-  return { runner, render, tick(){ if(runner.active && !foreground()) runner.stop('页面不在前台'); runner.tick(); render(); } };
+  const cancelPreparation=()=>{prepareId++;preparing=false;};
+  field('pidTestStop').onclick=()=>{const wasPreparing=preparing;cancelPreparation();if(wasPreparing)controller.stop('测试准备已取消').catch(error);runner.stop('测试已停止');render();}; render();
+  return { runner, render, cancelPreparation, get preparing(){return preparing;}, tick(){ if(preparing&&!foreground()){cancelPreparation();controller.stop('测试准备已取消').catch(error);} if(runner.active && !foreground()) runner.stop('页面不在前台'); runner.tick(); render(); } };
 }

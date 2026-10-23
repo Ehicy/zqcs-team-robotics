@@ -1,0 +1,22 @@
+# LuatOS ESP32-C3, classic CH343 board. No STM32 operations or eFuse changes.
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$true)][string]$Port,
+    [string]$ImageDirectory='output/bootquiet-encreset-20261023/esp32',
+    [switch]$PlanOnly
+)
+$ErrorActionPreference='Stop'
+$repo=(Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
+$workspace=Split-Path (Split-Path $repo -Parent) -Parent
+$python=Join-Path $workspace 'tools/ps2-build-venv/Scripts/python.exe'
+$esptool=Join-Path $workspace 'tools/platformio-ps2-core/packages/tool-esptoolpy/esptool.py'
+$bootApp=Join-Path $workspace 'tools/platformio-ps2-core/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin'
+$image=if([IO.Path]::IsPathRooted($ImageDirectory)){$ImageDirectory}else{Join-Path $repo $ImageDirectory}
+if($Port -notmatch '^COM[1-9][0-9]*$'){throw 'Pass the C3 USB serial port, such as COM9.'}
+$files=@((Join-Path $image 'bootloader.bin'),(Join-Path $image 'partitions.bin'),$bootApp,(Join-Path $image 'firmware.bin'))
+foreach($file in @($python,$esptool)+$files){if(-not(Test-Path -LiteralPath $file -PathType Leaf)){throw "Missing file: $file"}}
+$arguments=@($esptool,'--chip','esp32c3','--port',$Port,'--baud','460800','--before','default_reset','--after','hard_reset','write_flash','--flash_mode','dio','--flash_freq','80m','--flash_size','4MB','0x0',$files[0],'0x8000',$files[1],'0xe000',$files[2],'0x10000',$files[3])
+if($PlanOnly){Write-Output "Ready: ESP32-C3 on $Port; images $image; servo PWM IO7/IO6/IO10; bootloader 0x0, partitions 0x8000, OTA initializer 0xe000, app 0x10000. No device opened.";exit 0}
+& $python @arguments
+if($LASTEXITCODE -ne 0){throw 'C3 upload failed; inspect esptool output.'}
+Write-Output 'C3 written. Read INFO / SERVO STATUS / SETTINGS (expected: crtc-c3-bootquiet-v5). NVS retained. STM32 unchanged; encoder reset requires matching STM32 0xC3D91023.'

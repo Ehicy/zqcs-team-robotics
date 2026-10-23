@@ -1,0 +1,141 @@
+Processing c3-dashboard (platform: espressif32@7.1.3; board: airm2m_core_esp32c3; framework: arduino)
+--------------------------------------------------------------------------------
+Library Manager: Installing symlink://../shared
+Library Manager: CrtcBoardLink@0.1.0 has been installed!
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/espressif32/airm2m_core_esp32c3.html
+PLATFORM: Espressif 32 (7.1.3) > AirM2M CORE ESP32C3
+HARDWARE: ESP32C3 160MHz, 320KB RAM, 4MB Flash
+DEBUG: Current (cmsis-dap) External (cmsis-dap, esp-bridge, esp-builtin, esp-prog, iot-bus-jtag, jlink, minimodule, olimex-arm-usb-ocd, olimex-arm-usb-ocd-h, olimex-arm-usb-tiny-h, olimex-jtag-tiny, tumpa)
+PACKAGES: 
+ - framework-arduinoespressif32 @ 4.20017.260907+sha.dcc1105b 
+ - tool-esptoolpy @ 2.41100.260830 (4.11.0) 
+ - toolchain-riscv32-esp @ 8.4.0+2021r2-patch5
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 34 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- CrtcBoardLink @ 0.1.0
+|-- ESP32 BLE Arduino @ 2.0.0
+Building in release mode
+Compiling .pio\build\c3-dashboard\FrameworkArduinoVariant\variant.cpp.o
+Compiling .pio\build\c3-dashboard\src\ble_remote.cpp.o
+Compiling .pio\build\c3-dashboard\src\main.cpp.o
+Compiling .pio\build\c3-dashboard\src\servo_output.cpp.o
+Building .pio\build\c3-dashboard\bootloader.bin
+Generating partitions .pio\build\c3-dashboard\partitions.bin
+Compiling .pio\build\c3-dashboard\lib120\shared\actuation_guard.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\board_link.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\board_link_node.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\chassis_state.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\encoder_edge_filter.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\motor_command.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\motor_control.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\remote_bridge.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\remote_control.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\servo_motion.c.o
+Compiling .pio\build\c3-dashboard\lib120\shared\speed_control.c.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLE2902.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLE2904.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEAddress.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEAdvertisedDevice.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEAdvertising.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEBeacon.cpp.o
+esptool.py v4.11.0
+Creating esp32c3 image...
+Merged 1 ELF section
+Successfully created esp32c3 image.
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLECharacteristic.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLECharacteristicMap.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEClient.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEDescriptor.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEDescriptorMap.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEDevice.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEEddystoneTLM.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEEddystoneURL.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEExceptions.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEHIDDevice.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLERemoteCharacteristic.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLERemoteDescriptor.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLERemoteService.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEScan.cpp.o
+Archiving .pio\build\c3-dashboard\lib120\libshared.a
+Indexing .pio\build\c3-dashboard\lib120\libshared.a
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLESecurity.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEServer.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEService.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEServiceMap.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEUUID.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEUtils.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\BLEValue.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\FreeRTOS.cpp.o
+Compiling .pio\build\c3-dashboard\lib3a9\BLE\GeneralUtils.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\Esp.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\FirmwareMSC.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\FunctionalInterrupt.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\HWCDC.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\HardwareSerial.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\IPAddress.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\IPv6Address.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\MD5Builder.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\Print.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\Stream.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\StreamString.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\Tone.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\USB.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\USBCDC.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\USBMSC.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\WMath.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\WString.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\base64.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\cbuf.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-adc.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-bt.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-cpu.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-dac.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-gpio.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-i2c-slave.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-i2c.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-ledc.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-matrix.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-misc.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-psram.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-rgb-led.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-rmt.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-sigmadelta.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-spi.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-time.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-timer.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-tinyusb.c.o
+Archiving .pio\build\c3-dashboard\lib3a9\libBLE.a
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-touch.c.o
+Indexing .pio\build\c3-dashboard\lib3a9\libBLE.a
+Compiling .pio\build\c3-dashboard\FrameworkArduino\esp32-hal-uart.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\firmware_msc_fat.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\libb64\cdecode.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\libb64\cencode.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\main.cpp.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\stdlib_noniso.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\wiring_pulse.c.o
+Compiling .pio\build\c3-dashboard\FrameworkArduino\wiring_shift.c.o
+Archiving .pio\build\c3-dashboard\libFrameworkArduino.a
+Indexing .pio\build\c3-dashboard\libFrameworkArduino.a
+Linking .pio\build\c3-dashboard\firmware.elf
+Retrieving maximum program size .pio\build\c3-dashboard\firmware.elf
+Checking size .pio\build\c3-dashboard\firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [=         ]  12.3% (used 40148 bytes from 327680 bytes)
+Flash: [========  ]  76.4% (used 1001218 bytes from 1310720 bytes)
+Building .pio\build\c3-dashboard\firmware.bin
+esptool.py v4.11.0
+Creating esp32c3 image...
+Merged 2 ELF sections
+Successfully created esp32c3 image.
+========================= [SUCCESS] Took 10.95 seconds =========================
+
+Environment    Status    Duration
+-------------  --------  ------------
+c3-dashboard   SUCCESS   00:00:10.949
+========================= 1 succeeded in 00:00:10.949 =========================
+Built (not uploaded): D:\DEVELOP\CQU_AI\CRTC2026����\zqcs_repo\output\c3-dashboard-20261022\esp32

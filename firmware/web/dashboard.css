@@ -15,6 +15,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html, body { margin: 0; padding: 0; }
 
@@ -71,13 +72,18 @@ h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; l
     "drive telemetry aux"
     "drive telemetry log"
     "servo servo servo"
-    "map map map"
-    "calibration calibration calibration";
+    "automation automation automation"
+    "pid pid pid"
+    "calibration calibration calibration"
+    "pidtest pidtest pidtest"
+    "map map map";
   align-items: start;
 }
 .drive { grid-area: drive; }
 .telemetry { grid-area: telemetry; }
 .aux { grid-area: aux; }
+.pid-panel { grid-area: pid; }
+.pid-test-panel { grid-area: pidtest; }
 .calibration { grid-area: calibration; }
 .logcard { grid-area: log; }
 .live-map { grid-area: map; }
@@ -93,15 +99,19 @@ h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; l
       "drive telemetry"
       "aux log"
       "servo servo"
-      "map map"
-      "calibration calibration";
+      "automation automation"
+      "pid pid"
+      "calibration calibration"
+      "pidtest pidtest"
+      "map map";
   }
 }
 @media (max-width: 780px) {
-  .layout { grid-template-columns: 1fr; grid-template-areas: "drive" "telemetry" "servo" "map" "aux" "log" "calibration"; padding: 14px; }
+  .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "drive" "telemetry" "servo" "automation" "pid" "calibration" "pidtest" "map" "aux" "log"; padding: 14px; }
 }
 
 .card {
+  min-width: 0;
   background: linear-gradient(180deg, var(--card) 0%, #121820 100%);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -217,6 +227,30 @@ fieldset.wheel-config legend { color: var(--muted); font-size: 12px; padding: 0 
 .confirmation { display: flex; gap: 8px; align-items: flex-start; margin-top: 10px; font-size: 12px; color: var(--muted); }
 .confirmation input { margin-top: 2px; }
 
+/* PID setup has its own cards; never share the calibration grid area. */
+.pid-panel .config-grid, .pid-test-panel .config-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 840px;
+  margin: 14px 0;
+}
+.pid-panel .config-grid label, .pid-test-panel .config-grid label { color: var(--text); }
+.pid-panel input, .pid-test-panel input { font-variant-numeric: tabular-nums; }
+.pid-panel .field-unit { color: var(--muted); font-size: 11px; }
+.pid-test-panel details { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+.pid-test-panel summary { cursor: pointer; color: var(--accent); }
+.pid-test-panel details ul { padding-left: 20px; max-width: 100ch; }
+.pid-test-panel details li + li { margin-top: 8px; }
+.pid-test-panel #pidTestState, .pid-panel #pidPhase {
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: #10161d; overflow-wrap: anywhere;
+}
+.pid-test-panel #pidTestResults:empty { display: none; }
+@media (max-width: 520px) {
+  .pid-panel .config-grid, .pid-test-panel .config-grid { grid-template-columns: 1fr; }
+  .pid-panel .row button, .pid-test-panel .row button { flex: 1 1 100%; }
+  .config-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* ---------- 日志 ---------- */
 .log {
   list-style: none; margin: 0; padding: 0;
@@ -238,3 +272,21 @@ fieldset.wheel-config legend { color: var(--muted); font-size: 12px; padding: 0 
   font: 12px/1.6 Consolas, monospace; background: #10161d; padding: 10px; border-radius: 6px; }
 .agent-panel details { margin-top: 12px; }
 .agent-panel summary { cursor: pointer; color: var(--muted); }
+
+/* Named arm states, cooperative action blocks and relative teach/replay. */
+.automation-panel { grid-area:automation; grid-column:1 / -1; min-width:0; }
+.automation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.automation-panel fieldset { min-width:0; border:1px solid var(--line); border-radius:10px; padding:16px; margin:14px 0; }
+.automation-panel legend { padding:0 8px; color:var(--accent); }
+.automation-panel label { display:flex; flex-direction:column; gap:5px; margin:8px 0; }
+.automation-panel input,.automation-panel select { max-width:100%; min-width:0; }
+.automation-panel button { margin:4px 4px 4px 0; white-space:normal; }
+.automation-panel .row { display:flex; gap:12px; flex-wrap:wrap; align-items:end; }
+.automation-panel .row label { flex:1 1 150px; }
+.action-blocks { display:grid; gap:12px; }
+.action-block { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; background:#10161d; border-left:4px solid var(--accent); padding:14px; border-radius:8px; }
+.action-block > strong { grid-column:1 / -1; }
+.automation-panel details { margin-top:16px; line-height:1.8; }
+#automationMessage { color:#ffbd85; overflow-wrap:anywhere; }
+@media(max-width:780px){.automation-grid{grid-template-columns:minmax(0,1fr)}.action-block{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:440px){.action-block{grid-template-columns:minmax(0,1fr)}}

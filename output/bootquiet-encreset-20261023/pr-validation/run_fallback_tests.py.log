@@ -1,0 +1,15 @@
+Fallback tests: SANITIZE=0; UBSan NOT run
+bench: explicit lease, timeout before renewal, no fault restart, STOP and hard duration passed
+L3: one pulse, held/invalid-frame suppression, digital/analog and clock wrap passed
+resources: PA-only wheel signals, PB UART/STBY, USB and SWD reservations passed
+remote: state transitions, input expiry, mapping, chords and save gates passed
+simple controls: direct three-servo jog, release freeze, limits, centered auto-drive passed
+parameters: all 13 parameters, three servo ranges and rejection boundaries passed
+motor: quintic ramp, retarget slew, direction coast, one-shot braking and fault-off passed
+wire: two-peer motion/stop, CRC, replay, session, timeout and stale-queue tests passed
+flash: unchanged writes, journal rollover, CRC and injected power failures passed
+transitions: 40000 bounded state steps, no direct sign flip, clock/sequence wrap passed
+integration: PS2->owner routing->UART->motor ramp/brake, reconnect lock and servo takeover passed
+brake priority: invalid target or stop parameters cut an ongoing reverse pulse
+Fallback: 486971 assertions passed (host only; no physical hardware test).
+Wiring: original editor netlist matches production PA mapping; all endpoints valid

@@ -1,5 +1,6 @@
 #include "motor_control.h"
 #include <string.h>
+#ifndef CRTC_PA_CHASSIS
 
 static int8_t direction(int16_t value)
 { return value>0 ? 1 : (value<0 ? -1 : 0); }
@@ -45,7 +46,14 @@ int motor_control_update(motor_control_t *s, uint32_t now, const int16_t target[
     /* Explicit stop also acknowledges a watchdog fault, even after a long gap.
      * A subsequent enabled update must carry a fresh valid command lease. */
     if(enabled==0) { stop_all(s,now); s->fault=0; return 0; }
+#ifdef CRTC_PA_CHASSIS
+    /* A delayed owner tick continues from current PWM; do not accumulate a
+     * huge ramp jump or require a manual fault-clear cycle. */
+    s->fault=0;
+    if(elapsed>MOTOR_MAX_UPDATE_GAP_MS) elapsed=MOTOR_MAX_UPDATE_GAP_MS;
+#else
     if(elapsed>MOTOR_MAX_UPDATE_GAP_MS) s->fault=1;
+#endif
     if(s->fault || enabled!=1 || !target || !ttl_ms ||
        ttl_ms>MOTOR_COMMAND_MAX_TTL_MS || (uint32_t)(now-command_ms)>=ttl_ms) {
         stop_all(s,now); return 0;
@@ -84,3 +92,4 @@ int motor_control_update(motor_control_t *s, uint32_t now, const int16_t target[
     }
     return 1;
 }
+#endif

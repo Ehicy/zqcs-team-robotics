@@ -1,0 +1,2620 @@
+{
+  "version": 1,
+  "title": "双STM32应急接线 · 原版接线台",
+  "board": {
+    "width": 3000,
+    "height": 3650
+  },
+  "modules": [
+    {
+      "id": "battery",
+      "title": "2S 电池组",
+      "type": "battery",
+      "x": 100,
+      "y": 480,
+      "w": 280,
+      "h": 250,
+      "note": "用户已确认2S锂电池，标称7.4V、满电8.4V。正极经靠近电池的保险和手动总开关；应有匹配的2S保护与充电方案。",
+      "pins": [
+        {
+          "id": "POS",
+          "label": "输出＋",
+          "side": "right",
+          "offset": 100,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "NEG",
+          "label": "输出−",
+          "side": "right",
+          "offset": 180,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "caption": "2S · 标称7.4V / 满电8.4V",
+      "optional": false
+    },
+    {
+      "id": "fuse",
+      "title": "总保险 / 总开关",
+      "type": "switch",
+      "x": 100,
+      "y": 830,
+      "w": 320,
+      "h": 210,
+      "note": "电池正极先经保险/手动总开关，再分两根线给继电器COM与+V。保险按电池、线材、触点及变换器输入电流能力选择，不能按12V输出电流直接套用。",
+      "pins": [
+        {
+          "id": "IN",
+          "label": "输入＋",
+          "side": "left",
+          "offset": 100,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "OUT",
+          "label": "输出＋",
+          "side": "right",
+          "offset": 100,
+          "role": "power",
+          "voltage": 7.4
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "relay",
+      "title": "无线继电器 · COM → NO",
+      "type": "relay",
+      "x": 100,
+      "y": 1160,
+      "w": 520,
+      "h": 230,
+      "note": "背面焊点朝你、丝印正立，左→右NC / COM / NO / +V / −V；正面会镜像。COM与+V分别接保险/总开关后的电池正极；NO只接升压IN+；升压OUT+分到两块驱动VM及降压IN+；−V接电池负极/公共地，NC不接。+V必须接触点前，不能接NO。PCB标5–80V，蓝色5V字样是内部线圈电压；实物输入与带载能力仍须核验。",
+      "pins": [
+        {
+          "id": "NC",
+          "label": "NC",
+          "side": "bottom",
+          "offset": 60,
+          "role": "signal"
+        },
+        {
+          "id": "COM",
+          "label": "COM",
+          "side": "bottom",
+          "offset": 160,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "NO",
+          "label": "NO",
+          "side": "bottom",
+          "offset": 260,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "VPLUS",
+          "label": "+V",
+          "side": "bottom",
+          "offset": 360,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "VMINUS",
+          "label": "−V",
+          "side": "bottom",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0
+        }
+      ]
+    },
+    {
+      "id": "boost",
+      "title": "电机升压 · 12V",
+      "type": "converter",
+      "x": 2050,
+      "y": 580,
+      "w": 380,
+      "h": 250,
+      "note": "普通非隔离模块，断电通断档核对IN−与OUT−内部导通。图示端子按功能排列，正负按板上丝印认。IN+接继电器NO，IN−接电池−；OUT+12V只给两块驱动VM，OUT−接驱动GND。",
+      "pins": [
+        {
+          "id": "IN_POS",
+          "label": "IN＋电池",
+          "side": "left",
+          "offset": 80,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "IN_NEG",
+          "label": "IN−",
+          "side": "left",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "OUT_POS",
+          "label": "OUT＋12V",
+          "side": "right",
+          "offset": 80,
+          "role": "power",
+          "voltage": 12
+        },
+        {
+          "id": "OUT_NEG",
+          "label": "OUT−",
+          "side": "right",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "internalGroundCommon": true
+    },
+    {
+      "id": "buck",
+      "title": "主控降压模块",
+      "type": "converter",
+      "x": 2050,
+      "y": 1050,
+      "w": 380,
+      "h": 250,
+      "note": "普通非隔离模块，断电通断档核对IN−与OUT−内部导通。图示端子按功能排列，正负按板上丝印认。IN直接接7.4V电池经总开关/继电器后的分路，与升压器并联输入；OUT调5V给两块主控、接收板和舵机。OUT−作低压负极分线点；大电流舵机回线不经过主控。",
+      "pins": [
+        {
+          "id": "IN_POS",
+          "label": "IN＋7.4V",
+          "side": "left",
+          "offset": 80,
+          "role": "power",
+          "voltage": 7.4
+        },
+        {
+          "id": "IN_NEG",
+          "label": "IN−",
+          "side": "left",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "OUT_POS",
+          "label": "OUT＋5V",
+          "side": "right",
+          "offset": 80,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "OUT_NEG",
+          "label": "OUT−",
+          "side": "right",
+          "offset": 165,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "optional": false,
+      "internalGroundCommon": true
+    },
+    {
+      "id": "stm",
+      "title": "B 底盘 · 下板 / USB朝上",
+      "type": "controller",
+      "x": 900,
+      "y": 1850,
+      "w": 680,
+      "h": 1160,
+      "pins": [
+        {
+          "id": "PB12",
+          "label": "PB12 · 未用",
+          "side": "left",
+          "offset": 130,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 1,
+          "photoVerified": true
+        },
+        {
+          "id": "PB13",
+          "label": "PB13 · 未用",
+          "side": "left",
+          "offset": 178,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 2,
+          "photoVerified": true
+        },
+        {
+          "id": "PB14",
+          "label": "PB14 · 未用",
+          "side": "left",
+          "offset": 226,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 3,
+          "photoVerified": true
+        },
+        {
+          "id": "PB15",
+          "label": "PB15 · 两板STBY",
+          "side": "left",
+          "offset": 274,
+          "role": "signal",
+          "physicalRow": 4,
+          "photoVerified": true
+        },
+        {
+          "id": "PA8",
+          "label": "PA8 · M3 IN1",
+          "side": "left",
+          "offset": 322,
+          "role": "signal",
+          "physicalRow": 5,
+          "photoVerified": true
+        },
+        {
+          "id": "PA9",
+          "label": "PA9 · M3 IN2",
+          "side": "left",
+          "offset": 370,
+          "role": "signal",
+          "physicalRow": 6,
+          "photoVerified": true
+        },
+        {
+          "id": "PA10",
+          "label": "PA10 · M4 IN1",
+          "side": "left",
+          "offset": 418,
+          "role": "signal",
+          "physicalRow": 7,
+          "photoVerified": true
+        },
+        {
+          "id": "PA11",
+          "label": "PA11 · 未用",
+          "side": "left",
+          "offset": 466,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 8,
+          "photoVerified": true
+        },
+        {
+          "id": "PA12",
+          "label": "PA12 · 未用",
+          "side": "left",
+          "offset": 514,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 9,
+          "photoVerified": true
+        },
+        {
+          "id": "PA15",
+          "label": "PA15 · M4 IN2",
+          "side": "left",
+          "offset": 562,
+          "role": "signal",
+          "physicalRow": 10,
+          "photoVerified": true
+        },
+        {
+          "id": "PB3",
+          "label": "PB3 · 未用",
+          "side": "left",
+          "offset": 610,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 11,
+          "photoVerified": true
+        },
+        {
+          "id": "PB4",
+          "label": "PB4 · 未用",
+          "side": "left",
+          "offset": 658,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 12,
+          "photoVerified": true
+        },
+        {
+          "id": "PB5",
+          "label": "PB5 · 未用",
+          "side": "left",
+          "offset": 706,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 13,
+          "photoVerified": true
+        },
+        {
+          "id": "PB6",
+          "label": "PB6 · 未用",
+          "side": "left",
+          "offset": 754,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 14,
+          "photoVerified": true
+        },
+        {
+          "id": "PB7",
+          "label": "PB7 · 未用",
+          "side": "left",
+          "offset": 802,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 15,
+          "photoVerified": true
+        },
+        {
+          "id": "PB8",
+          "label": "PB8 · 未用",
+          "side": "left",
+          "offset": 850,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 16,
+          "photoVerified": true
+        },
+        {
+          "id": "PB9",
+          "label": "PB9 · 未用",
+          "side": "left",
+          "offset": 898,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 17,
+          "photoVerified": true
+        },
+        {
+          "id": "V5",
+          "label": "5V 输入",
+          "side": "left",
+          "offset": 946,
+          "role": "power",
+          "voltage": 5,
+          "physicalRow": 18,
+          "photoVerified": true
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "left",
+          "offset": 994,
+          "role": "ground",
+          "voltage": 0,
+          "physicalRow": 19,
+          "photoVerified": true
+        },
+        {
+          "id": "V3",
+          "label": "3V3",
+          "side": "left",
+          "offset": 1042,
+          "role": "power",
+          "voltage": 3.3,
+          "physicalRow": 20,
+          "photoVerified": true
+        },
+        {
+          "id": "GND2",
+          "label": "GND",
+          "side": "right",
+          "offset": 130,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true,
+          "physicalRow": 1,
+          "photoVerified": true
+        },
+        {
+          "id": "GND3",
+          "label": "GND",
+          "side": "right",
+          "offset": 178,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true,
+          "physicalRow": 2,
+          "photoVerified": true
+        },
+        {
+          "id": "V3_2",
+          "label": "3V3",
+          "side": "right",
+          "offset": 226,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true,
+          "physicalRow": 3,
+          "photoVerified": true
+        },
+        {
+          "id": "NRST",
+          "label": "R · 复位",
+          "side": "right",
+          "offset": 274,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 4,
+          "photoVerified": true
+        },
+        {
+          "id": "PB11",
+          "label": "PB11 · UART RX←A",
+          "side": "right",
+          "offset": 322,
+          "role": "signal",
+          "physicalRow": 5,
+          "photoVerified": true
+        },
+        {
+          "id": "PB10",
+          "label": "PB10 · UART TX→A",
+          "side": "right",
+          "offset": 370,
+          "role": "signal",
+          "physicalRow": 6,
+          "photoVerified": true
+        },
+        {
+          "id": "PB1",
+          "label": "PB1 · 未用",
+          "side": "right",
+          "offset": 418,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 7,
+          "photoVerified": true
+        },
+        {
+          "id": "PB0",
+          "label": "PB0 · 未用",
+          "side": "right",
+          "offset": 466,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 8,
+          "photoVerified": true
+        },
+        {
+          "id": "PA7",
+          "label": "PA7 · M2 IN2",
+          "side": "right",
+          "offset": 514,
+          "role": "signal",
+          "physicalRow": 9,
+          "photoVerified": true
+        },
+        {
+          "id": "PA6",
+          "label": "PA6 · M2 IN1",
+          "side": "right",
+          "offset": 562,
+          "role": "signal",
+          "physicalRow": 10,
+          "photoVerified": true
+        },
+        {
+          "id": "PA5",
+          "label": "PA5 · M1 IN2",
+          "side": "right",
+          "offset": 610,
+          "role": "signal",
+          "physicalRow": 11,
+          "photoVerified": true
+        },
+        {
+          "id": "PA4",
+          "label": "PA4 · M1 IN1",
+          "side": "right",
+          "offset": 658,
+          "role": "signal",
+          "physicalRow": 12,
+          "photoVerified": true
+        },
+        {
+          "id": "PA3",
+          "label": "PA3 · M4 PWM",
+          "side": "right",
+          "offset": 706,
+          "role": "pwm",
+          "physicalRow": 13,
+          "photoVerified": true
+        },
+        {
+          "id": "PA2",
+          "label": "PA2 · M3 PWM",
+          "side": "right",
+          "offset": 754,
+          "role": "pwm",
+          "physicalRow": 14,
+          "photoVerified": true
+        },
+        {
+          "id": "PA1",
+          "label": "PA1 · M2 PWM",
+          "side": "right",
+          "offset": 802,
+          "role": "pwm",
+          "physicalRow": 15,
+          "photoVerified": true
+        },
+        {
+          "id": "PA0",
+          "label": "PA0 · M1 PWM",
+          "side": "right",
+          "offset": 850,
+          "role": "pwm",
+          "physicalRow": 16,
+          "photoVerified": true
+        },
+        {
+          "id": "PC15",
+          "label": "PC15 · 未用",
+          "side": "right",
+          "offset": 898,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 17,
+          "photoVerified": true
+        },
+        {
+          "id": "PC14",
+          "label": "PC14 · 未用",
+          "side": "right",
+          "offset": 946,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 18,
+          "photoVerified": true
+        },
+        {
+          "id": "PC13",
+          "label": "PC13 · 未用",
+          "side": "right",
+          "offset": 994,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 19,
+          "photoVerified": true
+        },
+        {
+          "id": "VBAT",
+          "label": "VB · 后备电池",
+          "side": "right",
+          "offset": 1042,
+          "role": "power",
+          "unused": true,
+          "physicalRow": 20,
+          "photoVerified": true
+        },
+        {
+          "id": "SWDV3",
+          "label": "SWD 3V3 不接电源",
+          "side": "bottom",
+          "offset": 100,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "PA13",
+          "label": "PA13 · SWDIO",
+          "side": "bottom",
+          "offset": 260,
+          "role": "signal"
+        },
+        {
+          "id": "PA14",
+          "label": "PA14 · SWCLK",
+          "side": "bottom",
+          "offset": 420,
+          "role": "signal"
+        },
+        {
+          "id": "SWDGND",
+          "label": "SWD GND",
+          "side": "bottom",
+          "offset": 580,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "USB",
+          "label": "USB 朝上",
+          "side": "top",
+          "offset": 340,
+          "role": "usb",
+          "unused": true
+        }
+      ],
+      "note": "按2026-10-19照片：两条长排针各20口，左右均从上往下读。USB朝上；BOOT0/BOOT1跳帽均保持0。SWD四针功能已列出，横排孔序按实物丝印认，不依图猜左右。本板固件已ST-Link直烧；接口分配不变，不需重烧。",
+      "usbOrientation": "top"
+    },
+    {
+      "id": "remote",
+      "title": "A 主控 · 上板 / USB朝下",
+      "type": "controller",
+      "x": 900,
+      "y": 470,
+      "w": 680,
+      "h": 1160,
+      "pins": [
+        {
+          "id": "VBAT",
+          "label": "VB · 后备电池",
+          "side": "left",
+          "offset": 130,
+          "role": "power",
+          "unused": true,
+          "physicalRow": 1,
+          "photoVerified": true
+        },
+        {
+          "id": "PC13",
+          "label": "PC13 · 板载灯",
+          "side": "left",
+          "offset": 178,
+          "role": "signal",
+          "physicalRow": 2,
+          "photoVerified": true
+        },
+        {
+          "id": "PC14",
+          "label": "PC14 · 未用",
+          "side": "left",
+          "offset": 226,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 3,
+          "photoVerified": true
+        },
+        {
+          "id": "PC15",
+          "label": "PC15 · 未用",
+          "side": "left",
+          "offset": 274,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 4,
+          "photoVerified": true
+        },
+        {
+          "id": "PA0",
+          "label": "PA0 · 未用",
+          "side": "left",
+          "offset": 322,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 5,
+          "photoVerified": true
+        },
+        {
+          "id": "PA1",
+          "label": "PA1 · 未用",
+          "side": "left",
+          "offset": 370,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 6,
+          "photoVerified": true
+        },
+        {
+          "id": "PA2",
+          "label": "PA2 · UART TX→B",
+          "side": "left",
+          "offset": 418,
+          "role": "signal",
+          "physicalRow": 7,
+          "photoVerified": true
+        },
+        {
+          "id": "PA3",
+          "label": "PA3 · UART RX←B",
+          "side": "left",
+          "offset": 466,
+          "role": "signal",
+          "physicalRow": 8,
+          "photoVerified": true
+        },
+        {
+          "id": "PA4",
+          "label": "PA4 · 未用",
+          "side": "left",
+          "offset": 514,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 9,
+          "photoVerified": true
+        },
+        {
+          "id": "PA5",
+          "label": "PA5 · 未用",
+          "side": "left",
+          "offset": 562,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 10,
+          "photoVerified": true
+        },
+        {
+          "id": "PA6",
+          "label": "PA6 · 未用",
+          "side": "left",
+          "offset": 610,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 11,
+          "photoVerified": true
+        },
+        {
+          "id": "PA7",
+          "label": "PA7 · 未用",
+          "side": "left",
+          "offset": 658,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 12,
+          "photoVerified": true
+        },
+        {
+          "id": "PB0",
+          "label": "PB0 · 未用",
+          "side": "left",
+          "offset": 706,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 13,
+          "photoVerified": true
+        },
+        {
+          "id": "PB1",
+          "label": "PB1 · 未用",
+          "side": "left",
+          "offset": 754,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 14,
+          "photoVerified": true
+        },
+        {
+          "id": "PB10",
+          "label": "PB10 · 未用",
+          "side": "left",
+          "offset": 802,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 15,
+          "photoVerified": true
+        },
+        {
+          "id": "PB11",
+          "label": "PB11 · 未用",
+          "side": "left",
+          "offset": 850,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 16,
+          "photoVerified": true
+        },
+        {
+          "id": "NRST",
+          "label": "R · 复位",
+          "side": "left",
+          "offset": 898,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 17,
+          "photoVerified": true
+        },
+        {
+          "id": "V3",
+          "label": "3V3",
+          "side": "left",
+          "offset": 946,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true,
+          "physicalRow": 18,
+          "photoVerified": true
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "left",
+          "offset": 994,
+          "role": "ground",
+          "voltage": 0,
+          "physicalRow": 19,
+          "photoVerified": true
+        },
+        {
+          "id": "GND2",
+          "label": "GND",
+          "side": "left",
+          "offset": 1042,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true,
+          "physicalRow": 20,
+          "photoVerified": true
+        },
+        {
+          "id": "V3_2",
+          "label": "3V3",
+          "side": "right",
+          "offset": 130,
+          "role": "power",
+          "voltage": 3.3,
+          "physicalRow": 1,
+          "photoVerified": true
+        },
+        {
+          "id": "GND3",
+          "label": "GND",
+          "side": "right",
+          "offset": 178,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true,
+          "physicalRow": 2,
+          "photoVerified": true
+        },
+        {
+          "id": "V5",
+          "label": "5V 输入",
+          "side": "right",
+          "offset": 226,
+          "role": "power",
+          "voltage": 5,
+          "physicalRow": 3,
+          "photoVerified": true
+        },
+        {
+          "id": "PB9",
+          "label": "PB9 · 未用",
+          "side": "right",
+          "offset": 274,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 4,
+          "photoVerified": true
+        },
+        {
+          "id": "PB8",
+          "label": "PB8 · 开门S",
+          "side": "right",
+          "offset": 322,
+          "role": "signal",
+          "physicalRow": 5,
+          "photoVerified": true
+        },
+        {
+          "id": "PB7",
+          "label": "PB7 · 小臂S",
+          "side": "right",
+          "offset": 370,
+          "role": "signal",
+          "physicalRow": 6,
+          "photoVerified": true
+        },
+        {
+          "id": "PB6",
+          "label": "PB6 · 大臂S",
+          "side": "right",
+          "offset": 418,
+          "role": "signal",
+          "physicalRow": 7,
+          "photoVerified": true
+        },
+        {
+          "id": "PB5",
+          "label": "PB5 · 未用",
+          "side": "right",
+          "offset": 466,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 8,
+          "photoVerified": true
+        },
+        {
+          "id": "PB4",
+          "label": "PB4 · 未用",
+          "side": "right",
+          "offset": 514,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 9,
+          "photoVerified": true
+        },
+        {
+          "id": "PB3",
+          "label": "PB3 · 未用",
+          "side": "right",
+          "offset": 562,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 10,
+          "photoVerified": true
+        },
+        {
+          "id": "PA15",
+          "label": "PA15 · 未用",
+          "side": "right",
+          "offset": 610,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 11,
+          "photoVerified": true
+        },
+        {
+          "id": "PA12",
+          "label": "PA12 · 未用",
+          "side": "right",
+          "offset": 658,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 12,
+          "photoVerified": true
+        },
+        {
+          "id": "PA11",
+          "label": "PA11 · 未用",
+          "side": "right",
+          "offset": 706,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 13,
+          "photoVerified": true
+        },
+        {
+          "id": "PA10",
+          "label": "PA10 · 未用",
+          "side": "right",
+          "offset": 754,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 14,
+          "photoVerified": true
+        },
+        {
+          "id": "PA9",
+          "label": "PA9 · 未用",
+          "side": "right",
+          "offset": 802,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 15,
+          "photoVerified": true
+        },
+        {
+          "id": "PA8",
+          "label": "PA8 · 未用",
+          "side": "right",
+          "offset": 850,
+          "role": "signal",
+          "unused": true,
+          "physicalRow": 16,
+          "photoVerified": true
+        },
+        {
+          "id": "PB15",
+          "label": "PB15 · PS2 CMD",
+          "side": "right",
+          "offset": 898,
+          "role": "signal",
+          "physicalRow": 17,
+          "photoVerified": true
+        },
+        {
+          "id": "PB14",
+          "label": "PB14 · PS2 DAT",
+          "side": "right",
+          "offset": 946,
+          "role": "signal",
+          "physicalRow": 18,
+          "photoVerified": true
+        },
+        {
+          "id": "PB13",
+          "label": "PB13 · PS2 CLK",
+          "side": "right",
+          "offset": 994,
+          "role": "signal",
+          "physicalRow": 19,
+          "photoVerified": true
+        },
+        {
+          "id": "PB12",
+          "label": "PB12 · PS2 CS",
+          "side": "right",
+          "offset": 1042,
+          "role": "signal",
+          "physicalRow": 20,
+          "photoVerified": true
+        },
+        {
+          "id": "SWDV3",
+          "label": "SWD 3V3 不接电源",
+          "side": "top",
+          "offset": 100,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "PA13",
+          "label": "PA13 · SWDIO",
+          "side": "top",
+          "offset": 260,
+          "role": "signal"
+        },
+        {
+          "id": "PA14",
+          "label": "PA14 · SWCLK",
+          "side": "top",
+          "offset": 420,
+          "role": "signal"
+        },
+        {
+          "id": "SWDGND",
+          "label": "SWD GND",
+          "side": "top",
+          "offset": 580,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "USB",
+          "label": "USB 朝下",
+          "side": "bottom",
+          "offset": 340,
+          "role": "usb",
+          "unused": true
+        }
+      ],
+      "note": "按2026-10-19照片：两条长排针各20口，左右均从上往下读。USB朝下；BOOT0/BOOT1跳帽均保持0。SWD四针功能已列出，横排孔序按实物丝印认，不依图猜左右。主控A已烧录并校验；上电不输出舵机PWM。",
+      "usbOrientation": "bottom"
+    },
+    {
+      "id": "ps2",
+      "title": "新 PS2 转接板 · 背面视角",
+      "type": "receiver",
+      "x": 850,
+      "y": 60,
+      "w": 700,
+      "h": 350,
+      "note": "2026-10-19新照片：右侧7针从上往下ACK/CLK/CS/DO/DI/VDD/GND。DI按本板丝印对应DATA→A PB14；DO对应CMD←A PB15。ACK与NC不接。轮趣说明书已确认DI/DAT与DO/CMD方向、ACK不使用、接收器允许3.3–5V；本车继续取A板3V3。接收器上电、手柄ON自动配对，接收器灯常亮表示配对。当前A/B串口已连通，PS2仍未读到有效帧，不能按配对灯代替通信验收。",
+      "pins": [
+        {
+          "id": "ACK",
+          "label": "ACK · 不接",
+          "side": "right",
+          "offset": 80,
+          "role": "signal",
+          "unused": true
+        },
+        {
+          "id": "CLK",
+          "label": "CLK → PB13",
+          "side": "right",
+          "offset": 115,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "CS",
+          "label": "CS → PB12",
+          "side": "right",
+          "offset": 150,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "CMD",
+          "label": "DO / CMD → PB15",
+          "side": "right",
+          "offset": 185,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "DAT",
+          "label": "DI / DATA → PB14",
+          "side": "right",
+          "offset": 220,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "VDD",
+          "label": "VDD · 接3V3",
+          "side": "right",
+          "offset": 255,
+          "role": "power",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "right",
+          "offset": 290,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "SOCKET1",
+          "label": "插座 ACK",
+          "side": "left",
+          "offset": 80,
+          "role": "signal",
+          "unused": true
+        },
+        {
+          "id": "SOCKET2",
+          "label": "插座 NC",
+          "side": "left",
+          "offset": 108,
+          "role": "signal",
+          "unused": true
+        },
+        {
+          "id": "SOCKET3",
+          "label": "插座 CLK",
+          "side": "left",
+          "offset": 136,
+          "role": "signal",
+          "unused": true
+        },
+        {
+          "id": "SOCKET4",
+          "label": "插座 CS",
+          "side": "left",
+          "offset": 164,
+          "role": "signal",
+          "unused": true
+        },
+        {
+          "id": "SOCKET5",
+          "label": "插座 VDD",
+          "side": "left",
+          "offset": 192,
+          "role": "power",
+          "unused": true
+        },
+        {
+          "id": "SOCKET6",
+          "label": "插座 GND",
+          "side": "left",
+          "offset": 220,
+          "role": "ground",
+          "unused": true
+        },
+        {
+          "id": "SOCKET7",
+          "label": "插座 NC",
+          "side": "left",
+          "offset": 248,
+          "role": "signal",
+          "unused": true
+        },
+        {
+          "id": "SOCKET8",
+          "label": "插座 DO",
+          "side": "left",
+          "offset": 276,
+          "role": "signal",
+          "unused": true
+        },
+        {
+          "id": "SOCKET9",
+          "label": "插座 DI",
+          "side": "left",
+          "offset": 304,
+          "role": "signal",
+          "unused": true
+        }
+      ],
+      "optional": true
+    },
+    {
+      "id": "tb1",
+      "title": "TB① · 前轮 M1 / M2",
+      "type": "driver",
+      "x": 2050,
+      "y": 1900,
+      "w": 350,
+      "h": 550,
+      "note": "右侧两块TB6612，正面元件朝上、VM在左上。照片可确认左1=VM、左2=VCC、左8/右8=GND；其余孔位名称沿用原图，带?的需翻背面丝印核对。VCC接底盘3V3；VM接12V。每板只画左下GND回升压OUT−，另两个GND口保留，不重复拉线。",
+      "pins": [
+        {
+          "id": "VM",
+          "label": "VM",
+          "side": "left",
+          "offset": 110,
+          "role": "power",
+          "voltage": 12,
+          "photoVerified": true
+        },
+        {
+          "id": "VCC",
+          "label": "VCC",
+          "side": "left",
+          "offset": 160,
+          "role": "power",
+          "voltage": 3.3,
+          "photoVerified": true
+        },
+        {
+          "id": "GND1",
+          "label": "GND ?",
+          "side": "left",
+          "offset": 210,
+          "role": "ground",
+          "voltage": 0,
+          "photoVerified": false
+        },
+        {
+          "id": "AO1",
+          "label": "AO1 ?",
+          "side": "left",
+          "offset": 260,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "AO2",
+          "label": "AO2 ?",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "BO2",
+          "label": "BO2 ?",
+          "side": "left",
+          "offset": 360,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "BO1",
+          "label": "BO1 ?",
+          "side": "left",
+          "offset": 410,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "GND2",
+          "label": "GND",
+          "side": "left",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0,
+          "photoVerified": true
+        },
+        {
+          "id": "PWMA",
+          "label": "PWMA ?",
+          "side": "right",
+          "offset": 110,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "AIN2",
+          "label": "AIN2 ?",
+          "side": "right",
+          "offset": 160,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "AIN1",
+          "label": "AIN1 ?",
+          "side": "right",
+          "offset": 210,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "STBY",
+          "label": "STBY ?",
+          "side": "right",
+          "offset": 260,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "BIN1",
+          "label": "BIN1 ?",
+          "side": "right",
+          "offset": 310,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "BIN2",
+          "label": "BIN2 ?",
+          "side": "right",
+          "offset": 360,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "PWMB",
+          "label": "PWMB ?",
+          "side": "right",
+          "offset": 410,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "GND3",
+          "label": "GND",
+          "side": "right",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0,
+          "photoVerified": true
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "tb2",
+      "title": "TB② · 后轮 M3 / M4",
+      "type": "driver",
+      "x": 2050,
+      "y": 2540,
+      "w": 350,
+      "h": 550,
+      "note": "右侧两块TB6612，正面元件朝上、VM在左上。照片可确认左1=VM、左2=VCC、左8/右8=GND；其余孔位名称沿用原图，带?的需翻背面丝印核对。VCC接底盘3V3；VM接12V。每板只画左下GND回升压OUT−，另两个GND口保留，不重复拉线。",
+      "pins": [
+        {
+          "id": "VM",
+          "label": "VM",
+          "side": "left",
+          "offset": 110,
+          "role": "power",
+          "voltage": 12,
+          "photoVerified": true
+        },
+        {
+          "id": "VCC",
+          "label": "VCC",
+          "side": "left",
+          "offset": 160,
+          "role": "power",
+          "voltage": 3.3,
+          "photoVerified": true
+        },
+        {
+          "id": "GND1",
+          "label": "GND ?",
+          "side": "left",
+          "offset": 210,
+          "role": "ground",
+          "voltage": 0,
+          "photoVerified": false
+        },
+        {
+          "id": "AO1",
+          "label": "AO1 ?",
+          "side": "left",
+          "offset": 260,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "AO2",
+          "label": "AO2 ?",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "BO2",
+          "label": "BO2 ?",
+          "side": "left",
+          "offset": 360,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "BO1",
+          "label": "BO1 ?",
+          "side": "left",
+          "offset": 410,
+          "role": "motor",
+          "voltage": 12,
+          "photoVerified": false
+        },
+        {
+          "id": "GND2",
+          "label": "GND",
+          "side": "left",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0,
+          "photoVerified": true
+        },
+        {
+          "id": "PWMA",
+          "label": "PWMA ?",
+          "side": "right",
+          "offset": 110,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "AIN2",
+          "label": "AIN2 ?",
+          "side": "right",
+          "offset": 160,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "AIN1",
+          "label": "AIN1 ?",
+          "side": "right",
+          "offset": 210,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "STBY",
+          "label": "STBY ?",
+          "side": "right",
+          "offset": 260,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "BIN1",
+          "label": "BIN1 ?",
+          "side": "right",
+          "offset": 310,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "BIN2",
+          "label": "BIN2 ?",
+          "side": "right",
+          "offset": 360,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "PWMB",
+          "label": "PWMB ?",
+          "side": "right",
+          "offset": 410,
+          "role": "signal",
+          "voltage": 3.3,
+          "photoVerified": false
+        },
+        {
+          "id": "GND3",
+          "label": "GND",
+          "side": "right",
+          "offset": 460,
+          "role": "ground",
+          "voltage": 0,
+          "photoVerified": true
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m1",
+      "title": "M1 · 右前",
+      "type": "motor",
+      "x": 2570,
+      "y": 1900,
+      "w": 350,
+      "h": 360,
+      "note": "只接两根电机动力线；编码器4根线断开、逐根绝缘。六针孔序沿用历史资料，未重新实物核验。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "right",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC · 不接",
+          "side": "right",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A · 不接",
+          "side": "right",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B · 不接",
+          "side": "right",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND · 不接",
+          "side": "right",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "right",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m2",
+      "title": "M2 · 左前",
+      "type": "motor",
+      "x": 100,
+      "y": 2360,
+      "w": 350,
+      "h": 360,
+      "note": "只接两根电机动力线；编码器4根线断开、逐根绝缘。六针孔序沿用历史资料，未重新实物核验。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "left",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC · 不接",
+          "side": "left",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A · 不接",
+          "side": "left",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B · 不接",
+          "side": "left",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND · 不接",
+          "side": "left",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m3",
+      "title": "M3 · 右后",
+      "type": "motor",
+      "x": 2570,
+      "y": 2540,
+      "w": 350,
+      "h": 360,
+      "note": "只接两根电机动力线；编码器4根线断开、逐根绝缘。六针孔序沿用历史资料，未重新实物核验。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "right",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC · 不接",
+          "side": "right",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A · 不接",
+          "side": "right",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B · 不接",
+          "side": "right",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND · 不接",
+          "side": "right",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "right",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "m4",
+      "title": "M4 · 左后",
+      "type": "motor",
+      "x": 100,
+      "y": 3000,
+      "w": 350,
+      "h": 360,
+      "note": "只接两根电机动力线；编码器4根线断开、逐根绝缘。六针孔序沿用历史资料，未重新实物核验。",
+      "pins": [
+        {
+          "id": "p1",
+          "label": "① 电机−",
+          "side": "left",
+          "offset": 100,
+          "role": "motor",
+          "voltage": 12
+        },
+        {
+          "id": "p2",
+          "label": "② 编码器 VCC · 不接",
+          "side": "left",
+          "offset": 142,
+          "role": "power",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p3",
+          "label": "③ 编码器 A · 不接",
+          "side": "left",
+          "offset": 184,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p4",
+          "label": "④ 编码器 B · 不接",
+          "side": "left",
+          "offset": 226,
+          "role": "signal",
+          "voltage": 3.3,
+          "unused": true
+        },
+        {
+          "id": "p5",
+          "label": "⑤ 编码器 GND · 不接",
+          "side": "left",
+          "offset": 268,
+          "role": "ground",
+          "voltage": 0,
+          "unused": true
+        },
+        {
+          "id": "p6",
+          "label": "⑥ 电机＋",
+          "side": "left",
+          "offset": 310,
+          "role": "motor",
+          "voltage": 12
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "servo1",
+      "title": "DS3128 大臂",
+      "type": "reserved",
+      "x": 2570,
+      "y": 300,
+      "w": 320,
+      "h": 240,
+      "pins": [
+        {
+          "id": "S",
+          "label": "S 信号",
+          "side": "top",
+          "offset": 160,
+          "role": "signal"
+        },
+        {
+          "id": "VPLUS",
+          "label": "红线 +5V",
+          "side": "left",
+          "offset": 110,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "GND",
+          "label": "黑/棕 GND",
+          "side": "left",
+          "offset": 180,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "note": "完整三针：S / 5V / GND。供电从分电端独立走线，不经过主控。"
+    },
+    {
+      "id": "servo2",
+      "title": "MG995 小臂",
+      "type": "reserved",
+      "x": 2570,
+      "y": 750,
+      "w": 320,
+      "h": 240,
+      "pins": [
+        {
+          "id": "S",
+          "label": "S 信号",
+          "side": "top",
+          "offset": 160,
+          "role": "signal"
+        },
+        {
+          "id": "VPLUS",
+          "label": "红线 +5V",
+          "side": "left",
+          "offset": 110,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "GND",
+          "label": "黑/棕 GND",
+          "side": "left",
+          "offset": 180,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "note": "完整三针：S / 5V / GND。供电从分电端独立走线，不经过主控。"
+    },
+    {
+      "id": "servo3",
+      "title": "MG995 开门",
+      "type": "reserved",
+      "x": 2570,
+      "y": 1200,
+      "w": 320,
+      "h": 240,
+      "pins": [
+        {
+          "id": "S",
+          "label": "S 信号",
+          "side": "top",
+          "offset": 160,
+          "role": "signal"
+        },
+        {
+          "id": "VPLUS",
+          "label": "红线 +5V",
+          "side": "left",
+          "offset": 110,
+          "role": "power",
+          "voltage": 5
+        },
+        {
+          "id": "GND",
+          "label": "黑/棕 GND",
+          "side": "left",
+          "offset": 180,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "note": "完整三针：S / 5V / GND。供电从分电端独立走线，不经过主控。"
+    },
+    {
+      "id": "pulldown",
+      "title": "10kΩ 下拉",
+      "type": "resistor",
+      "x": 1730,
+      "y": 2450,
+      "w": 160,
+      "h": 180,
+      "note": "实物电阻一端STBY共接点，另一端接地；复位期间默认禁用。",
+      "pins": [
+        {
+          "id": "A",
+          "label": "STBY",
+          "side": "top",
+          "offset": 80,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "B",
+          "label": "GND",
+          "side": "bottom",
+          "offset": 80,
+          "role": "ground",
+          "voltage": 0
+        }
+      ],
+      "optional": false
+    },
+    {
+      "id": "stlink",
+      "title": "ST-Link · STM下载接口",
+      "type": "programmer",
+      "x": 900,
+      "y": 3270,
+      "w": 480,
+      "h": 260,
+      "note": "ST-Link仅连接当前一块板，不把两块SWD并联。图中当前接底盘B；换接A时仍按PA13/PA14/GND。不并接供电。",
+      "pins": [
+        {
+          "id": "SWDIO",
+          "label": "SWDIO",
+          "side": "top",
+          "offset": 80,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "SWCLK",
+          "label": "SWCLK",
+          "side": "top",
+          "offset": 240,
+          "role": "signal",
+          "voltage": 3.3
+        },
+        {
+          "id": "GND",
+          "label": "GND",
+          "side": "left",
+          "offset": 130,
+          "role": "ground",
+          "voltage": 0
+        },
+        {
+          "id": "USB",
+          "label": "ST-Link USB",
+          "side": "right",
+          "offset": 130,
+          "role": "signal"
+        }
+      ],
+      "optional": true
+    }
+  ],
+  "wires": [
+    {
+      "id": "f001",
+      "from": "battery.POS",
+      "to": "fuse.IN",
+      "kind": "battery",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f002",
+      "from": "fuse.OUT",
+      "to": "relay.COM",
+      "kind": "battery",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f003",
+      "from": "fuse.OUT",
+      "to": "relay.VPLUS",
+      "kind": "battery",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f004",
+      "from": "relay.NO",
+      "to": "boost.IN_POS",
+      "kind": "battery",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f005",
+      "from": "relay.NO",
+      "to": "buck.IN_POS",
+      "kind": "battery",
+      "group": "power",
+      "label": "7.4V分路给降压输入",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f006",
+      "from": "ps2.DAT",
+      "to": "remote.PB14",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f007",
+      "from": "ps2.CMD",
+      "to": "remote.PB15",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f008",
+      "from": "ps2.CS",
+      "to": "remote.PB12",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f009",
+      "from": "ps2.CLK",
+      "to": "remote.PB13",
+      "kind": "ps2",
+      "group": "ps2",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f010",
+      "from": "remote.V3_2",
+      "to": "ps2.VDD",
+      "kind": "power3",
+      "group": "power",
+      "label": "新转接板VDD接3.3V（厂家范围内）",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f011",
+      "from": "remote.PA2",
+      "to": "stm.PB11",
+      "kind": "uart",
+      "group": "uart",
+      "label": "A TX → B RX",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f012",
+      "from": "stm.PB10",
+      "to": "remote.PA3",
+      "kind": "uart",
+      "group": "uart",
+      "label": "B TX → A RX",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f013",
+      "from": "buck.OUT_POS",
+      "to": "stm.V5",
+      "kind": "power5",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f014",
+      "from": "buck.OUT_POS",
+      "to": "remote.V5",
+      "kind": "power5",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f015",
+      "from": "boost.OUT_POS",
+      "to": "tb1.VM",
+      "kind": "power12",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f016",
+      "from": "stm.V3",
+      "to": "tb1.VCC",
+      "kind": "power3",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f017",
+      "from": "stm.PB15",
+      "to": "tb1.STBY",
+      "kind": "stby",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f018",
+      "from": "stm.PA0",
+      "to": "tb1.PWMA",
+      "kind": "pwm",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f019",
+      "from": "stm.PA4",
+      "to": "tb1.AIN1",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f020",
+      "from": "stm.PA5",
+      "to": "tb1.AIN2",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f021",
+      "from": "stm.PA1",
+      "to": "tb1.PWMB",
+      "kind": "pwm",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f022",
+      "from": "stm.PA6",
+      "to": "tb1.BIN1",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f023",
+      "from": "stm.PA7",
+      "to": "tb1.BIN2",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f024",
+      "from": "boost.OUT_POS",
+      "to": "tb2.VM",
+      "kind": "power12",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f025",
+      "from": "stm.V3",
+      "to": "tb2.VCC",
+      "kind": "power3",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f026",
+      "from": "stm.PB15",
+      "to": "tb2.STBY",
+      "kind": "stby",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f027",
+      "from": "stm.PA2",
+      "to": "tb2.PWMA",
+      "kind": "pwm",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f028",
+      "from": "stm.PA8",
+      "to": "tb2.AIN1",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f029",
+      "from": "stm.PA9",
+      "to": "tb2.AIN2",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f030",
+      "from": "stm.PA3",
+      "to": "tb2.PWMB",
+      "kind": "pwm",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f031",
+      "from": "stm.PA10",
+      "to": "tb2.BIN1",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f032",
+      "from": "stm.PA15",
+      "to": "tb2.BIN2",
+      "kind": "direction",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f033",
+      "from": "tb1.AO1",
+      "to": "m1.p6",
+      "kind": "motor",
+      "group": "M1",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f034",
+      "from": "tb1.AO2",
+      "to": "m1.p1",
+      "kind": "motor",
+      "group": "M1",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f035",
+      "from": "tb1.BO1",
+      "to": "m2.p6",
+      "kind": "motor",
+      "group": "M2",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f036",
+      "from": "tb1.BO2",
+      "to": "m2.p1",
+      "kind": "motor",
+      "group": "M2",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f037",
+      "from": "tb2.AO1",
+      "to": "m3.p6",
+      "kind": "motor",
+      "group": "M3",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f038",
+      "from": "tb2.AO2",
+      "to": "m3.p1",
+      "kind": "motor",
+      "group": "M3",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f039",
+      "from": "tb2.BO1",
+      "to": "m4.p6",
+      "kind": "motor",
+      "group": "M4",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f040",
+      "from": "tb2.BO2",
+      "to": "m4.p1",
+      "kind": "motor",
+      "group": "M4",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f041",
+      "from": "remote.PB6",
+      "to": "servo1.S",
+      "kind": "reserved",
+      "group": "reserved",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f042",
+      "from": "buck.OUT_POS",
+      "to": "servo1.VPLUS",
+      "kind": "power5",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f043",
+      "from": "remote.PB7",
+      "to": "servo2.S",
+      "kind": "reserved",
+      "group": "reserved",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f044",
+      "from": "buck.OUT_POS",
+      "to": "servo2.VPLUS",
+      "kind": "power5",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f045",
+      "from": "remote.PB8",
+      "to": "servo3.S",
+      "kind": "reserved",
+      "group": "reserved",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f046",
+      "from": "buck.OUT_POS",
+      "to": "servo3.VPLUS",
+      "kind": "power5",
+      "group": "power",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f047",
+      "from": "stm.PB15",
+      "to": "pulldown.A",
+      "kind": "stby",
+      "group": "control",
+      "label": "",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f048",
+      "from": "stlink.SWDIO",
+      "to": "stm.PA13",
+      "kind": "usb",
+      "group": "tools",
+      "label": "",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "f049",
+      "from": "stlink.SWCLK",
+      "to": "stm.PA14",
+      "kind": "usb",
+      "group": "tools",
+      "label": "",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "f050",
+      "from": "stlink.GND",
+      "to": "stm.SWDGND",
+      "kind": "ground",
+      "group": "tools",
+      "label": "",
+      "verified": false,
+      "optional": true
+    },
+    {
+      "id": "f051",
+      "from": "boost.IN_NEG",
+      "to": "battery.NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "升压输入回电池负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f052",
+      "from": "relay.VMINUS",
+      "to": "battery.NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "继电器供电负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f053",
+      "from": "buck.IN_NEG",
+      "to": "battery.NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "降压输入回电池负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f054",
+      "from": "tb1.GND2",
+      "to": "boost.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "每板一根可靠粗负极线，回升压OUT−",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f055",
+      "from": "tb2.GND2",
+      "to": "boost.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "每板一根可靠粗负极线，回升压OUT−",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f056",
+      "from": "stm.GND",
+      "to": "buck.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "低压设备回降压输出负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f057",
+      "from": "remote.GND",
+      "to": "buck.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "低压设备回降压输出负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f058",
+      "from": "ps2.GND",
+      "to": "buck.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "低压设备回降压输出负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f059",
+      "from": "servo1.GND",
+      "to": "buck.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "低压设备回降压输出负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f060",
+      "from": "servo2.GND",
+      "to": "buck.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "低压设备回降压输出负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f061",
+      "from": "servo3.GND",
+      "to": "buck.OUT_NEG",
+      "kind": "ground",
+      "group": "power",
+      "label": "低压设备回降压输出负极",
+      "verified": false,
+      "optional": false
+    },
+    {
+      "id": "f062",
+      "from": "pulldown.B",
+      "to": "stm.GND",
+      "kind": "ground",
+      "group": "control",
+      "label": "10k下拉回底盘地",
+      "verified": false,
+      "optional": false
+    }
+  ],
+  "notes": [
+    "保留原HTML样式/编辑器/逐接口选择；编码器、PID、ESP32、Dashboard本版不用。",
+    "所有在用和未用接口均保留，未用灰色；针序标注与功能图不能替代实物丝印。"
+  ],
+  "warnings": [
+    "本次B已ST-Link直烧并确认STBY低，A已烧录；新接线与实车动作待验证。"
+  ],
+  "revision": "fallback-pa-direct",
+  "buildId": "dual-f103-photo-new-ps2-20261019-v10"
+}

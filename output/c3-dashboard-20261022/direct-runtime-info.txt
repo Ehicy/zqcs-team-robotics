@@ -1,0 +1,2 @@
+INFO firmware=crtc-c3-direct-pwm-v2 transport=1 connected=1 token=5716BDD3 flags=31 encoder_mask=15 parser_errors=0 rejected=0 rx_bytes=246755 tx_bytes=133701 tx_frames=4611 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=231062 tx_gpio=18 rx_gpio=19
+ENC mask=15 age_ms=98 counts=-1,2,-19,1

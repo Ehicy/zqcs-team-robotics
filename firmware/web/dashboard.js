@@ -1,25 +1,23 @@
-import { installPidTest } from './pid-test.js';
-import { installPidPanel } from './pid-panel.js';
-import { installServoPanel } from './servo-panel.js';
-/* CRTC 下层车 BLE 遥控台：桌面 WASD 控制。
- *
- * 复用 firmware/web/protocol.js 的线协议与安全状态机（同一个 20 字节格式、
- * 同一个单在途写队列、同一个会话/解锁门禁），本文件只负责 DOM、键盘生命周期
- * 与遥测呈现。安全约定与手机面板一致，不因改成键盘而放宽：
- *   - 只有 ARM 之后才发 DRIVE；未解锁时按键只显示意图，不产生运动。
- *   - 松开全部方向键立即发零 DRIVE（保留解锁）。
- *   - 页面失焦 / 隐藏 / 离开、事件循环卡顿 ≥150ms、断连一律停止并锁定。
- *   - 解锁瞬间清空按住的键，必须重新按下才动，避免"按住 W 再点 ARM"直接窜车。
- */
+import { installPidTest } from './pid-test.js?v=c3-direct2';
+import { installPidPanel } from './pid-panel.js?v=bootquiet-v5';
+import { installServoPanel } from './servo-panel.js?v=bootquiet-v5';
+import { DirectDrive } from './direct-drive.js?v=c3-direct2';
+import { PwmDrive } from './pwm-drive.js?v=bootquiet-v5';
+/* C3 uses fresh-held-input preparation via DirectDrive. Historical profiles
+ * retain manual ARM. Both use the same queue, session and stale-command stop. */
 
-import { UUID, WHEELS, DEFAULT_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js';
+import { UUID, WHEELS, DEFAULT_CALIBRATION, PA_CHASSIS_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js?v=bootquiet-v5';
 import { KeyHoldSet, mixWheels, describeIntent, isDriveKey, isStopKey, normalizeKey } from './dashboard-input.js';
 import { installLiveMap } from './live-map.js';
 import { createDashboardAgent, registerAgentTools } from './dashboard-agent.js';
+import { installAutomation } from './automation-panel.js?v=bootquiet-v5';
 
 const $ = id => document.getElementById(id);
-let pidPanel = null, pidTest = null;
-const storageKey = 'crtc-lower-car-calibration-v2-rf-lf-rr-lr';
+let pidPanel = null, pidTest = null, directDrive = null;
+const paChassis = document.body.dataset.hardwareProfile === 'c3-pa';
+const pwmSelected = () => paChassis && $('driveMode')?.value === 'pwm';
+const calibrationDefaults = paChassis ? PA_CHASSIS_CALIBRATION : DEFAULT_CALIBRATION;
+const storageKey = 'crtc-lower-car-calibration-v2-rf-lf-rr-lr'; // Historical non-C3 profile only.
 const BAR_FULL_MM_S = 300;
 
 let connection = null;
@@ -35,6 +33,18 @@ let heldPad = null;
 let heldPadPointer = null;
 let liveMap = null;
 let dashboardAgent = null;
+let automation = null;
+let calibrationDirty=false,calibrationReadKey='';
+function readDeviceCalibration(force=false){
+  if(!paChassis)return;
+  const ds=controller.deviceSettings,values=ds.calibration();
+  if(!values)return;
+  const key=`${ds.session}/${ds.revision}`;
+  if(key===calibrationReadKey&&!force||calibrationDirty&&!force)return;
+  if(!force&&$('calibrationForm').contains(document.activeElement))return;
+  setCalibration(values);calibrationReadKey=key;calibrationDirty=false;
+  liveMap?.invalidate('C3参数回读更新');
+}
 
 const keys = new KeyHoldSet();
 let lastIntent = { throttle: 0, steer: 0 };
@@ -74,7 +84,8 @@ function padIntent() {
 
 /** 合并键盘与虚拟键盘的意图，写入控制器并刷新读数。 */
 function applyIntent({ announce = false } = {}) {
-  if (pidTest?.runner.active) { stopNow('手动输入接管，往复测试已中止'); return { throttle: 0, steer: 0 }; }
+  if(automation?.isRunning()) automation.cancel('手动输入接管自动动作');
+  if (pidTest?.runner.active || pidTest?.preparing) { stopNow('手动输入接管，往复测试已中止'); return { throttle: 0, steer: 0 }; }
   if (dashboardAgent?.isDriving()) {
     stopNow('手动输入接管，Agent 短测已停止并锁定');
     return { throttle: 0, steer: 0 };
@@ -88,11 +99,11 @@ function applyIntent({ announce = false } = {}) {
   const changed = intent.throttle !== lastIntent.throttle || intent.steer !== lastIntent.steer;
   lastIntent = intent;
 
-  const accepted = controller.setIntent(intent.throttle, intent.steer);
+  const accepted = directDrive ? directDrive.request(intent.throttle, intent.steer) : controller.setIntent(intent.throttle, intent.steer);
   if (accepted && changed && announce) {
     log(`意图 ${describeIntent(intent)}（低速 ${intent.throttle} / 转向 ${intent.steer}）`);
   } else if (!accepted && changed && controller.state.connected && !controller.state.armed) {
-    $('statusMessage').textContent = '尚未解锁：按键只记录意图，不会驱动底盘。';
+    $('statusMessage').textContent = paChassis ? '等待双板链路在线' : '尚未解锁：按键只记录意图，不会驱动底盘。';
   }
   paintIntent(intent);
   return intent;
@@ -111,9 +122,9 @@ function clearHolds(note) {
 }
 
 function paintIntent(intent) {
-  $('intentText').textContent = controller.state.armed ? describeIntent(intent) : `${describeIntent(intent)}（未解锁）`;
+  $('intentText').textContent = directDrive ? describeIntent(intent) : controller.state.armed ? describeIntent(intent) : `${describeIntent(intent)}（未解锁）`;
   const mix = mixWheels(intent, controller.state.limit);
-  $('mixText').textContent = `左 ${mix.left} / 右 ${mix.right} mm/s`;
+  $('mixText').textContent = pwmSelected() ? `左 ${mix.left/10} / 右 ${mix.right/10} %` : `左 ${mix.left} / 右 ${mix.right} mm/s`;
   const active = {
     w: intent.throttle > 0 && !intent.steer,
     s: intent.throttle < 0 && !intent.steer,
@@ -129,54 +140,71 @@ function paintIntent(intent) {
 function countBits(value) { return [0, 1, 2, 3].filter(i => value & (1 << i)).length; }
 
 function render(state = controller.state) {
+  readDeviceCalibration();
   $('connectionText').textContent = state.connected ? 'CRTC-Lower-Car' : (connecting ? '正在连接…' : '尚未连接');
   $('connectionDot').classList.toggle('online', state.connected);
   $('connectButton').textContent = state.connected ? '断开连接' : (connecting ? '正在连接…' : '连接蓝牙');
   $('connectButton').disabled = !supported || connecting;
 
-  $('modeBadge').textContent = state.fault && state.connected ? '底盘故障' : state.armed ? '已解锁' : state.armPending ? '等待解锁' : '已锁定';
+  $('modeBadge').textContent = paChassis ? directDrive?.job ? (pwmSelected()?'PWM 控制中':'PID 控制中') : '待输入' : state.fault && state.connected ? '底盘故障' : state.armed ? '已解锁' : state.armPending ? '等待解锁' : '已锁定';
   $('modeBadge').className = `badge${state.fault && state.connected ? ' fault' : state.armed ? ' armed' : ''}`;
 
   $('uartStatus').textContent = state.connected ? (state.uart ? '在线' : '未连接') : '—';
-  $('readyStatus').textContent = state.connected ? (state.ready ? '就绪' : '待校准 / 未就绪') : '—';
+  $('readyStatus').textContent = state.connected ? (pwmSelected() ? (state.uart?(controller.servoStatus?.quickProfile?'PID辅助 · 快起停':'PWM 直控'):'等待串口') : state.ready ? '就绪' : '等待 PID 反馈') : '—';
+  if($('driveProfileHint')) $('driveProfileHint').textContent = controller.servoStatus?.quickProfile
+    ? '快起快停版已识别：200ms S曲线启动；松键/STOP/反向采用10ms撤驱动+最多30ms制动。PID上电可用（默认Kp=1、Ki=2、Kd=0），仍可在下方调整。'
+    : '快起快停版尚未识别：需配套更新C3 v5和STM32 0xC3D91023。网页不能替代固件制动；原版STOP只撤驱动。';
   $('calibrationStatus').textContent = `${countBits(state.calibratedMask)} / 4`;
   $('trackSpeeds').textContent = state.connected ? `${state.left} / ${state.right}` : '— / —';
 
-  $('statusMessage').textContent = state.note;
+  $('statusMessage').textContent = paChassis ? state.note.replaceAll('请手动解锁','按方向键即可控制').replaceAll('请重新解锁','请重新按方向键').replaceAll('解锁','控制准备').replaceAll('保持锁定','等待输入').replaceAll('并锁定','').replaceAll('仍保持锁定','等待输入').replaceAll('已锁定','已停止') : state.note;
   $('statusMessage').classList.remove('error');
-  $('faultMessage').hidden = !(state.connected && (state.fault || state.faultCode));
+  $('faultMessage').hidden = paChassis || !(state.connected && (state.fault || state.faultCode));
   $('faultMessage').textContent = `故障码 ${state.faultCode} · 原因 ${state.reason}。先排除原因并停稳，清除故障不会自动解锁。`;
 
   $('armButton').disabled = !controller.canArm() || state.armPending || state.armed;
+  $('armButton').hidden = paChassis;
   $('armButton').textContent = state.armed ? '控制已解锁' : state.armPending ? '等待主控确认…' : '解锁控制 ARM';
   $('armHint').textContent = state.armed
     ? '按住 W/A/S/D 行驶；松开归零。空格或 STOP 会重新锁定。'
     : '四轮配置确认、UART 在线、底盘就绪且停稳后才能解锁。';
 
-  const padEnabled = state.armed && state.connected;
+  if (paChassis) $('armHint').textContent = pwmSelected() ? '按住即可控制；新版STM32持续融合可信编码器，坏轮自动后备，无反馈保留前馈。松开停止。' : 'PID使用当前参数；按住方向即可控制。';
+  const padEnabled = paChassis ? state.connected && state.uart : state.armed && state.connected;
   document.querySelectorAll('.key').forEach(button => { button.disabled = !padEnabled; });
 
   const sessionReady = state.connected && state.session !== 0;
   $('ledOnButton').disabled = !sessionReady || state.configBusy;
   $('ledOffButton').disabled = !sessionReady || state.configBusy;
-  const configAllowed = sessionReady && state.uart && !state.armed && !state.armPending && !state.remoteArmed && !state.active && !state.configBusy;
+  const configAllowed = sessionReady && (paChassis?!!controller.deviceSettings.calibration():state.uart) && !state.armed && !state.armPending && !state.remoteArmed && !state.active && !state.configBusy;
   $('saveConfigButton').disabled = !configAllowed;
-  $('saveConfigButton').textContent = state.configBusy ? '等待主控逐包确认…' : '停车后写入四轮配置';
+  $('saveConfigButton').textContent = state.configBusy ? '等待写入确认…' : paChassis?'写入 C3 Flash':'停车后写入四轮配置';
   $('clearFaultButton').disabled = !configAllowed;
+  $('clearFaultButton').hidden = paChassis;
   $('calibrationForm').querySelectorAll('input,select').forEach(input => { input.disabled = state.configBusy; });
   $('rememberButton').disabled = state.configBusy;
+  $('rememberButton').hidden=paChassis;
+  if($('resetEncoders'))$('resetEncoders').disabled=!sessionReady||!state.uart||state.active||state.configBusy||!controller.servoStatus?.encoderReset;
+  if($('deviceSettingsText')){
+    const ds=controller.deviceSettings;
+    $('deviceSettingsText').textContent=!state.connected?'参数唯一来源：C3 Flash；连接后自动读取':!ds.calibration()?'正在读取 C3 参数（约1.5秒）':
+      `C3 Flash 修订${ds.revision} · ${ds.pid.loaded?'已持久保存':'存储未加载'} · ${ds.pid.synced?'底盘已同步':'等待底盘同步'}${calibrationDirty?' · 有未写入修改':''}`;
+  }
   $('resetFormButton').disabled = state.configBusy;
 
   $('sessionText').textContent = state.session ? `会话 ${state.session.toString(16).padStart(8, '0')}` : '会话 —';
   $('speedLimit').value = state.limit;
-  $('speedValue').textContent = state.limit;
+  $('speedValue').textContent = pwmSelected() ? state.limit/10 : state.limit;
+  if($('speedLabel')) $('speedLabel').textContent=pwmSelected()?'输出比例':'目标速度上限';
+  if($('speedUnit')) $('speedUnit').textContent=pwmSelected()?'%':'mm/s';
+  if($('mixLabel')) $('mixLabel').textContent=pwmSelected()?'指令输出':'目标轮速';
 
   // 解锁上升沿：丢弃按住的键，必须重新按下才会动。
-  if (state.armed && !lastArmed) {
+  if (!paChassis && state.armed && !lastArmed) {
     keys.clear();
     document.querySelectorAll('.key').forEach(button => button.classList.remove('held'));
     log('已解锁：请重新按下方向键开始行驶');
-  } else if (!state.armed && lastArmed) {
+  } else if (!paChassis && !state.armed && lastArmed) {
     log('已锁定');
   }
   lastArmed = state.armed;
@@ -200,7 +228,7 @@ function renderTelemetry() {
     if (countCell) countCell.textContent = encoderFresh && encoder.validMask & (1 << i) ? String(encoder.counts[i]) : '—';
     if (speedCell) {
       speedCell.textContent = speedFresh && wheelSpeeds.validMask & (1 << i)
-        ? `${wheelSpeeds.measured[i]} / ${wheelSpeeds.targets[i]}` : '— / —';
+        ? `${wheelSpeeds.measured[i]} / ${pwmSelected()?'—':wheelSpeeds.targets[i]}` : '— / —';
     }
     const measured = speedFresh && wheelSpeeds.validMask & (1 << i) ? wheelSpeeds.measured[i] : 0;
     const target = speedFresh && wheelSpeeds.validMask & (1 << i) ? wheelSpeeds.targets[i] : 0;
@@ -260,7 +288,11 @@ async function connect() {
   render();
   let device;
   try {
-    device = await navigator.bluetooth.requestDevice({ filters: [{ name: 'CRTC-Lower-Car' }], optionalServices: [UUID.service] });
+    if(navigator.bluetooth.getDevices) {
+      const granted=await navigator.bluetooth.getDevices();
+      device=granted.find(item=>item.name==='CRTC-Lower-Car');
+    }
+    if(!device) device = await navigator.bluetooth.requestDevice({ filters: [{ name: 'CRTC-Lower-Car' }], optionalServices: [UUID.service] });
     const server = await device.gatt.connect();
     const service = await server.getPrimaryService(UUID.service);
     const control = await service.getCharacteristic(UUID.control);
@@ -275,7 +307,7 @@ async function connect() {
       try {
         const packet = decodeStatus(value);
         if (!controller.ingest(packet, generation)) return;
-        if (packet.kind === 1) { encoder = packet; encoderAt = performance.now(); liveMap?.receive(packet); log(`编码器计数 ${packet.counts.join(' / ')}`); }
+        if (packet.kind === 1) { encoder = packet; encoderAt = performance.now(); liveMap?.receive(packet); automation?.receive(packet,encoderAt); log(`编码器计数 ${packet.counts.join(' / ')}`); }
         if (packet.kind === 2) { wheelSpeeds = packet; speedsAt = performance.now(); }
         renderTelemetry();
       } catch (error) {
@@ -303,18 +335,18 @@ async function connect() {
 
 /* ---------------- 校准表单 ---------------- */
 function buildCalibration() {
-  $('calibrationWheels').innerHTML = WHEELS.map((name, i) => `<fieldset class="wheel-config"><legend>${name} · ${i === 3 ? 'EXTI 2×' : '定时器 4×'}</legend><div class="config-grid">
+  $('calibrationWheels').innerHTML = WHEELS.map((name, i) => `<fieldset class="wheel-config"><legend>${name} · ${(paChassis ? i >= 2 : i === 3) ? 'EXTI 2×' : '定时器 4×'}</legend><div class="config-grid">
     <label for="wheel${i}_diameter">轮径 mm<input id="wheel${i}_diameter" type="number" min="0.1" max="500" step="0.1" required inputmode="decimal"></label>
     <label for="wheel${i}_cpr">每轮每圈计数<input id="wheel${i}_cpr" type="number" min="1" max="1000000" step="1" required inputmode="numeric"></label>
     <label for="wheel${i}_motor">电机方向<select id="wheel${i}_motor"><option value="1">+ 正向</option><option value="-1">− 反向</option></select></label>
     <label for="wheel${i}_encoder">编码器方向<select id="wheel${i}_encoder"><option value="1">+ 正向</option><option value="-1">− 反向</option></select></label>
 
 
-    <label for="wheel${i}_max">最大轮速 mm/s<input id="wheel${i}_max" type="number" min="1" max="1000" step="1" required inputmode="numeric"></label>
-    </div><label class="confirmation"><input id="wheel${i}_confirmed" type="checkbox"><span>我已实测核对本轮的方向、每圈计数和轮径</span></label></fieldset>`).join('');
-  let values = DEFAULT_CALIBRATION.map(value => ({ ...value }));
-  try {
-    const saved = JSON.parse(localStorage.getItem(storageKey));
+    <label for="wheel${i}_max">${paChassis?'满PWM参考轮速 / 历史速度上限':'最大轮速'} mm/s<input id="wheel${i}_max" type="number" min="1" max="1000" step="1" required inputmode="numeric"></label>
+    </div><label class="confirmation" ${paChassis ? 'hidden' : ''}><input id="wheel${i}_confirmed" type="checkbox"><span>我已实测核对本轮的方向、每圈计数和轮径</span></label></fieldset>`).join('');
+  let values = calibrationDefaults.map(value => ({ ...value }));
+  if(!paChassis)try {
+    let saved = JSON.parse(localStorage.getItem(storageKey));
     if (Array.isArray(saved) && saved.length === 4) {
       const checked = saved.map(value => validateCalibration({ ...value, confirmed: false }));
       if (checked.every((value, i) => value.wheel === i)) values = checked;
@@ -360,8 +392,9 @@ function readCalibration() {
 
 /* ---------------- 控制器 ---------------- */
 const controller = new RemoteController({
+  deviceStorage:paChassis,
   changed: render,
-  locked: () => { pidTest?.runner.cancel('控制锁定，往复测试已中止'); dashboardAgent?.onLock(); revokeAgentPermission(); clearHolds(); },
+  locked: () => { automation?.cancel('控制已停止'); directDrive?.cancel('控制已停止', false); pidTest?.runner.cancel('控制停止，往复测试已中止'); dashboardAgent?.onLock(); revokeAgentPermission(); clearHolds(); },
   transportError: error => { closeTransport(); showError(new Error(`蓝牙写入失败，已锁定：${error.message}`)); },
 });
 
@@ -370,8 +403,19 @@ $('telemetryRows').innerHTML = WHEELS.map((name, i) =>
   `<tr><td>${name}</td><td id="count${i}">—</td><td id="wheelSpeed${i}">— / —</td></tr>`).join('');
 $('wheelBars').innerHTML = WHEELS.map((name, i) =>
   `<div class="bar bar-${i}"><span>${name.split(' ')[0]}</span><div class="track"><i class="target"></i><i class="measured"></i></div><span class="value">— / —</span></div>`).join('');
-pidPanel = installPidPanel({ root: $('pidPanel'), controller, error: showError, log: typeof log === 'function' ? log : () => {} });
+pidPanel = installPidPanel({ root: $('pidPanel'), controller, error: showError, log: typeof log === 'function' ? log : () => {}, written:()=>{calibrationDirty=false;calibrationReadKey='';},direct: paChassis });
 buildCalibration();
+$('calibrationForm').addEventListener('input',()=>{calibrationDirty=true;});
+$('pidPanel').addEventListener('input',()=>{calibrationDirty=true;});
+function createDrive() {
+  const options={controller,calibration:readCalibration,foreground:()=>!document.hidden&&document.hasFocus(),error:showError,changed:()=>render()};
+  return pwmSelected()?new PwmDrive(options):new DirectDrive(options);
+}
+if(paChassis) directDrive=createDrive();
+$('driveMode')?.addEventListener('change',()=>{
+  stopNow('行驶方式已切换'); directDrive=createDrive();
+  controller.setLimit(pwmSelected()?200:100); render();
+});
 liveMap = installLiveMap({
   snapshot: () => ({ ...controller.state, mainAt: controller.mainStatusAt,
     encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }),
@@ -385,12 +429,15 @@ $('speedLimit').addEventListener('input', event => {
   if (dashboardAgent?.isDriving()) stopNow('手动调整速度，Agent 短测已停止并锁定');
   const value = Number(event.target.value);
   controller.setLimit(value);
-  $('speedValue').textContent = value;
+  $('speedValue').textContent = pwmSelected()?value/10:value;
   paintIntent(lastIntent);
 });
 
-function stopNow(note = '已停止并锁定') {
+function stopNow(note = '已停止') {
+  automation?.cancel(note);
   pidTest?.runner.cancel(note);
+  pidTest?.cancelPreparation();
+  directDrive?.cancel(note, false);
   clearHolds();
   safely(controller.stop(note));
   log(note);
@@ -399,6 +446,13 @@ $('stopButton').addEventListener('pointerdown', event => { event.preventDefault(
 $('stopButton').addEventListener('click', event => { if (event.detail === 0) stopNow('按下 STOP：已停止并锁定'); });
 $('ledOnButton').addEventListener('click', () => safely(controller.led(true).then(() => log('已发送板载灯 亮'))));
 $('ledOffButton').addEventListener('click', () => safely(controller.led(false).then(() => log('已发送板载灯 灭'))));
+$('resetEncoders')?.addEventListener('click',()=>safely((async()=>{
+  stopNow('编码器清零：停止控制');automation?.encoderReset?.();liveMap?.invalidate('编码器已清零，请重设起点');
+  // STOP rotates the control session. Wait for its fresh status before reset.
+  await new Promise(resolve=>setTimeout(resolve,200));
+  await controller.resetEncoders();encoder=null;encoderAt=-Infinity;wheelSpeeds=null;speedsAt=-Infinity;
+  log('四轮编码器已清零；后续计数以新零点为准');renderTelemetry();
+})()));
 $('clearFaultButton').addEventListener('click', () => safely(controller.clearFault().then(() => log('清故障请求已确认'))));
 $('calibrationForm').addEventListener('submit', event => {
   event.preventDefault();
@@ -409,10 +463,11 @@ $('calibrationForm').addEventListener('submit', event => {
     }
     const values = readCalibration();
     log(`开始写入四轮配置（已确认 ${values.filter(v => v.confirmed).length} / 4）`);
-    safely(controller.configure(values).then(() => log('统一 PID 与四轮配置已逐包确认（仅存 RAM）')));
+    safely(controller.configure(values).then(() => {calibrationDirty=false;calibrationReadKey='';log(paChassis?'已写 C3 Flash，正在回读确认':'统一 PID 与四轮配置已逐包确认（仅存 RAM）');}));
   } catch (error) { showError(error); }
 });
 $('rememberButton').addEventListener('click', () => {
+  if(paChassis)return;
   try {
     localStorage.setItem(storageKey, JSON.stringify(readCalibration()));
     $('statusMessage').textContent = '已记住本机表单；未下发配置，也不会自动解锁。';
@@ -420,7 +475,8 @@ $('rememberButton').addEventListener('click', () => {
   } catch (error) { showError(error); }
 });
 $('resetFormButton').addEventListener('click', () => {
-  setCalibration(DEFAULT_CALIBRATION);
+  if(paChassis){readDeviceCalibration(true);$('statusMessage').textContent='已重新读取 C3 参数，未执行运动';return;}
+  setCalibration(calibrationDefaults);
   $('statusMessage').textContent = '已恢复待验证初值；未发送到车辆。';
   log('表单已恢复初值');
 });
@@ -430,7 +486,7 @@ document.querySelectorAll('.key').forEach(button => {
   button.addEventListener('contextmenu', event => event.preventDefault());
   button.addEventListener('pointerdown', event => {
     event.preventDefault();
-    if (!controller.state.armed || heldPadPointer !== null || event.button !== 0) return;
+    if (!(paChassis ? controller.state.connected && controller.state.uart : controller.state.armed) || heldPadPointer !== null || event.button !== 0) return;
     heldPad = button; heldPadPointer = event.pointerId;
     button.setPointerCapture(event.pointerId);
     button.classList.add('held');
@@ -463,14 +519,10 @@ window.addEventListener('keydown', event => {
   if (!isDriveKey(event.key)) return;
   event.preventDefault();
   const normalized = normalizeKey(event.key);
-  if (event.repeat) {
-    // 长按自动重复：键已在集合里，忽略即可，避免重复刷新意图。
-    if (keys.held.has(normalized)) return;
-  }
+  if (event.repeat) return; // STOP/session cancellation always needs a fresh physical press.
   if (keys.press(normalized)) applyIntent({ announce: true });
 });
 window.addEventListener('keyup', event => {
-  if (typingInField(event.target)) return;
   if (!isDriveKey(event.key)) return;
   event.preventDefault();
   if (keys.release(event.key)) applyIntent({ announce: true });
@@ -481,7 +533,7 @@ document.addEventListener('visibilitychange', () => { revokeAgentPermission(); s
 window.addEventListener('pagehide', () => { revokeAgentPermission(); stopNow('页面已离开，已停止并锁定'); });
 window.addEventListener('pageshow', event => { if (event.persisted) stopNow('页面已恢复，请重新解锁'); });
 
-setInterval(() => { pidTest?.tick(); dashboardAgent?.tick(); controller.tick(); renderTelemetry(); liveMap.tick(); }, 25);
+setInterval(() => { directDrive?.tick(); pidTest?.tick(); dashboardAgent?.tick(); controller.tick(); automation?.tick(); renderTelemetry(); liveMap.tick(); }, 25);
 
 /* 支持性检查 */
 const warning = $('supportWarning');
@@ -503,14 +555,18 @@ window.__crtcDashboard = Object.freeze({
   describeIntent,
 });
 
-controller.setLimit(80);
+controller.setLimit(paChassis?200:80);
 log('遥控台已就绪：等待连接 CRTC-Lower-Car');
 render();
 
-const servoPanel=installServoPanel(controller);
+const servoPanel=installServoPanel(controller,{onTarget:e=>automation?.target(e)});
+automation=installAutomation({root:$('automationPanel'),controller,calibration:readCalibration,
+  telemetry:()=>({encoder,encoderAt}),intent:()=>({...lastIntent}),
+  takeover:()=>{directDrive?.cancel('自动动作接管',false);pidTest?.runner.cancel('自动动作接管');clearHolds();}});
+Object.defineProperty(window,'crtcMotion',{value:Object.freeze({status:()=>automation?.status(),export:()=>automation?.library.export()}),configurable:true});
 pidTest = installPidTest({ root: $('pidTestPanel'), controller,
   telemetry: () => ({ encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }), calibration: readCalibration,
-  foreground: () => !document.hidden && document.hasFocus(), error: showError, log });
+  foreground: () => !document.hidden && document.hasFocus(), error: showError, log, direct: paChassis });
 
 /* ---------------- Agent 接口（同页、无额外网络端口） ---------------- */
 function revokeAgentPermission() {
@@ -542,7 +598,7 @@ function renderAgent() {
   const s = dashboardAgent.snapshot();
   $('agentMotionAllowed').disabled = !s.permissions.write;
   if (!s.permissions.write) $('agentMotionAllowed').checked = false;
-  $('agentDiagnosis').textContent = s.blockers.length ? s.blockers.map(b => b.message).join('；')
+  $('agentDiagnosis').textContent = paChassis && pwmSelected() ? (s.state.uart?'PWM 直控在线，编码器读数不影响手动行驶':'等待串口在线') : s.blockers.length ? s.blockers.map(b => b.message).join('；')
     : s.state.armed ? '底盘已解锁；运动命令仍需独立许可' : '底盘已就绪，可手动解锁';
   $('agentLiveStatus').textContent = JSON.stringify(s, null, 2);
 }

@@ -1,0 +1,14 @@
+{
+  "tag": "0xc3d51022",
+  "stby": false,
+  "debug_freeze": 0,
+  "phase": 0,
+  "inhibited": 1,
+  "tim3_cr1": 1,
+  "tim4_cr1": 1,
+  "watchdog_latched": 0,
+  "counts_irq": [
+    0,
+    0
+  ]
+}

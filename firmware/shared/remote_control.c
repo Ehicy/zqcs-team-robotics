@@ -107,9 +107,13 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
     case REMOTE_OPCODE_ARM:
     case REMOTE_OPCODE_STOP:
     case REMOTE_OPCODE_CLEAR_FAULT:
+    case REMOTE_OPCODE_ENCODER_RESET:
         if (!all_zero(p, 12U)) return stop_reject(s, a, REMOTE_REASON_INVALID);
         break;
     case REMOTE_OPCODE_DRIVE:
+#ifdef CRTC_C3_DASHBOARD
+    case REMOTE_OPCODE_PWM:
+#endif
         throttle = get_i16(p + 12);
         steer = get_i16(p + 14);
         limit = get_u16(p + 16);
@@ -142,6 +146,12 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
             get_u32(p + 16) > 1000000UL)
             return stop_reject(s, a, REMOTE_REASON_INVALID);
         break;
+    case REMOTE_OPCODE_SERVO_SETTINGS:
+        if(p[12]>=3 || p[13]>3 || (p[12]!=2 && (p[13]&2)) ||
+           get_u16(p+14)<LINK_SERVO_MIN_US(p[12]) || get_u16(p+16)>LINK_SERVO_MAX_US(p[12]) ||
+           get_u16(p+14)>=get_u16(p+16) || get_u16(p+18)<get_u16(p+14) ||
+           get_u16(p+18)>get_u16(p+16)) return stop_reject(s,a,REMOTE_REASON_INVALID);
+        break;
     case REMOTE_OPCODE_PID:
         if(p[12] || p[13] || get_u16(p+14)>20000U || get_u16(p+16)>20000U ||
            get_u16(p+18)>20000U || !(get_u16(p+14) || get_u16(p+16)))
@@ -159,21 +169,34 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
     }
     /* A valid STOP is safe even if old in time or duplicated in sequence. */
     if (opcode == REMOTE_OPCODE_STOP) {
+#ifdef CRTC_C3_DASHBOARD
+        clear_input(s); s->armed=0; s->reason=REMOTE_REASON_STOP;
+        if(!s->have_sequence || sequence_newer(sequence,s->last_sequence)) {
+            s->last_sequence=sequence; s->have_sequence=1;
+        }
+#else
         remote_control_reset(s, REMOTE_REASON_STOP);
+#endif
         a->kind = REMOTE_ACTION_STOP;
         return 1;
     }
     if (s->have_sequence && !sequence_newer(sequence, s->last_sequence)) return reject(s);
     age = now - received_ms;
-    if (age >= REMOTE_CONTROL_MAX_AGE_MS || (opcode == REMOTE_OPCODE_DRIVE && age >= ttl))
+    if (age >= REMOTE_CONTROL_MAX_AGE_MS || ((opcode == REMOTE_OPCODE_DRIVE || opcode == REMOTE_OPCODE_PWM) && age >= ttl))
         return stop_reject(s, a, REMOTE_REASON_EXPIRED);
-    if (!s->link_up) {
+    if (!s->link_up
+#ifdef CRTC_C3_DASHBOARD
+        && opcode!=REMOTE_OPCODE_MECHANICAL && opcode!=REMOTE_OPCODE_TUNING &&
+        opcode!=REMOTE_OPCODE_PID && opcode!=REMOTE_OPCODE_SERVO_SETTINGS
+#endif
+        ) {
         s->reason = REMOTE_REASON_LINK;
         return reject(s);
     }
     if (opcode == REMOTE_OPCODE_MECHANICAL || opcode == REMOTE_OPCODE_TUNING ||
         opcode == REMOTE_OPCODE_CLEAR_FAULT || opcode == REMOTE_OPCODE_SERVO || opcode == REMOTE_OPCODE_PID ||
-        opcode == REMOTE_OPCODE_SERVO_TARGET) {
+        opcode == REMOTE_OPCODE_SERVO_TARGET || opcode==REMOTE_OPCODE_ENCODER_RESET ||
+        opcode==REMOTE_OPCODE_SERVO_SETTINGS) {
         if (s->armed || s->active) return stop_reject(s, a, REMOTE_REASON_LOCKED);
     }
     if (opcode == REMOTE_OPCODE_ARM || opcode == REMOTE_OPCODE_DRIVE) {
@@ -227,6 +250,12 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
     case REMOTE_OPCODE_CLEAR_FAULT:
         a->kind = REMOTE_ACTION_CLEAR_FAULT;
         return 1;
+    case REMOTE_OPCODE_ENCODER_RESET:
+        a->kind=REMOTE_ACTION_ENCODER_RESET; return 1;
+    case REMOTE_OPCODE_SERVO_SETTINGS:
+        a->kind=REMOTE_ACTION_SERVO_SETTINGS; a->wheel=p[12]; a->flags=p[13];
+        a->diameter_tenth_mm=get_u16(p+14); /* min / max / reference, no actuation */
+        a->max_mm_s=get_u16(p+16); a->servo_reference_us=get_u16(p+18); return 1;
     default: /* Validated DRIVE. */
         left = throttle + steer;
         right = throttle - steer;
@@ -240,7 +269,7 @@ int remote_control_receive(remote_control_t *s, const uint8_t *p, size_t length,
         s->ttl_ms = ttl;
         s->expires_ms = received_ms + ttl;
         s->reason = REMOTE_REASON_READY;
-        a->kind = REMOTE_ACTION_DRIVE;
+        a->kind = opcode==REMOTE_OPCODE_PWM ? REMOTE_ACTION_PWM : REMOTE_ACTION_DRIVE;
         a->ttl_ms = (uint16_t)(ttl - age);
         /* Measured chassis order: M1 RF, M2 LF, M3 RR, M4 LR. */
         a->targets[0] = a->targets[2] = s->right_mm_s;

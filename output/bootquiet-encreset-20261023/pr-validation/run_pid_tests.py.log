@@ -1,0 +1,4 @@
+PID tests: SANITIZE=0; UBSan NOT run
+PASS PID: explicit initialization, four independent D histories, measured derivative/filter, no target kick, stopped-only atomic gains
+PASS real UART PID init/ACK, ESP unified source, no auto-arm/calibration, backend rejection locks and explicit retry recovers
+PASS explicit chassis state transitions and priority gates

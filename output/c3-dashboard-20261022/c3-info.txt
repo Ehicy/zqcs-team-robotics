@@ -1,0 +1,1 @@
+INFO firmware=crtc-c3-dashboard-encoder-v1 transport=1 connected=0 token=00000000 flags=0 encoder_mask=0 parser_errors=0 rejected=0 rx_bytes=0 tx_bytes=11662 tx_frames=686 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=69039 tx_gpio=18 rx_gpio=19

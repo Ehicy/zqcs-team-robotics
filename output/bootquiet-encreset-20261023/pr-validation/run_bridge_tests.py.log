@@ -1,0 +1,7 @@
+PASS physical output mode guard across STOP, new session and clock wrap
+PASS BLE-to-UART mechanics/gains merge, matching ACK and clear-fault roundtrip
+PASS ARM without STOP loop, velocity units, original TTL, zero release, STOP and old-session rejection
+PASS wheel telemetry, fault/readiness interlock and disconnect lockout
+PASS watchdog fault telemetry keeps UART/LED alive, rejects ARM and never auto-resumes
+PASS servo fixed-point speed/acceleration, approach, reversal, lease, clock wrap and scheduler gap
+PASS explicit cold reference without centering, target ACK, no replay, lease/STOP/fault hold, release, HAL error, three channels and old-client rejection

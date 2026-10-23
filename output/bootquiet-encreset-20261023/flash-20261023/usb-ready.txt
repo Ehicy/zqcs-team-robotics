@@ -1,0 +1,4 @@
+INFO firmware=crtc-c3-bootquiet-v5 transport=1 connected=1 token=234B7552 flags=127 encoder_mask=15 parser_errors=0 rejected=0 rx_bytes=31646 tx_bytes=17294 tx_frames=596 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=29852 tx_gpio=18 rx_gpio=19
+SERVO ready=1 quiet_ms=0 pulses=0,0,0 targets=0,0,0 levels=0,0,0 moving=0
+SETTINGS loaded=1 revision=1 synced=1 pid=1000,2000,0 motor=1,-1,1,1
+ENC mask=15 age_ms=81 counts=-1,209966,-17,1

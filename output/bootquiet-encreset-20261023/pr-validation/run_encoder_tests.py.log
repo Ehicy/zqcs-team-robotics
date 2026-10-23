@@ -1,0 +1,8 @@
+Encoder tests: UBSan NOT run
+PASS forward/reverse full wheel CPR and unchanged x2 direction
+PASS old duplicate-count defect reproduces fault=2; new decoder counts once, same speed threshold
+PASS short pulses rejected; final edge committed once with original B direction
+PASS owner-loop latency, timestamp/count wrap, reversal and raced poll
+PASS real excessive motion and invalid M4 feedback still latch encoder fault
+PASS bounded ISR burst, latched failure, timestamp wrap and normal edge rate
+PASS clock-gating model reproduces false storm/short pulse; continuous clock preserves thresholds

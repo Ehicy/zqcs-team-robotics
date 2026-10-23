@@ -1,0 +1,9 @@
+[
+  {
+    "name": "CRTC-Lower-Car",
+    "address": "14:63:93:F8:F5:8E",
+    "services": [
+      "2c4b0001-6f1a-4c9e-9b72-3c06f42b7d11"
+    ]
+  }
+]

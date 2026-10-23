@@ -1,0 +1,6 @@
+QUEUED LED=1
+ACK LED=1 seq=23372
+QUEUED LED=0
+ACK LED=0 seq=23373
+ENC mask=15 age_ms=4 counts=0,0,0,0
+INFO firmware=crtc-c3-dashboard-encoder-v1 transport=1 connected=1 token=EB447000 flags=31 encoder_mask=15 parser_errors=0 rejected=99 rx_bytes=311219 tx_bytes=466449 tx_frames=23375 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=2049599 tx_gpio=18 rx_gpio=19

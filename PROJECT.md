@@ -1,9 +1,20 @@
 > 2026-10-18 舵机v4跟进：移除舵机确认复选框，首次接管显式起点参考，ESP32限速/加速度生成PWM。
 > 编译及主机测试完成，尚未烧入；旧v3安装记录不等于v4已安装。见 docs/13-usb-loader-door-servo.md。
 
+## 2026-10-23 当前可用版本
+
+下层车为 **常规四胶轮差速 + STM32F103 + LuatOS ESP32-C3**。入口：[当前接线与操作](docs/16-c3-dashboard-encoders.md)、[Dashboard](firmware/web/dashboard.html)、[C3完整接线台](firmware/web/esp32c3-wiring.html)。
+
+- 已烧录：C3 `crtc-c3-bootquiet-v5`，底盘 `0xC3D91023`；PID/轮向/编码器机械参数由C3 Flash加载并下发，网页修改直接保存C3。
+- 大臂IO7、小臂IO6、门IO10；上电无PWM、不恢复参考角度，三路启动/重启零输出已读回，用户确认仅接大臂后不再自动回中。
+- 曲线快起快停、编码器启动清零/按钮清零、可信反馈PID辅助与异常读数前馈后备、舵机命名位置/积木和相对路径示教已实现。其他舵机、带载完整行程和路径精度仍需实车验证。
+- [已安装镜像、诊断与验收记录](output/bootquiet-encreset-20261023/README.md)；先前S3、双STM32和v3/v4镜像作为历史保留，不能混用端口。
+
+以下为此前方案与验收历史；当前端口和固件以本节及C3操作文档为准。
+
 # CRTC2026 双车机器人项目
 
-参赛队名：最强初生；公开仓库为 [Seroliya/zuiqiangchusheng](https://github.com/Seroliya/zuiqiangchusheng)，默认分支 `main`。参赛文档统一阅读 [中期考核技术文档](docs/14-midterm-report-20261019.md)；`docs/` 仅保留该正文，旧说明与证据通过 Git 历史追溯。
+参赛队名：最强初生；公开仓库为 [Seroliya/zuiqiangchusheng](https://github.com/Seroliya/zuiqiangchusheng)，默认分支 `main`。参赛文档统一阅读 [中期考核技术文档](docs/14-midterm-report-20261019.md)；新增当前C3操作/验收文档；其余旧说明与证据通过 Git 历史追溯。
 
 更新：2026-10-18。现状依据用户核对、当前源码、实板测试及 [2026CRTC参赛手册V1.5](2026CRTC参赛手册V1.5.pdf)。本文件保存当前方案、进度与继续工作的入口；历史过程见功能文档和备份。
 

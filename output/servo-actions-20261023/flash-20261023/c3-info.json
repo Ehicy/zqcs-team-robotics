@@ -1,0 +1,10 @@
+[
+  {
+    "command": "INFO",
+    "response": "INFO firmware=crtc-c3-servo270-v3 transport=1 connected=1 token=8C2CD9C3 flags=31 encoder_mask=15 parser_errors=0 rejected=0 rx_bytes=38105 tx_bytes=20630 tx_frames=712 uart_faults=0 last_uart_event=-1 rx_level=1 uptime_ms=35988 tx_gpio=18 rx_gpio=19\n"
+  },
+  {
+    "command": "ENC",
+    "response": "ENC mask=15 age_ms=76 counts=-1,36,-73,1\n"
+  }
+]
