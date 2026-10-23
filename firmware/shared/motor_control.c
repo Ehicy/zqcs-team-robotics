@@ -1,5 +1,6 @@
 #include "motor_control.h"
 #include <string.h>
+#ifndef CRTC_PA_CHASSIS
 
 static int8_t direction(int16_t value)
 { return value>0 ? 1 : (value<0 ? -1 : 0); }
@@ -91,3 +92,4 @@ int motor_control_update(motor_control_t *s, uint32_t now, const int16_t target[
     }
     return 1;
 }
+#endif

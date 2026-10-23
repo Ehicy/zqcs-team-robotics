@@ -62,13 +62,13 @@ void lower_motor_init(void)
     /* TIM2 is PWM here, NOT an encoder. No EXTI/encoder GPIO is initialized. */
     ready = 1;
 }
-void lower_motor_write(const int16_t pwm[4], uint8_t active)
+void lower_motor_write_braked(const int16_t pwm[4], uint8_t active, uint8_t short_brake_mask)
 {
     uint16_t c[4], set = 0;
     unsigned i;
     int any = 0;
     uint32_t mask;
-    if (!active || !ready || !pwm || lower_motor_watchdog_fault())
+    if (!active || !ready || !pwm || short_brake_mask>15U || lower_motor_watchdog_fault())
     {
         lower_motor_emergency_stop();
         return;
@@ -81,7 +81,14 @@ void lower_motor_write(const int16_t pwm[4], uint8_t active)
             lower_motor_emergency_stop();
             return;
         }
-        if (v)
+        if (short_brake_mask & (1U<<i))
+        {
+            if(v) { lower_motor_emergency_stop(); return; }
+            any=1;
+            set |= (uint16_t)((1U<<in1[i]) | (1U<<in2[i]));
+            c[i]=period; /* IN1=IN2=HIGH, PWM=HIGH => short brake, no reverse. */
+        }
+        else if (v)
         {
             any = 1;
             set |= (uint16_t)(1U << (v > 0 ? in1[i] : in2[i]));
@@ -110,3 +117,5 @@ void lower_motor_write(const int16_t pwm[4], uint8_t active)
     }
     __asm volatile("msr primask, %0" ::"r"(mask) : "memory");
 }
+void lower_motor_write(const int16_t pwm[4],uint8_t active)
+{ lower_motor_write_braked(pwm,active,0); }

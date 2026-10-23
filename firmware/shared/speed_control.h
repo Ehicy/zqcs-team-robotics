@@ -25,6 +25,15 @@ enum {
     SPEED_FAULT_WATCHDOG=6
 };
 
+#ifdef CRTC_PA_CHASSIS
+enum {
+    SPEED_ASSIST_FEEDFORWARD=0, SPEED_ASSIST_OWN=1,
+    SPEED_ASSIST_SAME_SIDE=2, SPEED_ASSIST_STRAIGHT_CROSS=3
+};
+#define SPEED_ASSIST_CORRECTION_MAX 250
+#define SPEED_ASSIST_NO_PROGRESS_MS 250U
+#endif
+
 typedef struct {
     uint32_t counts_per_rev;
     uint16_t diameter_tenth_mm, kp_milli, ki_milli, kd_milli, max_mm_s, accel_mm_s2;
@@ -54,12 +63,31 @@ typedef struct {
     uint8_t fault_encoder_mask;
     uint32_t fault_sample_ms, fault_sample_dt;
     int32_t fault_raw_delta[SPEED_WHEELS];
+#ifdef CRTC_PA_CHASSIS
+    /* Adaptive PWM assistance is independent of the legacy all-wheel PID.
+     * quality is an engineering weight, NOT a fault probability. True encoder
+     * observations stay in measured_mm_s/feedback_valid_mask; replacements
+     * used for control are explicitly separate. No substitution is odometry. */
+    int16_t assist_control_mm_s[4], assist_correction_permille[4];
+    uint16_t assist_quality[4], assist_own_quality[4];
+    uint8_t assist_source[4];
+    uint32_t assist_last_sample_ms, assist_last_counts[4];
+    uint32_t assist_progress_ms[4], assist_direction_ms[4];
+    int16_t assist_previous_velocity[4], assist_previous_target[4];
+    int16_t assist_derivative_measurement[4];
+    int32_t assist_derivative_milli[4];
+    int64_t assist_integral_micro[4];
+    uint8_t assist_window_mask, assist_rebase_mask, assist_seen_mask;
+    uint8_t assist_derivative_valid[4], assist_previous_source[4];
+#endif
 } speed_control_t;
 
 /* Defaults are provisional, NOT physical calibration: 13 single-channel
  * periods/motor rev, 34:1 => {1768,1768,1768,884} counts/wheel rev (x4/x2),
  * diameter 65mm, Kp=1, Ki=2, Kd=0, max=300mm/s, accel=500mm/s^2.
- * confirmed=0; pid_initialized=0 until the explicit ESP32 transaction succeeds.
+ * confirmed=0. Historical PID starts uninitialized until ESP32 config succeeds;
+ * CRTC_PA_CHASSIS starts with active LINK_PID_* defaults and still accepts C3
+ * updates. Initialization does not grant a motion lease or confirm calibration.
  * Pass the current continuous raw encoder counts. No encoder counter is reset. */
 void speed_control_init(speed_control_t *state, uint32_t now, const int32_t counts[4]);
 /* Only while outputs/ramp are zero, all feedback valid and measured speed <=5.
@@ -91,6 +119,27 @@ int speed_control_update(speed_control_t *state, uint32_t now,
                          const int32_t counts[4], uint8_t valid_mask,
                          const int16_t targets_mm_s[4], uint8_t enabled,
                          uint32_t command_ms, uint16_t ttl_ms);
+
+#ifdef CRTC_PA_CHASSIS
+/* Always-on feedback assistance for the CURRENT PA four-rubber-wheel PWM
+ * route. feedforward_pwm is physical polarity, already ramped/reversed by
+ * motor_control. Output pwm_permille is physical polarity too: do not negate
+ * it again. Reference speed = logical PWM * config.max_mm_s / 1000, where max
+ * is the provisional FULL-PWM speed model, not an independently measured fact.
+ * Sample every 10ms even when disabled. One invalid wheel NEVER stops others.
+ * Own observation first, same-side replacement next; only nearly straight
+ * equal-direction requests admit low-weight opposite-side replacements.
+ * No trusted observation => unchanged feedforward. Missing PID/configuration
+ * also leaves feedforward available. Replacements never integrate error or
+ * become true measured telemetry. Recovery/corrections ramp gradually; a
+ * correction never reverses a nonzero FF or creates output from zero FF.
+ * STOP/disabled/expired commands still output zero. No fault/clear/unlock
+ * transaction is added. Return 1 for a current enabled command, otherwise 0. */
+int speed_control_assist_pwm(speed_control_t *state, uint32_t now,
+                            const int32_t counts[4], uint8_t valid_mask,
+                            const int16_t feedforward_pwm[4], uint8_t enabled,
+                            uint32_t command_ms, uint16_t ttl_ms);
+#endif
 
 #ifdef __cplusplus
 }

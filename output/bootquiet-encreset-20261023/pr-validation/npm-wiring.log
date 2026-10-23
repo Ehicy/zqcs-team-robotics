@@ -1,0 +1,20 @@
+
+> test:wiring
+> node firmware/tests/test_c3_wiring.cjs && node --test docs/figures/fallback-20261019/test_editor.cjs docs/figures/fallback-20261019/test_controller_guide.cjs
+
+PASS wiring DOM: V8 seed (18 modules / 72 wires, power/relay, 4 orientations)
+PASS wiring DOM: V7 backup + V8 seed (18 modules / 72 wires, power/relay, 4 orientations)
+PASS C3 wiring: relay topology, PWM 7/6/10 vs source, grounds, NC unused, TB1 disabled, nonoverlapping layout
+✔ guide is standalone, includes full controls and has no hardware API (0.5622ms)
+✔ every storyboard selects existing keys, steps forwards/backwards, and ends LED playback (20.3401ms)
+✔ fallback original editor: complete ports, valid model, no module overlaps (294.8218ms)
+✔ photo side order, negative returns and unchanged motor firmware map (33.1952ms)
+✔ 7.4V input splits into independent boost and buck branches, not a cascade (31.3985ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 529.2638

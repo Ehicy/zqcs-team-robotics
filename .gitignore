@@ -14,3 +14,8 @@ __pycache__/
 # Reproducible host-test dependencies and disposable object files.
 /node_modules/
 /output/**/objects/
+
+# Local scratch, host test executables, and unapplied browser-form backup.
+/work/
+/output/**/*.exe
+/output/**/pre-refresh-form-draft.json

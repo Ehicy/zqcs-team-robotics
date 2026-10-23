@@ -1,0 +1,10 @@
+Motor control tests: SANITIZE=0; UBSan NOT run
+PASS original command lease, exact expiry, TTL=1, no cached renewal
+PASS independent bounded ramps, exact targets, per-wheel zero coast, zero active=0
+PASS decelerate before reversing, full 50ms coast, no hold-time ramp credit
+PASS disable and zero-stop preserve reversal dead time, repeated stop does not extend it
+PASS out-of-range rejection, INT16 extremes, bad enable/TTL/null/future command, atomic stop
+PASS 50/51ms update boundary, latched stall fault, explicit disable acknowledgement
+PASS millis wrap across ramps, original command expiry and reversal hold
+PASS 50000 deterministic transitions: bounded outputs, no direct reversal, correct active/fault
+All open-loop motor-control tests passed (no hardware accessed).

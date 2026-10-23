@@ -1,4 +1,4 @@
-import { OP } from './protocol.js?v=c3-pwm3';
+import { OP } from './protocol.js?v=bootquiet-v5';
 /* Manual duty control owns only fresh held input. No ARM, calibration,
  * PID transaction, feedback-health gate, or fault-clear operation. */
 export class PwmDrive {

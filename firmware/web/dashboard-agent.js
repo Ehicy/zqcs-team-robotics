@@ -54,6 +54,7 @@ export function createDashboardAgent({ controller, telemetry, calibration,
         servoMotion: controller.servoMotion,
         servoJob: controller.servoOwner ? {channel:controller.servoOwner.channel,target:controller.servoOwner.target} : null,
         servoAgeMs: age(time, controller.servoStatusAt) },
+      deviceSettings:controller.deviceSettings??null,
       calibrationForm: form, calibrationFormError: formError, audit: audit.slice(-20),
     });
   }

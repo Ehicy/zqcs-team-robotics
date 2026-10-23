@@ -72,6 +72,7 @@ h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; l
     "drive telemetry aux"
     "drive telemetry log"
     "servo servo servo"
+    "automation automation automation"
     "pid pid pid"
     "calibration calibration calibration"
     "pidtest pidtest pidtest"
@@ -98,6 +99,7 @@ h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; l
       "drive telemetry"
       "aux log"
       "servo servo"
+      "automation automation"
       "pid pid"
       "calibration calibration"
       "pidtest pidtest"
@@ -105,7 +107,7 @@ h2 { font-size: 14px; margin: 0 0 12px; color: var(--muted); font-weight: 600; l
   }
 }
 @media (max-width: 780px) {
-  .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "drive" "telemetry" "servo" "pid" "calibration" "pidtest" "map" "aux" "log"; padding: 14px; }
+  .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "drive" "telemetry" "servo" "automation" "pid" "calibration" "pidtest" "map" "aux" "log"; padding: 14px; }
 }
 
 .card {
@@ -270,3 +272,21 @@ fieldset.wheel-config legend { color: var(--muted); font-size: 12px; padding: 0 
   font: 12px/1.6 Consolas, monospace; background: #10161d; padding: 10px; border-radius: 6px; }
 .agent-panel details { margin-top: 12px; }
 .agent-panel summary { cursor: pointer; color: var(--muted); }
+
+/* Named arm states, cooperative action blocks and relative teach/replay. */
+.automation-panel { grid-area:automation; grid-column:1 / -1; min-width:0; }
+.automation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.automation-panel fieldset { min-width:0; border:1px solid var(--line); border-radius:10px; padding:16px; margin:14px 0; }
+.automation-panel legend { padding:0 8px; color:var(--accent); }
+.automation-panel label { display:flex; flex-direction:column; gap:5px; margin:8px 0; }
+.automation-panel input,.automation-panel select { max-width:100%; min-width:0; }
+.automation-panel button { margin:4px 4px 4px 0; white-space:normal; }
+.automation-panel .row { display:flex; gap:12px; flex-wrap:wrap; align-items:end; }
+.automation-panel .row label { flex:1 1 150px; }
+.action-blocks { display:grid; gap:12px; }
+.action-block { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; background:#10161d; border-left:4px solid var(--accent); padding:14px; border-radius:8px; }
+.action-block > strong { grid-column:1 / -1; }
+.automation-panel details { margin-top:16px; line-height:1.8; }
+#automationMessage { color:#ffbd85; overflow-wrap:anywhere; }
+@media(max-width:780px){.automation-grid{grid-template-columns:minmax(0,1fr)}.action-block{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:440px){.action-block{grid-template-columns:minmax(0,1fr)}}

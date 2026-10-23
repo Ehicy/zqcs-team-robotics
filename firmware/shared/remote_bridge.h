@@ -4,6 +4,7 @@
 #include "remote_control.h"
 #include "chassis_state.h"
 #include "servo_motion.h"
+#include "device_settings.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,7 +24,13 @@ typedef struct {
     uint16_t servo_us[LINK_SERVO_COUNT];
     servo_motion_t servos[LINK_SERVO_COUNT];
     uint8_t servo_error_mask;
+    device_settings_t settings;
+    int (*save_settings)(const device_settings_t *settings);
+    uint16_t synced_revision, syncing_revision;
+    uint8_t sync_step, settings_loaded, settings_wheel, settings_servo;
 } remote_bridge_t;
+void remote_bridge_get_settings(const remote_bridge_t *b,device_settings_t *out);
+int remote_bridge_load_settings(remote_bridge_t *b,const device_settings_t *settings);
 void remote_bridge_init(remote_bridge_t *b,link_node_t *link,uint32_t session);
 void remote_bridge_stop(remote_bridge_t *b,uint8_t reason,uint32_t now);
 void remote_bridge_tick(remote_bridge_t *b,uint32_t now);

@@ -13,13 +13,14 @@ extern "C" {
 enum { LINK_HELLO=1, LINK_HELLO_ACK=2, LINK_CONTROL=3, LINK_STATUS=4, LINK_ENCODERS=5,
        LINK_LED_SET=6, LINK_LED_ACK=7, LINK_PWM=8,
        LINK_SPEED_CONFIG=9, LINK_CONFIG_ACK=10, LINK_CLEAR_FAULT=11, LINK_SPEED=12,
-       LINK_PID_CONFIG=13 };
+       LINK_PID_CONFIG=13, LINK_QUICK_STOP=14, LINK_ENCODER_RESET=15 };
 #define LINK_LED_TIMEOUT_MS 500U
 enum { LINK_CLIENT=0, LINK_CONTROLLER=1 };
 enum { LINK_WAITING=0, LINK_CONTROL_EXPIRED=1, LINK_PEER_EXPIRED=2,
        LINK_TRANSPORT_ERROR=3 };
 enum { LINK_FLAG_CONNECTED=1, LINK_FLAG_COMMAND_VALID=2,
-       LINK_FLAG_OUTPUT_INHIBITED=4, LINK_FLAG_PWM_SUPPORTED=8, LINK_FLAG_SPEED_SUPPORTED=16 };
+       LINK_FLAG_OUTPUT_INHIBITED=4, LINK_FLAG_PWM_SUPPORTED=8, LINK_FLAG_SPEED_SUPPORTED=16,
+       LINK_FLAG_QUICK_STOP_SUPPORTED=32, LINK_FLAG_ENCODER_RESET_SUPPORTED=64 };
 typedef struct {
     uint8_t type, length;
     uint32_t sequence, session;
@@ -57,6 +58,9 @@ typedef struct {
     int16_t requested_pwm[4], input_pwm[4];
     uint8_t requested_mode, input_mode, pwm_supported, output_inhibited;
     uint8_t stop_pending, pwm_stop_latched;
+    uint8_t quick_stop_pending, quick_stop_received;
+    uint16_t quick_stop_lease_ms;
+    uint32_t quick_stop_ms;
     uint8_t remote_flags, remote_reason;
     uint32_t remote_last_control_sequence;
     uint8_t encoder_valid_mask, remote_encoder_valid_mask;
@@ -80,6 +84,7 @@ typedef struct {
 } link_node_t;
 /* Global Kp/Ki/Kd, six LE bytes; ACK wheel=253. No PID histories leave STM32. */
 int link_node_request_pid(link_node_t *node, uint16_t kp, uint16_t ki, uint16_t kd, uint32_t now);
+int link_node_request_encoder_reset(link_node_t *node,uint32_t now);
 void link_node_init(link_node_t *node, uint8_t role, uint32_t boot_id, uint32_t now);
 void link_node_tick(link_node_t *node, uint32_t now);
 void link_node_receive(link_node_t *node, uint8_t byte, uint32_t now);
@@ -100,6 +105,9 @@ void link_node_cancel_input(link_node_t *node);
 /* Explicit operator stop: send disabled PWM before other frames, reject new
  * drive inputs until the controller issues a new session. */
 void link_node_request_stop(link_node_t *node);
+/* Fresh operator stop only; never used for link loss/expired input. A one-shot
+ * remaining 40ms lease cannot be renewed by retransmission or idle heartbeats. */
+int link_node_request_quick_stop(link_node_t *node, uint32_t now);
 /* One diagnostic LED transaction at a time, expiring 500 ms from submission.
  * Neither LED requests nor acknowledgements extend the motor command lease. */
 int link_node_request_led(link_node_t *node, uint8_t on, uint32_t now);

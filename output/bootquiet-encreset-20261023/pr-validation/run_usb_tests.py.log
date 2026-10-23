@@ -1,0 +1,3 @@
+PASS USB update: CRC, 260/2052/55296B, 516 injected flash failures, vectors-last, bounds/order/length/corruption, protected regions
+PASS production DFU: complete/final-status commit, query idempotence, interrupted SETUP/reset, alt/direction/size/interface/config/offset guards
+PASS USB Python package roundtrip, corruption, length and wrong-origin guards; UBSan NOT run

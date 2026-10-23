@@ -26,6 +26,14 @@ int link_node_request_pid(link_node_t *n,uint16_t kp,uint16_t ki,uint16_t kd,uin
     n->config_wheel=253; n->config_pending=1; n->remote_config_valid=0;
     n->config_request_ms=now; return 1;
 }
+int link_node_request_encoder_reset(link_node_t *n,uint32_t now)
+{
+    link_node_tick(n,now);
+    if(n->role!=LINK_CLIENT || !n->connected || !n->token ||
+       !(n->remote_flags&LINK_FLAG_ENCODER_RESET_SUPPORTED) || n->config_pending || n->config_waiting || n->input_enable) return 0;
+    n->config_wheel=252; n->config_pending=1; n->remote_config_valid=0;
+    n->config_request_ms=now; return 1;
+}
 int link_node_request_config(link_node_t *n,const uint8_t p[20],uint8_t clear,uint32_t now)
 {
     link_node_tick(n,now);
@@ -61,6 +69,7 @@ static void rotate_token(link_node_t *n)
     n->token+=0x9e3779b9UL;
     if(!n->token) n->token=1;
     n->command_valid=0; n->requested_enable=0;
+    n->quick_stop_received=0;
     clear_led(n);
     clear_config(n);
     memset(n->requested_mm_s,0,sizeof(n->requested_mm_s));
@@ -68,9 +77,20 @@ static void rotate_token(link_node_t *n)
 }
 void link_node_cancel_input(link_node_t *n)
 {
+    n->quick_stop_pending=0;
     n->input_valid=0; n->input_enable=0; n->input_mode=0;
     memset(n->input_mm_s,0,sizeof(n->input_mm_s));
     memset(n->input_pwm,0,sizeof(n->input_pwm));
+}
+int link_node_request_quick_stop(link_node_t *n,uint32_t now)
+{
+    if(n->role!=LINK_CLIENT || !n->connected || !n->token ||
+       !(n->remote_flags&LINK_FLAG_QUICK_STOP_SUPPORTED)) return 0;
+    if(n->quick_stop_pending) return 1;
+    link_node_cancel_input(n);
+    n->quick_stop_pending=1; n->quick_stop_ms=now;
+    n->last_tx_ms=now-LINK_COMMAND_PERIOD_MS;
+    return 1;
 }
 void link_node_request_stop(link_node_t *n)
 {
@@ -103,6 +123,8 @@ void link_node_init(link_node_t *n,uint8_t role,uint32_t boot,uint32_t now)
 }
 void link_node_tick(link_node_t *n,uint32_t now)
 {
+    if(n->quick_stop_pending && (uint32_t)(now-n->quick_stop_ms)>=LINK_QUICK_STOP_MS)
+        n->quick_stop_pending=0;
     if((n->config_pending || n->config_waiting || n->config_received || n->config_ack_pending) &&
        (uint32_t)(now-n->config_request_ms)>=500U) clear_config(n);
     if((uint32_t)(now-n->speed_sample_ms)>=LINK_ENCODER_SAMPLE_MAX_AGE_MS) n->speed_valid_mask=0;
@@ -210,17 +232,36 @@ static int receive_controller(link_node_t *n,const link_frame_t *f,uint32_t now)
         n->led_request_ms=now; n->led_ack_pending=1; n->last_rx_ms=now;
         return 1;
     }
-    if((f->type==LINK_SPEED_CONFIG || f->type==LINK_CLEAR_FAULT || f->type==LINK_PID_CONFIG) && n->speed_supported &&
+    if((f->type==LINK_SPEED_CONFIG || f->type==LINK_CLEAR_FAULT || f->type==LINK_PID_CONFIG
+#ifdef CRTC_PA_CHASSIS
+        || f->type==LINK_ENCODER_RESET
+#endif
+        ) && n->speed_supported &&
        n->connected && f->session==n->token && !n->config_received && !n->config_ack_pending) {
         if((f->type==LINK_SPEED_CONFIG && (f->length!=20 || !config_valid(f->payload))) ||
            (f->type==LINK_CLEAR_FAULT && f->length!=0) ||
+           (f->type==LINK_ENCODER_RESET && f->length!=0) ||
            (f->type==LINK_PID_CONFIG && (f->length!=6 || link_get_u16(f->payload)>20000U ||
             link_get_u16(f->payload+2)>20000U || link_get_u16(f->payload+4)>20000U ||
             !(link_get_u16(f->payload) || link_get_u16(f->payload+2)))) || !accept_sequence(n,f)) return 0;
-        n->config_wheel=f->type==LINK_CLEAR_FAULT?255:f->type==LINK_PID_CONFIG?253:f->payload[0];
+        n->config_wheel=f->type==LINK_ENCODER_RESET?252:f->type==LINK_CLEAR_FAULT?255:f->type==LINK_PID_CONFIG?253:f->payload[0];
         memset(n->config_payload,0,20); memcpy(n->config_payload,f->payload,f->length); n->config_sequence=f->sequence;
         n->config_received=1; n->config_request_ms=now; n->last_rx_ms=now; return 1;
     }
+#ifdef CRTC_PA_CHASSIS
+    if(f->type==LINK_QUICK_STOP && f->length==2 && n->pwm_supported && n->connected &&
+       f->session==n->token && link_get_u16(f->payload)>0 &&
+       link_get_u16(f->payload)<=LINK_QUICK_STOP_MS) {
+        if(!accept_sequence(n,f)) return 0;
+        n->quick_stop_received=1; n->quick_stop_lease_ms=link_get_u16(f->payload);
+        n->last_rx_ms=n->command_ms=now; n->command_ttl_ms=LINK_COMMAND_MAX_TTL_MS;
+        n->command_valid=1; n->requested_enable=0; n->requested_mode=LINK_PWM;
+        memset(n->requested_pwm,0,sizeof(n->requested_pwm));
+        memset(n->requested_mm_s,0,sizeof(n->requested_mm_s));
+        n->last_control_sequence=f->sequence; n->accepted_controls++;
+        n->reason=LINK_WAITING; return 1;
+    }
+#endif
     if((f->type!=LINK_CONTROL && f->type!=LINK_PWM) ||
        (f->type==LINK_PWM && !n->pwm_supported) || f->length!=12 || !n->connected ||
        f->session!=n->token || f->payload[2]>1 || f->payload[3]!=0) return 0;
@@ -237,6 +278,7 @@ static int receive_controller(link_node_t *n,const link_frame_t *f,uint32_t now)
     if(!accept_sequence(n,f)) return 0;
     n->last_rx_ms=n->command_ms=now; n->command_ttl_ms=ttl; n->command_valid=1;
     n->requested_enable=f->payload[2]; n->last_control_sequence=f->sequence;
+    n->quick_stop_received=0;
     n->requested_mode=f->type;
     memset(n->requested_mm_s,0,sizeof(n->requested_mm_s));
     memset(n->requested_pwm,0,sizeof(n->requested_pwm));
@@ -307,7 +349,7 @@ static int receive_client(link_node_t *n,const link_frame_t *f,uint32_t now)
         n->config_waiting=0; n->remote_config_valid=1; n->last_rx_ms=now; return 1;
     }
     if(f->type!=LINK_STATUS || f->length!=16 || !n->connected ||
-       f->payload[2]!=0 || f->payload[3]!=0 || f->payload[0]>31 ||
+       f->payload[2]!=0 || f->payload[3]!=0 || f->payload[0]>127 ||
        f->payload[1]>LINK_TRANSPORT_ERROR) return 0;
     if(!accept_sequence(n,f)) return 0;
     if(f->session!=n->token) {
@@ -344,6 +386,10 @@ size_t link_node_transmit(link_node_t *n,uint32_t now,uint8_t *out,size_t cap)
             f.payload[0]=(uint8_t)((n->output_inhibited?LINK_FLAG_OUTPUT_INHIBITED:0) |
                 (n->pwm_supported?LINK_FLAG_PWM_SUPPORTED:0) |
                 (n->speed_supported?LINK_FLAG_SPEED_SUPPORTED:0) |
+#ifdef CRTC_PA_CHASSIS
+                (n->pwm_supported?LINK_FLAG_QUICK_STOP_SUPPORTED:0) |
+                (n->pwm_supported?LINK_FLAG_ENCODER_RESET_SUPPORTED:0) |
+#endif
                 (n->connected?LINK_FLAG_CONNECTED:0) |
                 (n->command_valid?LINK_FLAG_COMMAND_VALID:0));
             f.payload[1]=n->reason;
@@ -380,7 +426,10 @@ size_t link_node_transmit(link_node_t *n,uint32_t now,uint8_t *out,size_t cap)
         if((uint32_t)(now-n->last_tx_ms)<LINK_HELLO_PERIOD_MS) return 0;
         f.type=LINK_HELLO; f.session=n->boot_id;
     } else {
-        if(n->stop_pending || (n->pwm_stop_latched &&
+        if(n->quick_stop_pending) {
+            f.type=LINK_QUICK_STOP; f.session=n->token; f.length=2;
+            link_put_u16(f.payload,(uint16_t)(LINK_QUICK_STOP_MS-(uint32_t)(now-n->quick_stop_ms)));
+        } else if(n->stop_pending || (n->pwm_stop_latched &&
            (uint32_t)(now-n->last_tx_ms)>=LINK_COMMAND_PERIOD_MS)) {
             f.type=LINK_PWM; f.session=n->token; f.length=12;
             link_put_u16(f.payload,LINK_COMMAND_MAX_TTL_MS); /* enable=0, targets=0 */
@@ -396,8 +445,8 @@ size_t link_node_transmit(link_node_t *n,uint32_t now,uint8_t *out,size_t cap)
             }
             /* No input or expired input => disabled, zero command heartbeat. */
         } else if(n->config_pending) {
-            f.type=n->config_wheel==255?LINK_CLEAR_FAULT:n->config_wheel==253?LINK_PID_CONFIG:LINK_SPEED_CONFIG; f.session=n->token;
-            if(n->config_wheel!=255) { f.length=n->config_wheel==253?6:20; memcpy(f.payload,n->config_payload,f.length); }
+            f.type=n->config_wheel==252?LINK_ENCODER_RESET:n->config_wheel==255?LINK_CLEAR_FAULT:n->config_wheel==253?LINK_PID_CONFIG:LINK_SPEED_CONFIG; f.session=n->token;
+            if(n->config_wheel!=255 && n->config_wheel!=252) { f.length=n->config_wheel==253?6:20; memcpy(f.payload,n->config_payload,f.length); }
         } else if(n->led_pending) {
             f.type=LINK_LED_SET; f.session=n->token; f.length=1;
             f.payload[0]=n->led_expected_on;
@@ -407,11 +456,12 @@ size_t link_node_transmit(link_node_t *n,uint32_t now,uint8_t *out,size_t cap)
     length=link_encode(&f,out,cap);
     if(length) {
         n->tx_sequence++;
+        if(f.type==LINK_QUICK_STOP) n->quick_stop_pending=0;
         if(f.type==LINK_PWM && !f.payload[2]) n->stop_pending=0;
         if(f.type==LINK_ENCODERS) n->encoder_tx_ms=now;
         else if(f.type==LINK_SPEED) n->speed_tx_ms=now;
         else if(f.type==LINK_CONFIG_ACK) n->config_ack_pending=0;
-        else if(f.type==LINK_SPEED_CONFIG || f.type==LINK_CLEAR_FAULT || f.type==LINK_PID_CONFIG) {
+        else if(f.type==LINK_SPEED_CONFIG || f.type==LINK_CLEAR_FAULT || f.type==LINK_PID_CONFIG || f.type==LINK_ENCODER_RESET) {
             n->config_pending=0; n->config_waiting=1; n->config_sequence=f.sequence;
         }
         else if(f.type==LINK_LED_SET) {

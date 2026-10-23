@@ -1,0 +1,309 @@
+<svg class="rect-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1210" role="img" aria-labelledby="rect-title rect-desc">
+<title id="rect-title">双 STM32 常规矩形逐线接线图</title><desc id="rect-desc">左侧接收器和三舵机逐线连接手柄板，串口交叉连接底盘板；十二根电机控制线由底盘板 PA 逐根连接两块 TB6612，STBY共用PB15，电源在底部集中标注。</desc>
+<style>.rect-svg text{font-family:Microsoft YaHei,system-ui,sans-serif;font-size:24px;fill:#243248}.rect-svg .hd{font-size:26px;font-weight:700}.rect-svg .sm{font-size:19px;fill:#526278}.rect-svg .net{font-size:21px;font-weight:700}.rect-svg .port{font-size:23px;font-family:Consolas,monospace}</style>
+<rect width="2000" height="1210" fill="white"/>
+<text x="30" y="35" class="sm" text-anchor="start">按丝印接线；引脚在图上为走线排序，不代表实物排针孔序。</text>
+<rect x="30" y="70" width="250" height="320" rx="3" fill="#f7f9fc" stroke="#35465b" stroke-width="2.5"/>
+<path d="M30 135H280" stroke="#9aa9bb"/>
+<text x="155.0" y="103" class="hd" text-anchor="middle">PS2 接收转接板</text>
+<text x="155.0" y="126" class="sm" text-anchor="middle">原带稳压转接板 · 5V</text>
+<rect x="400" y="70" width="260" height="800" rx="3" fill="#edf5fc" stroke="#35465b" stroke-width="2.5"/>
+<path d="M400 135H660" stroke="#9aa9bb"/>
+<text x="530.0" y="103" class="hd" text-anchor="middle">A · 手柄 STM32</text>
+<text x="530.0" y="126" class="sm" text-anchor="middle">PS2 + 三路舵机</text>
+<rect x="880" y="70" width="260" height="860" rx="3" fill="#edf5fc" stroke="#35465b" stroke-width="2.5"/>
+<path d="M880 135H1140" stroke="#9aa9bb"/>
+<text x="1010.0" y="103" class="hd" text-anchor="middle">B · 底盘 STM32</text>
+<text x="1010.0" y="126" class="sm" text-anchor="middle">四轮开环 · ST-Link直烧</text>
+<rect x="1370" y="70" width="240" height="420" rx="3" fill="#fff8e2" stroke="#35465b" stroke-width="2.5"/>
+<path d="M1370 135H1610" stroke="#9aa9bb"/>
+<text x="1490.0" y="103" class="hd" text-anchor="middle">TB6612 ①</text>
+<text x="1490.0" y="126" class="sm" text-anchor="middle">M1 右前 + M2 左前</text>
+<rect x="1370" y="520" width="240" height="420" rx="3" fill="#fff8e2" stroke="#35465b" stroke-width="2.5"/>
+<path d="M1370 585H1610" stroke="#9aa9bb"/>
+<text x="1490.0" y="553" class="hd" text-anchor="middle">TB6612 ②</text>
+<text x="1490.0" y="576" class="sm" text-anchor="middle">M3 右后 + M4 左后</text>
+<polyline points="1140,460 1240,460 1370,460" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,460 1240,460 1370,460" fill="none" stroke="#d79527" stroke-width="3"/>
+<polyline points="1240,460 1240,910 1370,910" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1240,460 1240,910 1370,910" fill="none" stroke="#d79527" stroke-width="3"/>
+<circle cx="1240" cy="460" r="5" fill="#d79527"/>
+<circle cx="1240" cy="910" r="5" fill="#d79527"/>
+<text x="1255" y="555" class="net" text-anchor="start">STBY</text>
+<polyline points="1240,910 1240,965" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1240,910 1240,965" fill="none" stroke="#d79527" stroke-width="3"/>
+<path d="M1240 965l-9 7 18 10-18 10 18 10-9 7v14" fill="none" stroke="#57616e" stroke-width="2.5"/>
+<text x="1260" y="993" class="sm" text-anchor="start">10kΩ 下拉</text>
+<path d="M1240 1023v12m-16 0h32m-11 7h22m-15 7h8" stroke="#57616e" stroke-width="3" fill="none"/>
+<text x="1240" y="1080" class="sm" text-anchor="middle">公共 GND</text>
+<polyline points="280,160 400,160" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="280,160 400,160" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="280" cy="160" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="264" y="168" class="" text-anchor="end">CS / SEL</text>
+<circle cx="400" cy="160" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="416" y="168" class="" text-anchor="start">PB12</text>
+<polyline points="280,210 400,210" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="280,210 400,210" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="280" cy="210" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="264" y="218" class="" text-anchor="end">CLK</text>
+<circle cx="400" cy="210" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="416" y="218" class="" text-anchor="start">PB13</text>
+<polyline points="280,260 400,260" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="280,260 400,260" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="280" cy="260" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="264" y="268" class="" text-anchor="end">DAT / DI</text>
+<circle cx="400" cy="260" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="416" y="268" class="" text-anchor="start">PB14</text>
+<polyline points="280,310 400,310" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="280,310 400,310" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="280" cy="310" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="264" y="318" class="" text-anchor="end">CMD / DO</text>
+<circle cx="400" cy="310" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="416" y="318" class="" text-anchor="start">PB15</text>
+<rect x="30" y="420" width="250" height="90" fill="#f5effa" stroke="#35465b" stroke-width="2.5"/>
+<text x="155" y="455" class="" text-anchor="middle">1 · DS3128 大臂</text>
+<text x="155" y="493" class="sm" text-anchor="middle">红 5V / 黑棕 GND</text>
+<polyline points="280,465 400,465" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="280,465 400,465" fill="none" stroke="#9565ab" stroke-width="3"/>
+<circle cx="280" cy="465" r="6" fill="white" stroke="#9565ab" stroke-width="2.5"/>
+<text x="264" y="473" class="" text-anchor="end"></text>
+<text x="325" y="455" class="sm" text-anchor="start">S</text>
+<circle cx="400" cy="465" r="6" fill="white" stroke="#9565ab" stroke-width="2.5"/>
+<text x="416" y="473" class="" text-anchor="start">PB6</text>
+<circle cx="80" cy="510" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M80 510v12" stroke="#687583" stroke-width="2"/>
+<text x="80" y="535" class="sm" text-anchor="middle">5V</text>
+<circle cx="230" cy="510" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M230 510v12" stroke="#687583" stroke-width="2"/>
+<text x="230" y="535" class="sm" text-anchor="middle">GND</text>
+<rect x="30" y="550" width="250" height="90" fill="#f5effa" stroke="#35465b" stroke-width="2.5"/>
+<text x="155" y="585" class="" text-anchor="middle">2 · MG995 小臂</text>
+<text x="155" y="623" class="sm" text-anchor="middle">红 5V / 黑棕 GND</text>
+<polyline points="280,595 400,595" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="280,595 400,595" fill="none" stroke="#9565ab" stroke-width="3"/>
+<circle cx="280" cy="595" r="6" fill="white" stroke="#9565ab" stroke-width="2.5"/>
+<text x="264" y="603" class="" text-anchor="end"></text>
+<text x="325" y="585" class="sm" text-anchor="start">S</text>
+<circle cx="400" cy="595" r="6" fill="white" stroke="#9565ab" stroke-width="2.5"/>
+<text x="416" y="603" class="" text-anchor="start">PB7</text>
+<circle cx="80" cy="640" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M80 640v12" stroke="#687583" stroke-width="2"/>
+<text x="80" y="665" class="sm" text-anchor="middle">5V</text>
+<circle cx="230" cy="640" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M230 640v12" stroke="#687583" stroke-width="2"/>
+<text x="230" y="665" class="sm" text-anchor="middle">GND</text>
+<rect x="30" y="680" width="250" height="90" fill="#f5effa" stroke="#35465b" stroke-width="2.5"/>
+<text x="155" y="715" class="" text-anchor="middle">3 · MG995 开门</text>
+<text x="155" y="753" class="sm" text-anchor="middle">红 5V / 黑棕 GND</text>
+<polyline points="280,725 400,725" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="280,725 400,725" fill="none" stroke="#9565ab" stroke-width="3"/>
+<circle cx="280" cy="725" r="6" fill="white" stroke="#9565ab" stroke-width="2.5"/>
+<text x="264" y="733" class="" text-anchor="end"></text>
+<text x="325" y="715" class="sm" text-anchor="start">S</text>
+<circle cx="400" cy="725" r="6" fill="white" stroke="#9565ab" stroke-width="2.5"/>
+<text x="416" y="733" class="" text-anchor="start">PB8</text>
+<circle cx="80" cy="770" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M80 770v12" stroke="#687583" stroke-width="2"/>
+<text x="80" y="795" class="sm" text-anchor="middle">5V</text>
+<circle cx="230" cy="770" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M230 770v12" stroke="#687583" stroke-width="2"/>
+<text x="230" y="795" class="sm" text-anchor="middle">GND</text>
+<polyline points="660,160 880,160" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="660,160 880,160" fill="none" stroke="#327d79" stroke-width="3"/>
+<circle cx="660" cy="160" r="6" fill="white" stroke="#327d79" stroke-width="2.5"/>
+<text x="644" y="168" class="" text-anchor="end">PA2 TX</text>
+<circle cx="880" cy="160" r="6" fill="white" stroke="#327d79" stroke-width="2.5"/>
+<text x="896" y="168" class="" text-anchor="start">PB11 RX</text>
+<polyline points="660,210 880,210" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="660,210 880,210" fill="none" stroke="#327d79" stroke-width="3"/>
+<circle cx="660" cy="210" r="6" fill="white" stroke="#327d79" stroke-width="2.5"/>
+<text x="644" y="218" class="" text-anchor="end">PA3 RX</text>
+<circle cx="880" cy="210" r="6" fill="white" stroke="#327d79" stroke-width="2.5"/>
+<text x="896" y="218" class="" text-anchor="start">PB10 TX</text>
+<text x="770" y="260" class="sm" text-anchor="middle">TX 接对方 RX</text>
+<text x="770" y="290" class="sm" text-anchor="middle">115200 · 3.3V</text>
+<text x="530" y="365" class="hd" text-anchor="middle">STM32F103</text>
+<text x="530" y="398" class="sm" text-anchor="middle">50Hz 舵机 PWM</text>
+<text x="1010" y="520" class="hd" text-anchor="middle">STM32F103</text>
+<text x="1010" y="550" class="sm" text-anchor="middle">TIM2 · 20kHz PWM</text>
+<circle cx="1140" cy="460" r="6" fill="white" stroke="#d79527" stroke-width="2.5"/>
+<text x="1124" y="468" class="" text-anchor="end">PB15</text>
+<circle cx="1370" cy="460" r="6" fill="white" stroke="#d79527" stroke-width="2.5"/>
+<text x="1386" y="468" class="" text-anchor="start">STBY</text>
+<circle cx="1370" cy="910" r="6" fill="white" stroke="#d79527" stroke-width="2.5"/>
+<text x="1386" y="918" class="" text-anchor="start">STBY</text>
+<polyline points="1140,160 1370,160" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,160 1370,160" fill="none" stroke="#b86539" stroke-width="3"/>
+<circle cx="1140" cy="160" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1124" y="168" class="" text-anchor="end">PA0</text>
+<circle cx="1370" cy="160" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1386" y="168" class="" text-anchor="start">PWMA</text>
+<polyline points="1140,210 1370,210" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,210 1370,210" fill="none" stroke="#b86539" stroke-width="3"/>
+<circle cx="1140" cy="210" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1124" y="218" class="" text-anchor="end">PA4</text>
+<circle cx="1370" cy="210" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1386" y="218" class="" text-anchor="start">AIN1</text>
+<polyline points="1140,260 1370,260" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,260 1370,260" fill="none" stroke="#b86539" stroke-width="3"/>
+<circle cx="1140" cy="260" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1124" y="268" class="" text-anchor="end">PA5</text>
+<circle cx="1370" cy="260" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1386" y="268" class="" text-anchor="start">AIN2</text>
+<polyline points="1140,310 1370,310" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,310 1370,310" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="1140" cy="310" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1124" y="318" class="" text-anchor="end">PA1</text>
+<circle cx="1370" cy="310" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1386" y="318" class="" text-anchor="start">PWMB</text>
+<polyline points="1140,360 1370,360" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,360 1370,360" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="1140" cy="360" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1124" y="368" class="" text-anchor="end">PA6</text>
+<circle cx="1370" cy="360" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1386" y="368" class="" text-anchor="start">BIN1</text>
+<polyline points="1140,410 1370,410" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,410 1370,410" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="1140" cy="410" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1124" y="418" class="" text-anchor="end">PA7</text>
+<circle cx="1370" cy="410" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1386" y="418" class="" text-anchor="start">BIN2</text>
+<polyline points="1140,610 1370,610" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,610 1370,610" fill="none" stroke="#b86539" stroke-width="3"/>
+<circle cx="1140" cy="610" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1124" y="618" class="" text-anchor="end">PA2</text>
+<circle cx="1370" cy="610" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1386" y="618" class="" text-anchor="start">PWMA</text>
+<polyline points="1140,660 1370,660" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,660 1370,660" fill="none" stroke="#b86539" stroke-width="3"/>
+<circle cx="1140" cy="660" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1124" y="668" class="" text-anchor="end">PA8</text>
+<circle cx="1370" cy="660" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1386" y="668" class="" text-anchor="start">AIN1</text>
+<polyline points="1140,710 1370,710" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,710 1370,710" fill="none" stroke="#b86539" stroke-width="3"/>
+<circle cx="1140" cy="710" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1124" y="718" class="" text-anchor="end">PA9</text>
+<circle cx="1370" cy="710" r="6" fill="white" stroke="#b86539" stroke-width="2.5"/>
+<text x="1386" y="718" class="" text-anchor="start">AIN2</text>
+<polyline points="1140,760 1370,760" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,760 1370,760" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="1140" cy="760" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1124" y="768" class="" text-anchor="end">PA3</text>
+<circle cx="1370" cy="760" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1386" y="768" class="" text-anchor="start">PWMB</text>
+<polyline points="1140,810 1370,810" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,810 1370,810" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="1140" cy="810" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1124" y="818" class="" text-anchor="end">PA10</text>
+<circle cx="1370" cy="810" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1386" y="818" class="" text-anchor="start">BIN1</text>
+<polyline points="1140,860 1370,860" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1140,860 1370,860" fill="none" stroke="#426995" stroke-width="3"/>
+<circle cx="1140" cy="860" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1124" y="868" class="" text-anchor="end">PA15</text>
+<circle cx="1370" cy="860" r="6" fill="white" stroke="#426995" stroke-width="2.5"/>
+<text x="1386" y="868" class="" text-anchor="start">BIN2</text>
+<rect x="1770" y="140" width="190" height="100" rx="3" fill="#f1f6f0" stroke="#35465b" stroke-width="2.5"/>
+<path d="M1770 205H1960" stroke="#9aa9bb"/>
+<text x="1865.0" y="173" class="hd" text-anchor="middle">M1 右前</text>
+<text x="1865.0" y="196" class="sm" text-anchor="middle">只接两根动力线</text>
+<polyline points="1610,175 1770,175" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,175 1770,175" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="175" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="183" class="" text-anchor="end">AO1</text>
+<circle cx="1770" cy="175" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<polyline points="1610,205 1770,205" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,205 1770,205" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="205" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="213" class="" text-anchor="end">AO2</text>
+<circle cx="1770" cy="205" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<rect x="1770" y="300" width="190" height="100" rx="3" fill="#f1f6f0" stroke="#35465b" stroke-width="2.5"/>
+<path d="M1770 365H1960" stroke="#9aa9bb"/>
+<text x="1865.0" y="333" class="hd" text-anchor="middle">M2 左前</text>
+<text x="1865.0" y="356" class="sm" text-anchor="middle">只接两根动力线</text>
+<polyline points="1610,335 1770,335" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,335 1770,335" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="335" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="343" class="" text-anchor="end">BO1</text>
+<circle cx="1770" cy="335" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<polyline points="1610,365 1770,365" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,365 1770,365" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="365" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="373" class="" text-anchor="end">BO2</text>
+<circle cx="1770" cy="365" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<rect x="1770" y="590" width="190" height="100" rx="3" fill="#f1f6f0" stroke="#35465b" stroke-width="2.5"/>
+<path d="M1770 655H1960" stroke="#9aa9bb"/>
+<text x="1865.0" y="623" class="hd" text-anchor="middle">M3 右后</text>
+<text x="1865.0" y="646" class="sm" text-anchor="middle">只接两根动力线</text>
+<polyline points="1610,625 1770,625" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,625 1770,625" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="625" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="633" class="" text-anchor="end">AO1</text>
+<circle cx="1770" cy="625" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<polyline points="1610,655 1770,655" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,655 1770,655" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="655" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="663" class="" text-anchor="end">AO2</text>
+<circle cx="1770" cy="655" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<rect x="1770" y="750" width="190" height="100" rx="3" fill="#f1f6f0" stroke="#35465b" stroke-width="2.5"/>
+<path d="M1770 815H1960" stroke="#9aa9bb"/>
+<text x="1865.0" y="783" class="hd" text-anchor="middle">M4 左后</text>
+<text x="1865.0" y="806" class="sm" text-anchor="middle">只接两根动力线</text>
+<polyline points="1610,785 1770,785" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,785 1770,785" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="785" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="793" class="" text-anchor="end">BO1</text>
+<circle cx="1770" cy="785" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<polyline points="1610,815 1770,815" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,815 1770,815" fill="none" stroke="#6f7854" stroke-width="3"/>
+<circle cx="1610" cy="815" r="6" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<text x="1594" y="823" class="" text-anchor="end">BO2</text>
+<circle cx="1770" cy="815" r="5" fill="white" stroke="#6f7854" stroke-width="2.5"/>
+<circle cx="80" cy="390" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M80 390v18" stroke="#687583" stroke-width="2"/>
+<text x="80" y="374" class="net" text-anchor="middle">5V</text>
+<circle cx="230" cy="390" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M230 390v18" stroke="#687583" stroke-width="2"/>
+<text x="230" y="374" class="net" text-anchor="middle">GND</text>
+<circle cx="455" cy="870" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M455 870v18" stroke="#687583" stroke-width="2"/>
+<text x="455" y="913" class="net" text-anchor="middle">5V</text>
+<circle cx="605" cy="870" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M605 870v18" stroke="#687583" stroke-width="2"/>
+<text x="605" y="913" class="net" text-anchor="middle">GND</text>
+<circle cx="930" cy="930" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M930 930v18" stroke="#687583" stroke-width="2"/>
+<text x="930" y="973" class="net" text-anchor="middle">5V</text>
+<circle cx="1010" cy="930" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M1010 930v18" stroke="#687583" stroke-width="2"/>
+<text x="1010" y="973" class="net" text-anchor="middle">3V3</text>
+<circle cx="1090" cy="930" r="5" fill="white" stroke="#687583" stroke-width="2"/><path d="M1090 930v18" stroke="#687583" stroke-width="2"/>
+<text x="1090" y="973" class="net" text-anchor="middle">GND</text>
+<polyline points="1610,420 1650,420" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,420 1650,420" fill="none" stroke="#687583" stroke-width="3"/>
+<circle cx="1610" cy="420" r="6" fill="white" stroke="#687583" stroke-width="2.5"/>
+<text x="1594" y="428" class="" text-anchor="end">VCC</text>
+<text x="1665" y="428" class="net" text-anchor="start">3V3</text>
+<polyline points="1610,450 1650,450" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,450 1650,450" fill="none" stroke="#687583" stroke-width="3"/>
+<circle cx="1610" cy="450" r="6" fill="white" stroke="#687583" stroke-width="2.5"/>
+<text x="1594" y="458" class="" text-anchor="end">VM</text>
+<text x="1665" y="458" class="net" text-anchor="start">12V</text>
+<polyline points="1610,480 1650,480" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,480 1650,480" fill="none" stroke="#687583" stroke-width="3"/>
+<circle cx="1610" cy="480" r="6" fill="white" stroke="#687583" stroke-width="2.5"/>
+<text x="1594" y="488" class="" text-anchor="end">GND</text>
+<text x="1665" y="488" class="net" text-anchor="start">公共 GND</text>
+<polyline points="1610,870 1650,870" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,870 1650,870" fill="none" stroke="#687583" stroke-width="3"/>
+<circle cx="1610" cy="870" r="6" fill="white" stroke="#687583" stroke-width="2.5"/>
+<text x="1594" y="878" class="" text-anchor="end">VCC</text>
+<text x="1665" y="878" class="net" text-anchor="start">3V3</text>
+<polyline points="1610,900 1650,900" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,900 1650,900" fill="none" stroke="#687583" stroke-width="3"/>
+<circle cx="1610" cy="900" r="6" fill="white" stroke="#687583" stroke-width="2.5"/>
+<text x="1594" y="908" class="" text-anchor="end">VM</text>
+<text x="1665" y="908" class="net" text-anchor="start">12V</text>
+<polyline points="1610,930 1650,930" fill="none" stroke="white" stroke-width="9"/>
+<polyline points="1610,930 1650,930" fill="none" stroke="#687583" stroke-width="3"/>
+<circle cx="1610" cy="930" r="6" fill="white" stroke="#687583" stroke-width="2.5"/>
+<text x="1594" y="938" class="" text-anchor="end">GND</text>
+<text x="1665" y="938" class="net" text-anchor="start">公共 GND</text>
+<text x="30" y="835" class="net" text-anchor="start">三路舵机供电直接接 5V 分电端</text>
+<text x="30" y="865" class="sm" text-anchor="start">不要让舵机电流穿过主控板。</text>
+<text x="30" y="960" class="sm" text-anchor="start">保留：PA11/PA12（USB）及 PA13/PA14（SWD）</text>
+<text x="30" y="996" class="sm" text-anchor="start">只用 ST-Link 下载；本版不使用 USB bootloader。</text>
+<text x="30" y="1032" class="sm" text-anchor="start">交叉无圆点＝不连接；实心圆点＝汇接。</text>
+<rect x="30" y="1100" width="1930" height="85" fill="#f1f4f7" stroke="#b7c2ce" stroke-width="2"/>
+<text x="50" y="1134" class="net" text-anchor="start">电源：7.4V 电池 → 保险 / 总开关 / 继电器 → 升压 12V → 两块 TB6612 的 VM</text>
+<text x="50" y="1170" class="net" text-anchor="start">12V → 降压 5V → A/B 主控、接收转接板、舵机分电；所有 GND 共地。TB6612 VCC 取 B 板 3V3。</text>
+</svg>

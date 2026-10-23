@@ -1,0 +1,22 @@
+{
+  "profile": "dual-f103-open-loop-pa",
+  "images": [
+    {
+      "directory": "remote-direct",
+      "target": "fallback-remote",
+      "origin": "0x8000000",
+      "bytes": 12776,
+      "initial_sp": "0x20005000",
+      "reset_vector": "0x8002bd5"
+    },
+    {
+      "directory": "motor-direct",
+      "target": "fallback-motor",
+      "origin": "0x8000000",
+      "bytes": 7732,
+      "initial_sp": "0x20005000",
+      "reset_vector": "0x8001891"
+    }
+  ],
+  "build_only": true
+}

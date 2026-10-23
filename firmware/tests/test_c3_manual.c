@@ -47,7 +47,7 @@ int main(void)
     command(REMOTE_OPCODE_PWM,1000,0,1000); cycle(8);
     assert(stm.requested_enable && stm.requested_mode==LINK_PWM);
     assert(stm.requested_pwm[0]==1000 && stm.requested_pwm[1]==-1000);
-    assert(stm.requested_pwm[2]==1000 && stm.requested_pwm[3]==-1000);
+    assert(stm.requested_pwm[2]==1000 && stm.requested_pwm[3]==1000);
     assert(!bridge.control.armed && bridge.control.active);
     cycle(70); remote_bridge_status(&bridge,0,status);
     assert(status[1]==0 && (status[2]&64) && !(status[2]&16) && !status[19]);
@@ -57,8 +57,10 @@ int main(void)
     cycle(350); command(REMOTE_OPCODE_PWM,-1000,0,900); cycle(5);
     assert(stm.requested_pwm[0]==-900 && stm.requested_pwm[1]==900);
     command(REMOTE_OPCODE_STOP,0,0,0); cycle(5); assert(!stm.requested_enable);
+    assert(stm.quick_stop_received && stm.quick_stop_lease_ms<=40);
     command(REMOTE_OPCODE_PWM,1000,0,1000); cycle(5);
     assert(stm.requested_enable); /* No clear-fault or ARM between commands. */
+    assert(!stm.quick_stop_received);
     {
         speed_control_t speeds; manual_feedback_t feedback; int32_t counts[4]={0,0,0,0};
         speed_control_init(&speeds,0,counts); manual_feedback_init(&feedback,0,counts);

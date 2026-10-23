@@ -1,0 +1,72 @@
+esptool.py v4.11.0
+Serial port COM9
+Connecting....
+Chip is ESP32-C3 (QFN32) (revision v0.4)
+Features: WiFi, BLE
+Crystal is 40MHz
+MAC: 14:63:93:f8:f5:8c
+Uploading stub...
+Running stub...
+Stub running...
+Changing baud rate to 460800
+Changed.
+Configuring flash size...
+Flash will be erased from 0x00000000 to 0x00003fff...
+Flash will be erased from 0x00008000 to 0x00008fff...
+Flash will be erased from 0x0000e000 to 0x0000ffff...
+Flash will be erased from 0x00010000 to 0x0010afff...
+SHA digest in image updated
+Compressed 12464 bytes to 9065...
+Writing at 0x00000000... (100 %)
+Wrote 12464 bytes (9065 compressed) at 0x00000000 in 0.4 seconds (effective 261.0 kbit/s)...
+Hash of data verified.
+Compressed 3072 bytes to 146...
+Writing at 0x00008000... (100 %)
+Wrote 3072 bytes (146 compressed) at 0x00008000 in 0.0 seconds (effective 539.8 kbit/s)...
+Hash of data verified.
+Compressed 8192 bytes to 47...
+Writing at 0x0000e000... (100 %)
+Wrote 8192 bytes (47 compressed) at 0x0000e000 in 0.1 seconds (effective 731.1 kbit/s)...
+Hash of data verified.
+Compressed 1027840 bytes to 562117...
+Writing at 0x00010000... (2 %)
+Writing at 0x0001be5b... (5 %)
+Writing at 0x00029715... (8 %)
+Writing at 0x00035e9d... (11 %)
+Writing at 0x0004056c... (14 %)
+Writing at 0x00045c14... (17 %)
+Writing at 0x0004c380... (20 %)
+Writing at 0x000539d2... (22 %)
+Writing at 0x00059bc8... (25 %)
+Writing at 0x0005ff0a... (28 %)
+Writing at 0x00067394... (31 %)
+Writing at 0x0006e0d4... (34 %)
+Writing at 0x00074d6e... (37 %)
+Writing at 0x0007ade8... (40 %)
+Writing at 0x00081269... (42 %)
+Writing at 0x00087270... (45 %)
+Writing at 0x0008e7d1... (48 %)
+Writing at 0x000952c7... (51 %)
+Writing at 0x0009d047... (54 %)
+Writing at 0x000a3677... (57 %)
+Writing at 0x000aa039... (60 %)
+Writing at 0x000b0ece... (62 %)
+Writing at 0x000b9dd2... (65 %)
+Writing at 0x000c11cd... (68 %)
+Writing at 0x000c797a... (71 %)
+Writing at 0x000ce7f0... (74 %)
+Writing at 0x000d5284... (77 %)
+Writing at 0x000db77e... (80 %)
+Writing at 0x000e1556... (82 %)
+Writing at 0x000e72e1... (85 %)
+Writing at 0x000eef90... (88 %)
+Writing at 0x000f5348... (91 %)
+Writing at 0x000fca0c... (94 %)
+Writing at 0x001029f0... (97 %)
+Writing at 0x00108e4a... (100 %)
+Wrote 1027840 bytes (562117 compressed) at 0x00010000 in 16.1 seconds (effective 511.5 kbit/s)...
+Hash of data verified.
+
+Leaving...
+Hard resetting via RTS pin...
+C3 written. Read INFO for image version (current: crtc-c3-servo270-v3). STM32 unchanged.

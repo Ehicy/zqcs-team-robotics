@@ -17,12 +17,15 @@
 #include "remote_bridge.h"
 #include "ble_remote.h"
 #include "servo_output.h"
+#if defined(CRTC_C3_DASHBOARD)
+#include <Preferences.h>
+#endif
 
 #if defined(CRTC_C3_DASHBOARD)
 #if !defined(CONFIG_IDF_TARGET_ESP32C3)
 #error c3-dashboard requires ESP32-C3
 #endif
-#define CRTC_FIRMWARE_NAME "crtc-c3-direct-pwm-v2"
+#define CRTC_FIRMWARE_NAME "crtc-c3-bootquiet-v5"
 #elif !defined(CONFIG_IDF_TARGET_ESP32S3)
 #error The historical target requires ESP32-S3
 #else
@@ -45,6 +48,36 @@ static bool console_overflow[2], led_operation;
 static uint32_t console_last_byte_ms[2];
 static unsigned led_console;
 static bool console_stop_barrier;
+static bool servo_ready;
+static uint32_t servo_boot_ms;
+static const uint32_t servo_boot_quiet_ms=1500;
+#if defined(CRTC_C3_DASHBOARD)
+static Preferences preferences;
+static bool preferences_ready;
+static int save_settings(const device_settings_t *settings)
+{
+    uint8_t blob[DEVICE_SETTINGS_BYTES];
+    if(!preferences_ready || !device_settings_encode(settings,blob)) return 0;
+    return preferences.putBytes("params5",blob,sizeof(blob))==sizeof(blob);
+}
+static void load_settings()
+{
+    uint8_t blob[DEVICE_SETTINGS_BYTES]; device_settings_t settings;
+    preferences_ready=preferences.begin("crtc",false);
+    remote_bridge.save_settings=save_settings;
+    if(!preferences_ready) return;
+    const size_t size=preferences.getBytesLength("params5");
+    if(size==sizeof(blob) && preferences.getBytes("params5",blob,sizeof(blob))==sizeof(blob) &&
+       device_settings_decode(&settings,blob,sizeof(blob)) && remote_bridge_load_settings(&remote_bridge,&settings)) {
+        remote_bridge.settings_loaded=1;
+    } else if(!size) {
+        // Only a genuinely empty store seeds defaults. Never overwrite a
+        // damaged or newer-schema record with firmware defaults.
+        remote_bridge_get_settings(&remote_bridge,&settings);
+        remote_bridge.settings_loaded=save_settings(&settings)?1:0;
+    }
+}
+#endif
 
 static void stop_control(uint32_t now)
 {
@@ -87,6 +120,37 @@ static void console_command(const char *line,uint32_t now,unsigned which)
             gpio_get_level(static_cast<gpio_num_t>(LINK_ESP_RX_GPIO)),
             static_cast<unsigned long>(now),LINK_ESP_TX_GPIO,LINK_ESP_RX_GPIO);
         console_reply(response,which);
+    } else if(!strcmp(line,"SERVO STATUS")) {
+        snprintf(response,sizeof(response),"SERVO ready=%u quiet_ms=%lu pulses=%u,%u,%u targets=%u,%u,%u levels=%d,%d,%d moving=%u\n",
+            remote_bridge.servo_write?1U:0U,
+            static_cast<unsigned long>(now-servo_boot_ms<servo_boot_quiet_ms?servo_boot_quiet_ms-(now-servo_boot_ms):0),
+            servo_output_pulse(0),servo_output_pulse(1),servo_output_pulse(2),
+            remote_bridge.servos[0].target,remote_bridge.servos[1].target,remote_bridge.servos[2].target,
+            gpio_get_level(static_cast<gpio_num_t>(LINK_ESP_ARM_SERVO_GPIO)),
+            gpio_get_level(static_cast<gpio_num_t>(LINK_ESP_FOREARM_SERVO_GPIO)),
+            gpio_get_level(static_cast<gpio_num_t>(LINK_ESP_DOOR_SERVO_GPIO)),
+            (remote_bridge.servos[0].moving?1:0)|(remote_bridge.servos[1].moving?2:0)|(remote_bridge.servos[2].moving?4:0));
+        console_reply(response,which);
+    } else if(!strcmp(line,"SERVO OFF ALL") || (!strncmp(line,"SERVO OFF ",10) &&
+              line[10]>='0' && line[10]<='2' && !line[11])) {
+        unsigned first=!strcmp(line,"SERVO OFF ALL")?0U:static_cast<unsigned>(line[10]-'0');
+        unsigned end=!strcmp(line,"SERVO OFF ALL")?3U:first+1U; bool ok=true;
+        stop_control(now);
+        for(unsigned i=first;i<end;i++) {
+            if(!servo_output_write(static_cast<uint8_t>(i),0)) { ok=false; continue; }
+            remote_bridge.servo_us[i]=0; remote_bridge.servo_error_mask&=static_cast<uint8_t>(~(1U<<i));
+            servo_motion_reference(&remote_bridge.servos[i],0,now);
+        }
+        console_reply(ok?"ACK SERVO OFF\n":"ERR SERVO OFF\n",which);
+#if defined(CRTC_C3_DASHBOARD)
+    } else if(!strcmp(line,"SETTINGS")) {
+        snprintf(response,sizeof(response),"SETTINGS loaded=%u revision=%u synced=%u pid=%u,%u,%u motor=%d,%d,%d,%d\n",
+            remote_bridge.settings_loaded,remote_bridge.settings.revision,remote_bridge.synced_revision,
+            remote_bridge.kp_milli,remote_bridge.ki_milli,remote_bridge.kd_milli,
+            (remote_bridge.configs[0][1]&1)?-1:1,(remote_bridge.configs[1][1]&1)?-1:1,
+            (remote_bridge.configs[2][1]&1)?-1:1,(remote_bridge.configs[3][1]&1)?-1:1);
+        console_reply(response,which);
+#endif
     } else if(!strcmp(line,"STOP")) {
         stop_control(now); console_reply("QUEUED STOP\n",which);
     } else if(!strcmp(line,"ENC")) {
@@ -133,7 +197,7 @@ static void console_command(const char *line,uint32_t now,unsigned which)
             console_reply(on?"QUEUED LED=1\n":"QUEUED LED=0\n",which);
         }
     } else if(!strcmp(line,"HELP")) {
-        console_reply("INFO | RX | ENC | PWM token8hex m1 m2 m3 m4 (-250..250) | STOP | LED ON | LED OFF\n",which);
+        console_reply("INFO | RX | ENC | SETTINGS | SERVO STATUS | SERVO OFF 0/1/2/ALL | PWM token8hex m1 m2 m3 m4 (-250..250) | STOP | LED ON | LED OFF\n",which);
     } else {
         stop_control(now); console_reply("ERR COMMAND\n",which);
     }
@@ -213,6 +277,7 @@ static void fail_transport(uint32_t now)
 }
 void setup()
 {
+    servo_ready=servo_output_begin(); servo_boot_ms=millis();
     uart_config_t config={};
 #if !defined(CRTC_C3_DASHBOARD)
     USBSerial.setTxBufferSize(1024);
@@ -227,7 +292,9 @@ void setup()
     Serial.begin(115200);
     link_node_init(&client,LINK_CLIENT,esp_random(),millis());
     remote_bridge_init(&remote_bridge,&client,esp_random());
-    if(servo_output_begin()) remote_bridge.servo_write=servo_output_write;
+#if defined(CRTC_C3_DASHBOARD)
+    load_settings();
+#endif
     ble_remote_begin(); owner_loop_ms=millis();
     config.baud_rate=LINK_BAUD; config.data_bits=UART_DATA_8_BITS;
     config.parity=UART_PARITY_DISABLE; config.stop_bits=UART_STOP_BITS_1;
@@ -250,6 +317,8 @@ static void remote_poll(uint32_t now)
 {
     ble_remote_event_t event;
     now=millis();
+    if(servo_ready && !remote_bridge.servo_write && now-servo_boot_ms>=servo_boot_quiet_ms)
+        remote_bridge.servo_write=servo_output_write; // Availability, never a position command.
     remote_bridge_tick(&remote_bridge,now);
     for(unsigned budget=0;budget<12 && ble_remote_poll(&event);budget++) {
         now=millis(); /* Callback may have arrived after owner-loop entry. */
@@ -264,10 +333,10 @@ static void remote_poll(uint32_t now)
         }
     }
     if((uint32_t)(now-ble_status_ms)>=30U) {
-        const uint8_t kinds[5]={0,1,2,5,6};
+        const uint8_t kinds[]={0,1,2,5,6,0,7,0,8,0,9};
         uint8_t packet[20]; remote_bridge_status(&remote_bridge,kinds[ble_status_kind],packet);
         ble_remote_publish(packet); ble_status_ms=now;
-        if(packet[1]!=3) ble_status_kind=(ble_status_kind+1U)%5U;
+        if(packet[1]!=3) ble_status_kind=(ble_status_kind+1U)%(sizeof(kinds)/sizeof(kinds[0]));
     }
 }
 void loop()

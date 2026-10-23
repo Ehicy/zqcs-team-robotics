@@ -38,9 +38,15 @@
 #define LINK_PWM_LIMIT_PERMILLE    250 /* historical bench profile */
 #endif
 #define LINK_SPEED_PWM_LIMIT_PERMILLE 1000 /* User reports load validation; PID ceiling 100%, not current limiting. */
+#if defined(CRTC_PA_CHASSIS) || defined(CRTC_C3_DASHBOARD)
+#define LINK_DEFAULT_MOTOR_SIGNS {1,-1,1,1} /* First NVS seed only; thereafter C3 Flash is authoritative. */
+#else
+#define LINK_DEFAULT_MOTOR_SIGNS {1,1,1,1}
+#endif
 #define LINK_PID_KP_MILLI           1000U
 #define LINK_PID_KI_MILLI           2000U
 #define LINK_PID_KD_MILLI              0U
+#define LINK_QUICK_STOP_MS            40U /* 10ms coast + at most 30ms brake */
 #define LINK_ACTUATION_ENABLED       0 /* legacy board-link target invariant;
                                        use the separate lower-motor target for PWM */
 /* Resource reservation for the confirmed two TB6612 boards and four MG370s.
@@ -73,8 +79,8 @@
 #define LINK_ENCODER_PERIOD_MS     100U
 #if defined(CRTC_C3_DASHBOARD)
 #define LINK_ESP_ARM_SERVO_GPIO       7
-#define LINK_ESP_FOREARM_SERVO_GPIO  10
-#define LINK_ESP_DOOR_SERVO_GPIO      0
+#define LINK_ESP_FOREARM_SERVO_GPIO   6
+#define LINK_ESP_DOOR_SERVO_GPIO     10
 #else
 #define LINK_ESP_ARM_SERVO_GPIO      12 /* DS3128 arm, ESP32 LEDC */
 #define LINK_ESP_FOREARM_SERVO_GPIO  13 /* MG995 forearm, ESP32 LEDC */
@@ -82,8 +88,15 @@
 #endif
 #define LINK_SERVO_COUNT             3U
 #define LINK_SERVO_POSITION_MASK     7U /* All three are position servos. */
+#if defined(CRTC_C3_DASHBOARD)
+/* DS3218 270-degree arm. IO7/6/10 are adjacent, non-strapping pins.
+ * C3 status5 capability bit4 advertises this expanded arm pulse range. */
+#define LINK_SERVO_MIN_US(channel) ((channel)==0U ? 500U : (channel)==2U ? 1000U : 1300U)
+#define LINK_SERVO_MAX_US(channel) ((channel)==0U ? 2500U : (channel)==2U ? 2000U : 1700U)
+#else
 #define LINK_SERVO_MIN_US(channel) ((channel)==2U ? 1000U : 1300U)
 #define LINK_SERVO_MAX_US(channel) ((channel)==2U ? 2000U : 1700U)
+#endif
 #if LINK_ACTUATION_ENABLED != 0
 #error Do not enable board-link this way: build the separate lower-motor target
 #endif

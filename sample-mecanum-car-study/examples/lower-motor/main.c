@@ -1,6 +1,6 @@
-/* Preserved PID/encoder profile. NOT built by fallback-motor (2026-10-19).
- * Its old GPIOB motor mapping must not be used with the new PA-side wiring.
- * See docs/14-dual-stm32-fallback.md; restore this target only with its wiring. */
+/* Shared owner: legacy lower-motor uses its historical GPIOB HAL;
+ * dashboard-motor selects CRTC_PA_CHASSIS and separate PA/encoder HALs.
+ * fallback-motor remains a distinct build. */
 #include "stm32f10x.h"
 #include "delay.h"
 #include "board_link.h"
@@ -9,6 +9,7 @@
 #include "actuation_guard.h"
 #include "chassis_state.h"
 #include "motor_hal.h"
+#include <string.h>
 #ifdef CRTC_PA_CHASSIS
 #include "manual_feedback.h"
 static manual_feedback_t manual_feedback;
@@ -28,7 +29,7 @@ static manual_feedback_t manual_feedback;
 #define CHASSIS_GPIO GPIOB
 #define CHASSIS_GPIO_CLOCK RCC_APB2Periph_GPIOB
 #define CHASSIS_UART_CLOCK RCC_APB1Periph_USART3
-volatile uint32_t dashboard_firmware_tag = 0xC3D61022UL;
+volatile uint32_t dashboard_firmware_tag = 0xC3D91023UL;
 #else
 #if LINK_STM_UART != 2 || LINK_STM_TX_PIN != 2 || LINK_STM_RX_PIN != 3
 #error Historical lower-motor transport requires USART2 PA2/PA3
@@ -48,6 +49,14 @@ static motor_control_t motors;
 static speed_control_t speeds;
 static actuation_guard_t actuation_guard; /* Retained across STOP/new session. */
 static uint8_t watchdog_fault_seen;
+static void motion_coast(uint32_t now)
+{
+#ifdef CRTC_PA_CHASSIS
+    motor_control_abort(&motors,now);
+#else
+    (void)motor_control_update(&motors,now,0,0,now,0);
+#endif
+}
 volatile chassis_state_t chassis_phase=CHASSIS_WAIT_LINK;
 volatile uint32_t board_link_tx_frames, board_link_transport_errors;
 volatile uint32_t board_link_reset_cause;
@@ -113,9 +122,11 @@ static void transport_fault(uint32_t now)
     rx_tail=rx_head; rx_fault=0;
     __asm volatile ("msr primask, %0" :: "r" (mask) : "memory");
     link_node_transport_error(&controller,now); board_link_transport_errors++;
-    (void)motor_control_update(&motors,now,0,0,now,0);
+    motion_coast(now);
     speed_control_stop(&speeds,now);
-    speeds.pid_initialized=0; /* Next UART session must obtain coefficients from ESP32. */
+#ifndef CRTC_PA_CHASSIS
+    speeds.pid_initialized=0; /* Historical calibrated PID needs a new transaction. */
+#endif
     board_link_outputs_inhibited=1;
     link_node_set_motor_state(&controller,1,1);
     led_apply();
@@ -160,6 +171,9 @@ int main(void)
     board_link_reset_cause=RCC->CSR;
     RCC->CSR|=RCC_CSR_RMVF; /* Retain this boot's cause in RAM; clear sticky flags. */
     lower_motor_init(); led_init(); delay_init(); lower_encoder_start();
+#ifdef CRTC_PA_CHASSIS
+    lower_encoder_reset(); /* Every MCU boot starts a new four-wheel count origin. */
+#endif
     /* UID + cycle timing is a generation seed, NOT cryptographic entropy.
      * HELLO also mixes in the ESP's boot id. No flash is written. */
     seed=*(const uint32_t *)0x1ffff7e8UL ^ *(const uint32_t *)0xe0001004UL;
@@ -193,9 +207,11 @@ int main(void)
             if(controller.token!=session) {
                 lower_motor_emergency_stop();
                 now=delay_millis(); actuation_guard_stop(&actuation_guard,now);
-                (void)motor_control_update(&motors,now,0,0,now,0);
+                motion_coast(now);
                 speed_control_stop(&speeds,now);
+#ifndef CRTC_PA_CHASSIS
                 speeds.pid_initialized=0;
+#endif
             }
             /* Buffer residence consumes the lease; it is not fresh input. */
             if(controller.accepted_controls!=accepted) {
@@ -206,9 +222,18 @@ int main(void)
                 if(!controller.requested_enable || !any) {
                     /* Even a zero velocity heartbeat must reach hardware before
                      * processing later input. Explicit STOP also revokes token. */
+#ifdef CRTC_PA_CHASSIS
+                    uint32_t age=now-arrival;
+                    if(controller.quick_stop_received && age<controller.quick_stop_lease_ms) {
+                        motor_control_quick_stop(&motors,now,speeds.pwm_permille,
+                            (uint16_t)(controller.quick_stop_lease_ms-age));
+                    } else motion_coast(now);
+                    controller.quick_stop_received=0;
+#else
+                    motion_coast(now);
+#endif
                     lower_motor_emergency_stop();
                     now=delay_millis(); actuation_guard_stop(&actuation_guard,now);
-                    (void)motor_control_update(&motors,now,0,0,now,0);
                     speed_control_stop(&speeds,now);
                 }
             }
@@ -219,19 +244,57 @@ int main(void)
         manual_feedback_sample(&manual_feedback,now,counts,encoder_mask,speeds.config);
 #endif
         old_fault=speeds.fault;
+#ifdef CRTC_PA_CHASSIS
+        {
+            int16_t requested_ff[4],assist_ff[4],physical_speed[4]; unsigned wheel;
+            for(wheel=0;wheel<4;wheel++) {
+                int32_t value=controller.requested_pwm[wheel];
+                if(controller.requested_mode==LINK_CONTROL) {
+                    uint16_t model=speeds.config[wheel].max_mm_s;
+                    value=model?(int32_t)controller.requested_mm_s[wheel]*1000/model:0;
+                    value*=speeds.config[wheel].motor_sign;
+                }
+                if(value>1000) value=1000;
+                if(value<-1000) value=-1000;
+                requested_ff[wheel]=(int16_t)value;
+                physical_speed[wheel]=(int16_t)((int32_t)speeds.measured_mm_s[wheel]*speeds.config[wheel].motor_sign);
+            }
+            motor_control_set_feedback(&motors,physical_speed,
+                (uint32_t)(now-speeds.assist_last_sample_ms)<=20U?speeds.feedback_valid_mask:0);
+            if(!controller.connected || !controller.command_valid || lower_motor_watchdog_fault())
+                motor_control_abort(&motors,now);
+            enabled=!lower_motor_watchdog_fault() && controller.connected && controller.command_valid &&
+                controller.requested_enable &&
+                (controller.requested_mode==LINK_PWM || controller.requested_mode==LINK_CONTROL) &&
+                actuation_guard_allows(&actuation_guard,controller.requested_mode,now);
+            (void)motor_control_update(&motors,now,requested_ff,enabled,
+                                      controller.command_ms,controller.command_ttl_ms);
+            for(wheel=0;wheel<4;wheel++)
+                assist_ff[wheel]=(motors.braking_mask&(1U<<wheel))?0:motors.output_permille[wheel];
+            /* Both request units share one always-sampled adaptive controller.
+             * Missing feedback changes weights, never the command mode or lease. */
+            (void)speed_control_assist_pwm(&speeds,now,counts,encoder_mask,
+                assist_ff,enabled,controller.command_ms,controller.command_ttl_ms);
+            /* Braking torque is not a velocity target. Do not let the PID
+             * amplify its bounded pulse or substitute a neighbouring wheel. */
+            for(wheel=0;wheel<4;wheel++) if(motors.braking_mask&(1U<<wheel)) {
+                speeds.pwm_permille[wheel]=motors.output_permille[wheel];
+                if(motors.output_permille[wheel] || (motors.short_brake_mask&(1U<<wheel))) speeds.active=1;
+            }
+        }
+#else
         enabled=!lower_motor_watchdog_fault() && controller.connected && controller.command_valid &&
             controller.requested_enable && controller.requested_mode==LINK_CONTROL &&
             actuation_guard_allows(&actuation_guard,LINK_CONTROL,now);
-        (void)speed_control_update(&speeds,now,counts,encoder_mask,controller.requested_mm_s,
-                                  enabled,controller.command_ms,controller.command_ttl_ms);
+            (void)speed_control_update(&speeds,now,counts,encoder_mask,controller.requested_mm_s,
+                                      enabled,controller.command_ms,controller.command_ttl_ms);
         enabled=!lower_motor_watchdog_fault() && controller.connected && controller.command_valid &&
             controller.requested_enable && controller.requested_mode==LINK_PWM &&
-#ifndef CRTC_PA_CHASSIS
             !speeds.fault &&
-#endif
             actuation_guard_allows(&actuation_guard,LINK_PWM,now);
         (void)motor_control_update(&motors,now,controller.requested_pwm,enabled,
                                   controller.command_ms,controller.command_ttl_ms);
+#endif
         if(motors.fault || (speeds.fault && speeds.fault!=old_fault
 #ifdef CRTC_PA_CHASSIS
             && controller.requested_mode==LINK_CONTROL
@@ -246,9 +309,27 @@ int main(void)
         check_watchdog(now);
         if(controller.config_received) {
             uint8_t result=1;
+#ifdef CRTC_PA_CHASSIS
+            if(controller.config_wheel==252) {
+                if(!controller.requested_enable && !motors.active && !speeds.active && !motors.braking_mask) {
+                    speed_config_t keep[4]; uint8_t initialized=speeds.pid_initialized,ready=speeds.ready_mask;
+                    memcpy(keep,speeds.config,sizeof(keep));
+                    lower_encoder_reset(); encoder_mask=lower_encoder_sample(counts);
+                    speed_control_init(&speeds,now,counts);
+                    memcpy(speeds.config,keep,sizeof(keep)); speeds.pid_initialized=initialized; speeds.ready_mask=ready;
+                    manual_feedback_init(&manual_feedback,now,counts); motion_coast(now);
+                    controller.encoder_tx_ms=now-LINK_ENCODER_PERIOD_MS;
+                    link_node_finish_config(&controller,0,ready,0);
+                }
+            } else
+#endif
+            {
             /* Counts are sampled above even when disarmed. Never configure
              * while a command/output is enabled or measured wheels move. */
             if(!controller.requested_enable && !motors.active && !speeds.active &&
+#ifdef CRTC_PA_CHASSIS
+               !motors.braking_mask &&
+#endif
                actuation_guard_idle(&actuation_guard,now)) {
                 if(controller.config_wheel==253) {
                     const uint8_t *p=controller.config_payload;
@@ -278,14 +359,24 @@ int main(void)
                 }
             }
             link_node_finish_config(&controller,result,speeds.pid_initialized?speeds.ready_mask:0,reported_fault());
+            }
         }
         chassis_phase=chassis_state_update(controller.connected,
             controller.requested_mode==LINK_PWM || speeds.pid_initialized,
             controller.requested_mode==LINK_PWM || speeds.ready_mask==15,reported_fault()!=0,controller.command_valid && controller.requested_enable,
             speeds.active || motors.active);
+#ifdef CRTC_PA_CHASSIS
+        if((chassis_phase==CHASSIS_ARMED || chassis_phase==CHASSIS_RUNNING || motors.braking_mask) &&
+           controller.connected && controller.command_valid && !lower_motor_watchdog_fault())
+            lower_motor_write_braked(speeds.pwm_permille,speeds.active,motors.short_brake_mask);
+        else lower_motor_emergency_stop();
+#else
         if(chassis_phase!=CHASSIS_ARMED && chassis_phase!=CHASSIS_RUNNING) lower_motor_emergency_stop();
         else if(controller.requested_mode==LINK_CONTROL) lower_motor_write(speeds.pwm_permille,speeds.active);
-        else lower_motor_write(motors.output_permille,motors.active);
+        else {
+            lower_motor_write(motors.output_permille,motors.active);
+        }
+#endif
         board_link_outputs_inhibited=lower_motor_is_enabled()?0U:1U;
         if(!board_link_outputs_inhibited) actuation_guard_record(&actuation_guard,controller.requested_mode,delay_millis());
         else actuation_guard_stop(&actuation_guard,delay_millis());
@@ -294,8 +385,10 @@ int main(void)
 #ifdef CRTC_PA_CHASSIS
         if(controller.requested_mode!=LINK_CONTROL || !controller.requested_enable) {
             const int16_t no_speed_target[4]={0,0,0,0};
-            link_node_publish_speed(&controller,manual_feedback.measured,no_speed_target,
-                manual_feedback.valid_mask,speeds.ready_mask,0,now);
+            /* Report own physical measurements only; borrowed control values
+             * must never masquerade as this wheel's encoder telemetry. */
+            link_node_publish_speed(&controller,speeds.measured_mm_s,no_speed_target,
+                speeds.feedback_valid_mask,speeds.ready_mask,0,now);
         } else
 #endif
         link_node_publish_speed(&controller,speeds.measured_mm_s,speeds.ramped_mm_s,

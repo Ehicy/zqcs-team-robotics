@@ -1,0 +1,2 @@
+Remote tests: SANITIZE=0; UBSan NOT run
+remote control: 11 groups passed (physical turns, 6,561 normalized mixes; target/reference opcode, lease/fault gates)

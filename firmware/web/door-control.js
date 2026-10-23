@@ -1,3 +1,4 @@
+import {servoBounds} from './protocol.js?v=bootquiet-v5';
 /* Latest-target owner and short lease renewer. ESP32, not the browser,
  * generates the rate/acceleration-limited PWM trajectory. */
 export class DoorControl {
@@ -8,7 +9,7 @@ export class DoorControl {
     this.active=false; this.inFlight=false; this.message='直接拖动目标；首次接管使用起点参考';
   }
   validateTarget(target) {
-    const min=this.channel===2?1000:1300, max=this.channel===2?2000:1700;
+    const [min,max]=servoBounds(this.channel,this.controller.servoStatus);
     if(!Number.isInteger(target) || target<min || target>max) throw new Error(`脉宽须为${min}–${max}μs整数`);
   }
   start(target, referenceUs=0) {
@@ -38,7 +39,7 @@ export class DoorControl {
     if(!this.active) return;
     const c=this.controller, time=this.now();
     if(c.generation!==this.generation || c.state.session!==this.session || c.stopGeneration!==this.stopGeneration ||
-       time-this.lastTick>=400 || time-this.started>=15000 || this.sent && time-this.lastWrite>=400) {
+       time-this.lastTick>=400 || time-this.started>=60000 || this.sent && time-this.lastWrite>=400) {
       this.cancel('跟随已取消（停止、断联、会话变化或超时）；不会续跑'); return;
     }
     this.lastTick=time;

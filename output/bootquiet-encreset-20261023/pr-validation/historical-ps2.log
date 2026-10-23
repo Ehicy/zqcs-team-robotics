@@ -1,0 +1,27 @@
+PASS: all 9 application C files, real STM32 headers, warnings as errors
+PASS: Keil source/include paths exist
+PASS: production PS2 polling, circle bit, 0x41/0x73, axes, FF rejection and diagnostic counters
+PASS: four DRV8833 pairs, signed PWM, saturation, NaN/Inf, reversal write order
+PASS: O wheels with front85/rear100 strafe trial, unchanged pure forward/yaw, continuous amplitude, 2197 mixed limits
+PASS: LSB-first wire simulation, 256 byte values, frame layout, invalid clearing
+PASS: zero-output startup, analog-only, START reset/rearm, immediate fault stop, no phantom release
+PASS: continuous left/right stick control, no shoulder speed binding, neutral rearm
+PASS: PC13 actual PWM threshold, blink phase, immediate neutral/START/fault off
+All host tests passed (not a hardware or Keil build test).
+PASS: four independent keys at 100%, hold, independent stop, START priority, digital/analog modes, invalid frame and rearm
+PASS: 0.5s full-scale ramp, common four-wheel ratio, immediate stop, delayed-loop cap
+PASS: reversal deceleration/coast, neutral bypass prevention, timer wrap
+PASS: mechanical forward/reverse trim, PWM floor/cap, zero wheel, actual-output LED threshold
+PASS: front100/rear95 default, strafe/diagonal ratio, bilateral symmetry, cap, unchanged forward/back/yaw
+PASS: joystick cubic-blend anchors, negative symmetry, full throw, joint left-stick direction
+PASS: all 256 axis values monotonic/deadzone/bounded, 65536 direction/independence checks, nonfinite rejection
+PASS: quintic startup timing/anchors/monotonicity, four-wheel ratio, low-target duration, stall cap, retarget slope, abort
+PASS: single proportional reverse window, zero wheels, short-brake truth table, low-speed bypass, caps, late-window skip, wrap, abort
+PASS: analog START and neutral braking, held START single-shot, rearm gate, invalid-frame cancellation, digital hard stop
+PASS: actual DWT clock code, fractional milliseconds, cycle wrap, 72/8 MHz
+PASS: v1 calibration ignored, v2 appended without erasing legacy record, v2 restored
+PASS: calibration flash bounds, CRC, no duplicate write, append journal, page rotation, interrupted write/erase recovery
+PASS: guarded manual trim, hold/conflict/bounds, shoulder-free control, START preserves calibration
+PASS: stationary-only flash save, 2s idle/30s rate limit, boot restore, failure retry, rearm and LED acknowledgement
+PASS: driver-assisted learning gates, settle/rate/session limits, bilateral sign, rear fallback, millisecond wrap
+PASS: firmware upgrade rejects v1, starts front100/rear95, saves v2 only on request, restores on boot

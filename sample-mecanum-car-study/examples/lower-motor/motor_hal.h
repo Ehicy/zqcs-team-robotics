@@ -20,11 +20,19 @@ void lower_motor_init(void);
 /* Once after delay_init() establishes DWT; starts M4 x2 pulse qualification.
  * Never call this to clear a live encoder fault or reset counts in service. */
 void lower_encoder_start(void);
+#ifdef CRTC_PA_CHASSIS
+void lower_encoder_reset(void); /* Reset logical count origin, not IRQ/timer state. */
+#endif
 
 /* Signed duty in permille, +/-LOWER_MOTOR_PWM_LIMIT. Invalid input or inactive -> all off.
  * A zero wheel coasts even while other wheels share an asserted STBY.
  * A latched watchdog fault cannot be cleared by writing or feeding. */
 void lower_motor_write(const int16_t pwm[4], uint8_t active);
+#ifdef CRTC_PA_CHASSIS
+/* Selected zero-output wheels short both TB6612 outputs during a bounded
+ * brake window. Mask is supplied by the owner, never inferred from zero PWM. */
+void lower_motor_write_braked(const int16_t pwm[4], uint8_t active, uint8_t short_brake_mask);
+#endif
 void lower_motor_emergency_stop(void);
 uint8_t lower_motor_is_enabled(void);
 

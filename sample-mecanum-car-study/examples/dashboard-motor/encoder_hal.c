@@ -2,6 +2,7 @@
  * A-only x2 decoding. UART3 PB10/11 and SWD PA13/14 remain untouched. */
 #include "motor_hal.h"
 #include "encoder_edge_filter.h"
+#include "encoder_origin.h"
 #include "delay.h"
 #include "stm32f10x.h"
 #include <stddef.h>
@@ -15,6 +16,7 @@ static encoder_irq_budget_t budget[2];
 static volatile uint8_t started, failed_mask;
 static uint16_t previous[2];
 static uint32_t accumulated[2];
+static encoder_origin_t origin;
 volatile uint32_t dashboard_encoder_irqs[2];
 
 static uint32_t lock_irqs(void)
@@ -93,7 +95,7 @@ static void encoder_irq(unsigned i)
 }
 void EXTI0_IRQHandler(void) { encoder_irq(0); }
 void EXTI9_5_IRQHandler(void) { encoder_irq(1); }
-uint8_t lower_encoder_sample(int32_t counts[4])
+static uint8_t sample_raw(int32_t counts[4])
 {
     uint32_t old, pins, soft[2];
     uint16_t current[2];
@@ -128,4 +130,15 @@ uint8_t lower_encoder_sample(int32_t counts[4])
     }
     /* Valid means the sampler is healthy, not proof that a cable is present. */
     return valid;
+}
+uint8_t lower_encoder_sample(int32_t counts[4])
+{
+    uint8_t valid=sample_raw(counts);
+    if(counts) encoder_origin_apply(&origin,counts);
+    return valid;
+}
+void lower_encoder_reset(void)
+{
+    int32_t raw[4];
+    (void)sample_raw(raw); encoder_origin_set(&origin,raw);
 }

@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-23",
+  "timezone": "Asia/Shanghai",
+  "c3_firmware": "crtc-c3-bootquiet-v5",
+  "stm32_tag": "0xC3D91023",
+  "logic_checks": {
+    "uart_connected": true,
+    "parser_errors": 0,
+    "uart_faults": 0,
+    "pulses_us": [
+      0,
+      0,
+      0
+    ],
+    "targets_us": [
+      0,
+      0,
+      0
+    ],
+    "gpio_levels": [
+      0,
+      0,
+      0
+    ],
+    "nvs_loaded": true,
+    "nvs_revision": 1,
+    "eventual_stm32_synced_revision": 1,
+    "motor_signs": [
+      1,
+      -1,
+      1,
+      1
+    ],
+    "pid_milli": [
+      1000,
+      2000,
+      0
+    ],
+    "c3_hardware_reboot_checked": true
+  },
+  "user_confirmation": {
+    "configuration": "only the arm servo reconnected",
+    "observed": "no automatic recenter on power-up",
+    "user_words": [
+      "不会回中了",
+      "完全胜利"
+    ]
+  },
+  "limits": [
+    "No motor or position command sent during this installation",
+    "Other servos and loaded full travel not accepted",
+    "USB readings are commanded PWM/pin snapshots, not measured shaft angle"
+  ],
+  "logs": "flash-20261023/"
+}

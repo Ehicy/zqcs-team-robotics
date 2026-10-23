@@ -1,9 +1,9 @@
 > 2026-10-18 v4更新：舵机面板移除两个确认复选框，直接拖动目标；首次接管使用“起点参考”，不再强制1500μs。
 > ESP32常规固件以100μs/s、200μs/s²生成轨迹，网页只续租与合并目标。首次位置未知时仍不能保证不跳动。
-> 当前v4已编译、待安装，详细协议/状态与限制见 [USB及舵机说明](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/13-usb-loader-door-servo.md)。
+> 当前v4已编译、待安装，详细协议/状态与限制见 [USB及舵机说明](../../docs/13-usb-loader-door-servo.md)。
 > 下方“首次1500/25μs/确认”是此前版本的验证记录，不适用于v4控制流程。
 
-> 2026-10-18 新版：统一PID参数由ESP32初始化下发，四轮PID在STM32独立计算；Dashboard往复测试在浏览器运行。新增目标上限1000mm/s、闭环PWM100%，详细用法与旧版兼容边界见 [统一PID与往复测试](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/12-unified-pid-test.md)。下方旧版测试记录不代表新版已烧录。
+> 2026-10-18 新版：统一PID参数由ESP32初始化下发，四轮PID在STM32独立计算；Dashboard往复测试在浏览器运行。新增目标上限1000mm/s、闭环PWM100%，详细用法与旧版兼容边界见 [统一PID与往复测试](../../docs/12-unified-pid-test.md)。下方旧版测试记录不代表新版已烧录。
 
 # 下层车 Android BLE 控制面板
 
@@ -78,6 +78,11 @@ node firmware/tests/test_web_remote.mjs
 
 ## 双舵机手动微调
 
+2026-10-23 型号/角度更正：当前大臂按提供的DS3218资料和用户确认的270°定位款换算，
+不是下述历史记录中的“DS3128 360°”。1500μs对应135°；保留1300–1700μs窗口，
+在当前滑块中显示108–162°，不自动回中。C3接线为IO7/IO10/IO0，详见
+[当前C3说明](../../docs/16-c3-dashboard-encoders.md)。下文保留旧版接线和测试记录。
+
 配套 ESP32 `crtc-lower-servo-v1`；不需要为本功能修改 STM32 固件。桌面 `dashboard.html` 和手机 `index.html` 共用 `servo-panel.js`。DS3128 大臂（用户确认 360°位置型）信号接 GPIO12；MG995 小臂（180°位置型）接 GPIO13，替代此前 GPIO7/5。舵机电源按具体实物额定规格供电、与 ESP32 共地，不经主控 3V3 稳压器供电。
 
 - 开机两路 LOW，无自动回中。底盘停止锁定、四轮反馈有效且不足 200ms、目标和实测速全零时才接受位置调节；不要求解锁底盘。
@@ -92,8 +97,13 @@ BLE 扩展仍为 20 字节、版本 1，共用原 session/sequence/replay/200ms 
 
 硬件输出使用 ESP-IDF LEDC 低速模式、50Hz、14位，参考 [Espressif LEDC 文档](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/api-reference/peripherals/ledc.html)。所有写入在 ESP32 主循环执行，BLE 回调只入队，无阻塞扫描动作。
 
-验证：新增桥接测试覆盖双通道、启动与步进边界、限频、非零/失效/过期轮速拒绝、重放/旧会话/过期包拒绝、STOP保留位置、释放与HAL错误；网页共49项测试通过。UBSan未运行。2026-10-17 ESP32 已烧录 `crtc-lower-servo-v1`，上传哈希校验与串口版本核对通过（未独立读回）。DS3128 的1500→1525→1500μs及最终释放均收到回执/状态确认，用户目视确认有转动并回到刚才位置；仅小范围往返通过，完整行程、角度精度、机械限位与带载能力未验收，MG995 随后完成 GPIO13 的同样短测，各步与最终 PWM 释放确认，目视结果待确认，见 [MG995 测试记录](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/servo-mg995-test-20261017.json)。见 [测试记录](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/evidence/servo-ds3128-test-20261017.json)。
+验证：新增桥接测试覆盖双通道、启动与步进边界、限频、非零/失效/过期轮速拒绝、重放/旧会话/过期包拒绝、STOP保留位置、释放与HAL错误；网页共49项测试通过。UBSan未运行。2026-10-17 ESP32 已烧录 `crtc-lower-servo-v1`，上传哈希校验与串口版本核对通过（未独立读回）。DS3128 的1500→1525→1500μs及最终释放均收到回执/状态确认，用户目视确认有转动并回到刚才位置；仅小范围往返通过，完整行程、角度精度、机械限位与带载能力未验收，MG995 随后完成 GPIO13 的同样短测，各步与最终 PWM 释放确认，目视结果待确认，见 [MG995 测试记录](../../docs/evidence/servo-mg995-test-20261017.json)。见 [测试记录](../../docs/evidence/servo-ds3128-test-20261017.json)。
 
 ## 2026-10-18 当前版：三路角度滑块
 
-当前ESP32为`crtc-lower-pid-servo3-v3`（已烧录/INFO核对），STM32为USB loader+偏移PID APP（USB下载/读回通过）。新增MG995开门信号GPIO14，三路角度滑块均为平滑跟随、需显式启用，不会自动回中。大/小臂保留首测窗口，门为可校准0–90°参考行程；角度非实测。kind5三通道状态、Agent通道0/1/2、端点与安全流程见[当前说明](https://github.com/Seroliya/zuiqiangchusheng/blob/7af2521e83984f6dec2a5cd384b27fa92b80138e/docs/13-usb-loader-door-servo.md)。72项逻辑与2项离线DOM测试通过；实物舵机行程未验收。
+当前ESP32为`crtc-lower-pid-servo3-v3`（已烧录/INFO核对），STM32为USB loader+偏移PID APP（USB下载/读回通过）。新增MG995开门信号GPIO14，三路角度滑块均为平滑跟随、需显式启用，不会自动回中。大/小臂保留首测窗口，门为可校准0–90°参考行程；角度非实测。kind5三通道状态、Agent通道0/1/2、端点与安全流程见[当前说明](../../docs/13-usb-loader-door-servo.md)。72项逻辑与2项离线DOM测试通过；实物舵机行程未验收。
+
+
+## 2026-10-23 C3当前版v5
+
+`dashboard.html?v=bootquiet-v5` 配套已安装 C3 `crtc-c3-bootquiet-v5` 与底盘 `0xC3D91023`。设备参数从C3 NVS完整回读，直接写入C3 Flash，不读旧PA轮参数浏览器缓存；下面的“仅RAM/记住本机”说明只适用于历史版。写入动作库与设备参数分开，既有动作数据保留。新增四轮编码器清零（底盘启动也自动清零）和舵机限位/参考保存；保存参考不执行位置。三路输出在启动/重启后均保持0，不自动回中。实板只核对版本、UART、NVS重启保留和零输出，未进行带载动作验证。详见`../../docs/16-c3-dashboard-encoders.md`及`../../output/bootquiet-encreset-20261023/README.md`。

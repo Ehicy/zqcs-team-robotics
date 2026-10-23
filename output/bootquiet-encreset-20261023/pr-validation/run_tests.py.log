@@ -1,0 +1,16 @@
+PASS codec: CRC golden vector, COBS, bounds, version/length/reserved, noise, coalescing
+PASS receiver: duplicate/out-of-order/invalid/old-token frames never refresh control deadline
+PASS truncation, timeout boundary, reconnect, transport fault, client restart
+PASS input API: replay rejection, remaining TTL, no cached-input extension, disabled heartbeat/status
+PASS sequence/time wraparound and controller reboot recovery
+PASS encoder feedback interface: explicit validity, signed counts, sample age and expiry
+PASS LED on/off ACK, one outstanding request, small-buffer retry, CONTROL/STATUS scheduling priority
+PASS LED malformed/CRC/duplicate/old-token/wrong-request/wrong-state rejection and global sequence ordering
+PASS LED 500 ms pending/ACK expiry with clock wrap, no CONTROL lease extension, loss/fault/token cleanup
+PASS resource map: UART, eight encoder inputs, four PWM, directions, STBY and SWD have no overlap
+PASS PWM capability gate, 25% bounds, unchanged input expiry, mode isolation and no reconnect replay
+PASS explicit STOP barrier before/after drive, old queued PWM rejection, same-boot fast reconnect reset
+PASS PWM console strict parsing, range/overflow rejection and no partial command
+PASS speed capability/telemetry freshness, bounded config, ACK correlation/rejection, clear and reset
+PASS 100000 deterministic noise bytes (memory/UB sanitizer compatible)
+PASS all board-link host tests; no hardware or motor calls

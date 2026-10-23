@@ -1,0 +1,10 @@
+Speed control tests: SANITIZE=0; UBSan NOT run
+PASS provisional defaults, all-wheel confirmation, bounded integer config and physical-stop gate
+PASS x4/x2 CPR conversion, motor/encoder signs and continuous measurement while stopped
+PASS 10ms sampling with actual dt, immediate zero coast and original lease never renewed
+PASS invalid mask/jump, >50ms timing, backwards time, 500ms no-progress and opposite-feedback latch
+PASS millis/count32 wrap, negative deltas and fractional acceleration without floating point
+PASS four-wheel quantized plant convergence/load rejection: 99.5 99.5 99.5 100.1 mm/s
+PASS unreachable target saturation does not wind up; release/load change converges again
+PASS signed four-wheel plant reversal, 50ms coast, stop cannot bypass reverse hold
+All speed-control tests passed. Plant simulation is not physical calibration.

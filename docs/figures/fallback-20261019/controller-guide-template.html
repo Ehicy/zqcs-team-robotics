@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>手柄操作演示 · 双 STM32</title>
+<style>
+:root{color-scheme:light;--bg:#f1f4ed;--paper:#fffef8;--ink:#203d32;--muted:#5d7165;--accent:#197259;--border:#ccd8cb;--active:#c9ed81}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Microsoft YaHei",system-ui,sans-serif}main{max-width:1160px;margin:auto;padding:20px 24px 60px}h1{font-size:30px;line-height:1.3;margin:8px 0}h2{font-size:22px}h3{font-size:18px;margin-top:28px}p{margin:10px 0}a{color:var(--accent)}.eyebrow,.muted{color:var(--muted)}.eyebrow{letter-spacing:.12em;font-size:12px}.nav{display:flex;gap:18px;flex-wrap:wrap;margin:10px 0 16px}.intro{border-left:4px solid var(--accent);padding:8px 16px;background:var(--paper)}label{display:block;margin:12px 0 6px}select,button{font:inherit;background:var(--paper);color:var(--ink);border:1px solid var(--border);border-radius:8px;padding:9px 14px}select{max-width:100%;min-width:280px}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.primary{background:var(--accent);color:var(--paper)}.demo{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;align-items:center;padding:16px 0}.pad{width:100%;height:auto}.shell{fill:#dfe9db;stroke:#9aac9d;stroke-width:2}.key>*:first-child{fill:var(--paper);stroke:#a8bbab;stroke-width:2}.key text{fill:var(--ink);font:17px system-ui;text-anchor:middle;dominant-baseline:middle}.key.hot>*:first-child{fill:var(--active);stroke:var(--accent);stroke-width:3}.step{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:22px;min-height:285px}.step h2{margin:6px 0 10px}.combo{font-size:21px;font-weight:600}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.led{display:inline-block;width:16px;height:16px;border-radius:50%;background:#b7bfb3;border:1px solid #7f947e;vertical-align:-2px;margin-right:8px}.led.on{background:#c6ef63;box-shadow:0 0 12px #91bb4d}.lamp-row{border-top:1px solid var(--border);padding-top:12px;margin-top:16px}.fine{font-size:14px;color:var(--muted)}.guide-body{overflow-x:auto}.photo-pin-table{width:100%;border-collapse:collapse;font-size:15px}.photo-pin-table th,.photo-pin-table td{padding:11px 10px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}.photo-pin-table th{background:#e4ecdf}.photo-pin-table td:first-child{min-width:120px}.photo-pin-table td:nth-child(2){min-width:180px}code{font-family:inherit;background:#e8eedf;padding:1px 4px;border-radius:4px}details{border-top:1px solid var(--border);padding:20px 0}summary{font-size:21px;font-weight:600;cursor:pointer}.notice{padding:12px 16px;background:#e4ecdf;border-radius:10px}@media(max-width:760px){main{padding:20px 16px}.demo{grid-template-columns:1fr;gap:12px}.step{min-height:0}h1{font-size:26px}}
+</style></head>
+<body><main>
+<div class="eyebrow">CRTC 2026 · 双 STM32 应急版</div><h1>手柄组合键，按步骤看</h1>
+<p class="muted">选一个操作，查看手柄上的键位、持续时间和预期灯光。</p>
+<nav class="nav"><a href="%%WIRING_FILE%%">返回绿色矩形接线图</a><a href="#full-guide">完整按键 / 13 项参数 / 灯光读数</a></nav>
+<p class="intro"><strong>这是操作演示，不连接或操纵车辆。</strong>按键状态只在页面中演示；实车仍由手柄控制。A/B 已烧录，但新手柄有效输入与实车动作尚未验收。L3 单闪版已更新到 A。</p>
+<label for="scenario">我要做什么</label><select id="scenario">
+<option value="drive">解锁、驾驶和停车</option><option value="tune">调速度上限并保存 Flash</option><option value="servo">选择、启用和调节舵机</option><option value="direction">修改单个车轮的正反方向</option><option value="read">看灯读出当前参数</option><option value="reset">恢复默认参数</option><option value="l3">按左摇杆测试手柄输入</option></select>
+<section class="demo" aria-label="手柄按键演示">
+<svg class="pad" viewBox="0 0 580 350" role="img" aria-label="PS2 手柄正面；绿色高亮为本步骤所用按键">
+<path class="shell" d="M100 68 Q50 70 36 136 L18 288 Q20 336 70 321 L164 251 H415 L508 321 Q560 340 563 286 L544 132 Q527 68 480 68 Z"/>
+<g class="key" data-key="L2"><rect x="73" y="10" width="105" height="32" rx="10"/><text x="125" y="26">L2</text></g>
+<g class="key" data-key="L1"><rect x="73" y="47" width="105" height="32" rx="10"/><text x="125" y="63">L1</text></g>
+<g class="key" data-key="R2"><rect x="402" y="10" width="105" height="32" rx="10"/><text x="455" y="26">R2</text></g>
+<g class="key" data-key="R1"><rect x="402" y="47" width="105" height="32" rx="10"/><text x="455" y="63">R1</text></g>
+<g class="key" data-key="UP"><rect x="107" y="102" width="40" height="40" rx="7"/><text x="127" y="122">↑</text></g>
+<g class="key" data-key="DOWN"><rect x="107" y="184" width="40" height="40" rx="7"/><text x="127" y="204">↓</text></g>
+<g class="key" data-key="LEFT"><rect x="64" y="143" width="40" height="40" rx="7"/><text x="84" y="163">←</text></g>
+<g class="key" data-key="RIGHT"><rect x="150" y="143" width="40" height="40" rx="7"/><text x="170" y="163">→</text></g>
+<g class="key" data-key="TRIANGLE"><circle cx="454" cy="120" r="24"/><text x="454" y="120">△</text></g>
+<g class="key" data-key="CIRCLE"><circle cx="502" cy="164" r="24"/><text x="502" y="164">○</text></g>
+<g class="key" data-key="CROSS"><circle cx="454" cy="208" r="24"/><text x="454" y="208">×</text></g>
+<g class="key" data-key="SQUARE"><circle cx="406" cy="164" r="24"/><text x="406" y="164">□</text></g>
+<g class="key" data-key="SELECT"><rect x="211" y="124" width="72" height="36" rx="8"/><text x="247" y="142" style="font-size:13px">SELECT</text></g>
+<g class="key" data-key="START"><rect x="298" y="124" width="72" height="36" rx="8"/><text x="334" y="142" style="font-size:13px">START</text></g>
+<g class="key" data-key="L3"><circle cx="230" cy="244" r="41"/><text x="230" y="238">L3</text><text x="230" y="260" style="font-size:12px">左摇杆</text></g>
+<g class="key" data-key="R3"><circle cx="349" cy="244" r="41"/><text x="349" y="238">R3</text><text x="349" y="260" style="font-size:12px">右摇杆</text></g>
+<text x="290" y="325" text-anchor="middle" fill="#5d7165" font-size="14">L3 / R3 = 垂直按下摇杆，不是推杆</text>
+</svg>
+<div class="step"><div id="step-count" class="fine"></div><h2 id="step-title"></h2><div class="combo" id="combo"></div><p id="instruction"></p><p id="expected" class="fine"></p>
+<div class="lamp-row"><span class="led" id="demo-led" aria-hidden="true"></span><span id="lamp-label">A 板 PC13</span></div>
+<div class="actions"><button id="prev" type="button">上一步</button><button class="primary" id="next" type="button">下一步</button><button id="play-led" type="button">播放预期灯光</button></div></div>
+</section>
+<p class="notice">先松开上一组键，再按下一组；长按组合保持两摇杆回中，且不混入其他按键。除 L3 输入测试外，操作需有效模拟模式（0x73）与 A/B 链路就绪。</p>
+<details id="full-guide" open><summary>完整操作指南与 13 项参数</summary><div class="guide-body">%%OPERATOR_GUIDE%%</div></details>
+<p class="fine">说明与接线页共用同一份操作文档。上电不输出舵机 PWM；首次手动接管仍可能跳动，因为主控不知道舵机实际角度。超出软件脉宽窗口会拒绝，但无法检测机械碰撞。</p>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+// These are instructional storyboards, not a second hardware/state-machine implementation.
+const S=(title,combo,keys,instruction,expected,led)=>({title,combo,keys,instruction,expected,led});
+const enter=S('进入调参','SELECT ＋ START · 保持 2 秒',['SELECT','START'],'先把车停稳，两摇杆回中；只按这两个键，连续保持 2 秒，然后全部松开。','预期：底盘锁定；提示 2 闪后，重复闪当前菜单编号。',2);
+const scenarios={
+drive:[S('先回中','松开两摇杆 · 至少 0.3 秒',[],'接收器已配对、手柄处于模拟模式，两板串口正常；上电默认锁定。','预期：锁定时 A 板灯每 2 秒短亮一次。','locked'),S('解锁底盘','单按 SELECT',['SELECT'],'回中后按一次 SELECT，再松开。不要同时按 START。','预期：A 板用户灯常亮；车仍静止。','solid'),S('前后与转向','推左杆上下 / 推右杆左右',['L3','R3'],'左杆上下前进、后退；右杆左右转向。这里是推杆，不是按 L3/R3。初始最大 PWM 为 10%，Flash 有记录时使用已保存值。','预期：曲线起步；胶轮底盘不支持横移。','solid'),S('停车并锁定','START',['START'],'松杆会停车但保留解锁；按 START 则停车并锁定。故障停车直接关闭驱动，不反推。','预期：恢复锁定短闪；重新行驶需要回中再按 SELECT。','locked')],
+tune:[enter,S('选择速度上限','十字键 ← / →',['LEFT','RIGHT'],'用左右切换到第 1 项。看灯确认编号，不假定每次进入都会回到第 1 项。','预期：第 1 项重复短闪 1 次。',1),S('调整数值','十字键 ↑ / ↓',['UP','DOWN'],'每按一次上/下，最大 PWM 增/减 5%，允许 10–100%。按住 400ms 后每 100ms 重复。R3 可报当前值。','预期：修改先在内存生效；越界被拒绝并提示 5 闪。',1),S('准备保存','全部松开 · 至少 1 秒',[],'停止调参至少 1 秒；停车并支撑机构。两板连通、底盘输出已禁用，舵机没有待执行轨迹。两次保存尝试至少隔 30 秒。','预期：仍处于调参模式。',1),S('写入 Flash','R1 ＋ SELECT · 保持 2 秒',['R1','SELECT'],'满足上述条件后同时按下，保持 2 秒，然后松开。不要混入 START；保持摇杆回中。','预期：成功 3 闪后锁定；失败提示 5 闪。断电恢复已保存参数，但不自动解锁或启用舵机。',3)],
+servo:[S('选择舵机','L1 ＋ □ / △ / ○',['L1','SQUARE','TRIANGLE','CIRCLE'],'按住 L1，三个面键只点一个：□大臂 PB6；△小臂 PB7；○门 PB8。图中亮出的三个面键是三选一，不是一起按。','预期：底盘停止并锁定；选通道不会自动输出舵机 PWM。','servo'),S('手动接管','L1 ＋ R1 ＋ ↑ · 保持 1 秒',['L1','R1','UP'],'退出调参后操作。支撑机构、核准参考姿态，松开上一组键，再按本组合 1 秒。首次参考不等于测得的实际角度。','预期：选中通道开始输出保存的参考脉宽；首次接管可能跳动。','servo'),S('小步调节','L1 ＋ ↑ / ↓',['L1','UP','DOWN'],'上下二选一：每次增/减微调量（默认 5μs）；持续按住会重复。达到软件上下限后拒绝继续。','预期：带速度和加速度限制地移动；松开 L1 冻结当前输出，保持力矩。','servo'),S('关闭该路','L1 ＋ R1 ＋ ↓ · 保持 1 秒',['L1','R1','DOWN'],'先支撑机构，再保持组合 1 秒。START 只冻结命令，不能代替关闭 PWM。','预期：该路 PWM 为零，舵机可能失去支撑力。','servo')],
+direction:[enter,S('逐轮切换方向','L2 ＋ △ / □ / ○ / ×',['L2','TRIANGLE','SQUARE','CIRCLE','CROSS'],'按住 L2，点一个面键：△M1右前、□M2左前、○M3右后、×M4左后。每点一次切换一次；图中四键是四选一。','预期：只修改方向参数，不会立刻试转。',1),S('退出再核对','单按 START',['START'],'松开组合键，单按 START 退出。架空后回中、SELECT 解锁，用低占空比短推前进核对。','预期：确认轮胎顶部均朝车头；需要长期保留时，再进入调参保存 Flash。','locked')],
+read:[enter,S('选择要读的参数','十字键 ← / →',['LEFT','RIGHT'],'例如选第 11 项“静止起步曲线时间”。菜单编号由分组短闪表示。','预期：第 11 项每组闪 11 次。',11),S('读四位数','按下右摇杆 R3',['R3'],'不是推动右杆。先长亮 1 秒、暗 0.6 秒，再报四位十进制。1–9 为对应次数短闪，0 为一次 0.6 秒长亮。','示例：500ms 报 0500；这是默认值示例，不是实车读数。','0500')],
+reset:[enter,S('恢复内存默认','L2 ＋ R2 ＋ START · 保持 3 秒',['L2','R2','START'],'先支撑机构并回中。该组合恢复内存默认参数，并关闭三路舵机 PWM；不自动写入 Flash。','预期：提示 3 闪，仍在调参；需要永久保存时，另按保存流程执行。',3)],
+l3:[S('检测左杆按键','垂直按下左摇杆 L3',['L3'],'直接按下左杆，松开后可再按。无需 SELECT 解锁或 B 板就绪；数字/模拟模式有效帧都可以触发。','预期：A 板 PC13 单闪一次，长按不重复；PWR 电源灯不能由程序控制。','l3'),S('若没有闪','检查接收器与信号线',[],'先查接收器配对、3.3V 供电，再查 CS→PB12、CLK→PB13、DI/DAT→PB14、DO/CMD→PB15。','无效 PS2 帧不会闪；没有闪不等于 L3 功能未烧入。',null)]
+};
+let index=0,timer=null;const keys=[...document.querySelectorAll('[data-key]')];
+function cancel(){if(timer!==null)clearTimeout(timer);timer=null;$('demo-led').classList.remove('on');}
+function render(){cancel();const steps=scenarios[$('scenario').value],s=steps[index];$('step-count').textContent=`步骤 ${index+1} / ${steps.length}`;$('step-title').textContent=s.title;$('combo').textContent=s.combo;$('instruction').textContent=s.instruction;$('expected').textContent=s.expected;$('lamp-label').textContent='A 板 PC13 · 点按钮播放预期灯光';keys.forEach(k=>k.classList.toggle('hot',s.keys.includes(k.dataset.key)));$('prev').disabled=index===0;$('next').disabled=index===steps.length-1;$('play-led').disabled=s.led===null;}
+function pattern(led){if(typeof led==='number')return [...Array.from({length:led},()=>[[1,150],[0,150]]).flat(),[0,1800]];if(led==='solid')return [[1,2000]];if(led==='locked')return [[1,100],[0,1900],[1,100],[0,1900]];if(led==='servo')return [[1,400],[0,400],[1,400],[0,400]];if(led==='l3')return [[0,80],[1,200],[0,120]];if(led==='0500'){const p=[[1,1000],[0,600]];for(const d of '0500'){if(d==='0')p.push([1,600]);else for(let i=0;i<Number(d);i++)p.push([1,100],[0,100]);p.push([0,800]);}return p;}return [];}
+$('scenario').addEventListener('change',()=>{index=0;render();});$('prev').addEventListener('click',()=>{if(index>0)index--;render();});$('next').addEventListener('click',()=>{if(index<scenarios[$('scenario').value].length-1)index++;render();});$('play-led').addEventListener('click',()=>{cancel();const p=pattern(scenarios[$('scenario').value][index].led);let i=0;function tick(){if(i>=p.length){cancel();$('lamp-label').textContent='演示结束 · 实车随后恢复状态/菜单灯';return;}const [on,ms]=p[i++];$('demo-led').classList.toggle('on',!!on);$('lamp-label').textContent='预期灯光演示 · '+(on?'亮':'灭');timer=setTimeout(tick,ms);}tick();});render();
+})();
+</script></body></html>

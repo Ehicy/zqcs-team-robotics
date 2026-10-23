@@ -1,0 +1,7 @@
+(node:13996) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS offline DOM boot: dashboard.html (PID controls, no automatic movement, no BLE calls)
+PASS offline DOM boot: index.html (PID controls, no automatic movement, no BLE calls)
+PASS offline DOM boot: dashboard.html (PID controls, no automatic movement, no BLE calls)
+PASS offline DOM boot: dashboard.html (PID controls, no automatic movement, no BLE calls)
+PASS C3 settings ignore old browser storage on repeated refresh

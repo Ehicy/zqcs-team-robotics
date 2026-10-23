@@ -256,12 +256,16 @@ test('servo codec bounds and capability telemetry', () => {
   assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:3,pulseUs:1500}));
   for(const pulseUs of [1000,1500,2000]) assert.equal(encodeCommand(OP.SERVO,{...header,channel:2,pulseUs})[12],2);
   for(const pulseUs of [999,2001]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:2,pulseUs}));
-  for(const p of [NaN,1299,1701,-1,1500.5]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:0,pulseUs:p}));
+  for(const p of [NaN,499,2501,-1,1500.5]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:0,pulseUs:p}));
+  for(const p of [1299,1701]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:1,pulseUs:p}));
   assert.deepEqual(servoStatus({pulses:[1500,1550]}).pulses,[1500,1550]);
   const extended=packet(5), v=new DataView(extended.buffer);
   extended[2]=7; extended[3]=15; v.setUint32(4,71,true);
   [1500,1550,2000,1000,2000,25].forEach((p,i)=>v.setUint16(8+2*i,p,true));
   assert.deepEqual(decodeStatus(extended).pulses,[1500,1550,2000]);
+  assert.equal(decodeStatus(extended).quickProfile,false);
+  extended[3]|=32; assert.equal(decodeStatus(extended).quickProfile,true);
+  extended[3]|=64; assert.equal(decodeStatus(extended).encoderReset,true); extended[3]&=~64;
   extended[2]=3; assert.throws(()=>decodeStatus(extended));
 });
 function slewStatus(pulses=[0,0,0]) {
@@ -288,7 +292,7 @@ test('target codec includes explicit reference and validates reserved/bounded fi
   const b=encodeCommand(OP.SERVO_TARGET,{...header,channel:2,pulseUs:2000,referenceUs:1100}),v=new DataView(b.buffer);
   assert.equal(b[1],10);assert.equal(v.getUint16(14,true),2000);assert.equal(v.getUint16(16,true),1100);
   assert.equal(v.getUint16(18,true),0);
-  assert.throws(()=>encodeCommand(OP.SERVO_TARGET,{...header,channel:0,pulseUs:1700,referenceUs:1299}));
+  assert.throws(()=>encodeCommand(OP.SERVO_TARGET,{...header,channel:0,pulseUs:1700,referenceUs:499}));
   assert.throws(()=>encodeCommand(OP.SERVO_TARGET,{...header,channel:2,pulseUs:0,referenceUs:1500}));
   assert.deepEqual(motionStatus({targets:[1500,0,2000],moving:4}).targets,[1500,0,2000]);
   const bad=packet(6);bad[3]=128;assert.throws(()=>decodeStatus(bad));

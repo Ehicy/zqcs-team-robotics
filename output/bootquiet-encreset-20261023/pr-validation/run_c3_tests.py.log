@@ -1,0 +1,8 @@
+C3 tests: SANITIZE=0; UBSan NOT run
+PA chassis: independent motor/encoder/UART/SWD pins, x4/x4/x2/x2, C3/STM CPR agreement, boot disarmed and servo PWM off
+C3 manual: full PWM without ARM/PID/calibration, bad encoder ignored, direction/mode/STOP/TTL correct, per-wheel telemetry recovers
+Adaptive four-wheel quantized plant at model target150: 150.1 150.0 149.7 149.8 mm/s (simulation only)
+Adaptive PWM: own/same-side/straight-cross feedback, independent histories, unconfirmed models, bad sensors, smooth recovery, direction/STOP/TTL/10ms/wrap passed
+PA quick profile: boot PID, 200ms curve, 10+30ms <=5% brake, short-brake fallback, no renewal, expiry/coast, source lease, wrap passed
+C3 settings: CRC/roundtrip, failed/identical writes, reboot sync, rear signs, no servo boot replay, encoder reset/origin wrap passed
+Servo HAL: no boot attachment/default 1500us, explicit first target only, low/pulldown, release detaches, reattach passed (mock GPIO/LEDC)

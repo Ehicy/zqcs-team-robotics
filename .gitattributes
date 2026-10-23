@@ -1,0 +1,3 @@
+
+# Preserve raw diagnostic output; tool formatting may contain trailing spaces.
+/output/**/*.log -whitespace
