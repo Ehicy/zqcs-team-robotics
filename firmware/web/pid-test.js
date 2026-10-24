@@ -18,6 +18,21 @@ export class PidShuttle {
     return t;
   }
   stopped(t) { return t.speed.measured.every(v => v === 0) && t.speed.targets.every(v => v === 0); }
+  updateSettings({ distanceMm, cycles, speedPercent }) {
+    if (!Number.isInteger(distanceMm) || distanceMm < 50 || distanceMm > 3000 ||
+        !Number.isInteger(cycles) || cycles < 1 || cycles > 20 ||
+        !Number.isInteger(speedPercent) || speedPercent < 1 || speedPercent > 100)
+      throw new Error('距离50–3000mm，往复1–20次，速度比例1–100%');
+    if (!this.active) return;
+    const limit=Math.max(1, Math.floor(Math.min(...this.config.map(v => v.maxMmS))*speedPercent/100));
+    const rated=Math.min(...this.config.map(v=>260*Math.PI*(v.diameterTenthMm/10)/60));
+    if(limit>rated&&!this.allowOverspeed)throw new Error('目标超过额定参考，本次未启用超额定测试');
+    this.distance = distanceMm; this.legs = cycles * 2;
+    this.limit = limit;
+    // The current leg keeps its encoder origin. Reducing distance below the
+    // travelled value requests settling on the next tick; it never restarts.
+    this.changed();
+  }
   async start({ distanceMm = 300, cycles = 2, speedPercent = 100, overspeed = false, spaceConfirmed = false } = {}) {
     if (this.active) throw new Error('测试已在运行');
     if (!Number.isInteger(distanceMm) || distanceMm < 50 || distanceMm > 3000 ||
@@ -33,7 +48,7 @@ export class PidShuttle {
     this.limit = Math.max(1, Math.floor(Math.min(...config.map(v => v.maxMmS))*speedPercent/100));
     const rated = Math.min(...config.map(v => 260*Math.PI*(v.diameterTenthMm/10)/60));
     if (this.limit > rated && !overspeed) throw new Error('目标超过260rpm额定参考，请明确勾选超额定测试确认');
-    this.config = config.map(v => ({ ...v })); this.distance = distanceMm; this.legs = cycles*2; this.leg = 0;
+    this.config = config.map(v => ({ ...v })); this.allowOverspeed=overspeed; this.distance = distanceMm; this.legs = cycles*2; this.leg = 0;
     this.oldLimit = this.controller.state.limit; this.session = this.controller.state.session;
     this.results = []; this.phase = 'ARMING'; this.travel = 0; this.started = this.now();
     this.message = '等待显式解锁回执'; this.changed();
@@ -115,9 +130,10 @@ export class PidShuttle {
 
 export function installPidTest({ root, controller, telemetry, calibration, foreground, error, log, direct = false }) {
   root.innerHTML = `<h2>3 · PID 往复测试</h2><p class="hint">写入上方两组参数后，设置距离和次数。一次往复 = 前进 → 停稳 → 后退 → 停稳。默认速度上限100%；接近端点自动减速，短距离不一定达到上限。行程来自编码器，打滑和滑行会造成位置误差。</p>
-    <div class="config-grid"><label>单程距离 mm<input id="pidDistance" type="number" min="50" max="3000" value="300" step="10"></label>
-    <label>往复次数<input id="pidCycles" type="number" min="1" max="20" value="2"></label>
-    <label>速度上限比例 %<input id="pidPercent" type="number" min="1" max="100" value="100"></label></div>
+    <div class="config-grid pid-slider-grid"><label>单程距离 mm<output id="pidDistanceValue" for="pidDistance">300 mm</output><input id="pidDistance" type="range" min="50" max="3000" value="300" step="10" aria-label="单程距离 mm"></label>
+    <label>往复次数<output id="pidCyclesValue" for="pidCycles">2 次</output><input id="pidCycles" type="range" min="1" max="20" value="2" step="1" aria-label="往复次数"></label>
+    <label>速度上限比例 %<output id="pidPercentValue" for="pidPercent">100%</output><input id="pidPercent" type="range" min="1" max="100" value="100" step="1" aria-label="速度上限比例 %"></label></div>
+    <p id="pidTestLiveStatus" class="hint" role="status">距离、次数、速度拖动即作用于当前测试；未开始时只预设，不会自动开车。PID 系数在上方滑块调整，停稳后自动写入。</p>
     <p id="pidTestSpeedPreview" class="hint"></p><p class="hint">额定参考260rpm：65mm轮约885mm/s。额定值只作参考；最大目标轮速可在四轮配置调至1000mm/s，闭环PWM上限100%，不等于硬件限流。</p>
     <label class="confirmation" ${direct?'hidden':''}><input id="pidSpace" type="checkbox">已确认前后空间、停车余量及物理断电，车辆落地且有人看护</label>
     <label class="confirmation" ${direct?'hidden':''}><input id="pidOverspeed" type="checkbox">允许本次超过额定参考目标；已核对电机、驱动、电池与升压器能力</label>
@@ -129,21 +145,29 @@ export function installPidTest({ root, controller, telemetry, calibration, foreg
     <li>再少量增加 Ki 消除持续偏慢；加速后冲过头、来回摆或松开负载后冲高，应减小 Ki。输出长期顶住100%时先查目标是否可达，勿靠加积分强推。</li>
     <li>最后从 Kd=0 小步增加，观察是否减轻轮速波动；若出现高频抖动、噪声或输出跳动，减小 Kd并检查编码器。D项基于测速而非目标，不能保证减少端点滑行距离。</li>
     <li>前后都偏一个方向优先查轮径、方向、地面与轮胎差异；本模块统一系数、四轮独立计算，不自动生成“最优PID”。端点超程是编码器行程加滑行的结果，不单独代表PID超调。</li>
-    <li>停稳后再写参数；写入ACK只确认参数生效。额定以上目标允许设置，但不能据此判定电机/驱动/升压器能长期承受。</li></ul></details>`;
+    <li>PID 滑块自动合并最新一组系数并写入，行驶中改系数会待停稳后发送；ACK只确认设备接受，底盘同步需看回读。距离/次数/速度无需写Flash，拖动即改变本次测试；缩短距离到已走行程以内会进入停车阶段，不会重设编码器起点。额定以上目标允许设置，但不能据此判定电机/驱动/升压器能长期承受。</li></ul></details>`;
   const field = id => root.querySelector(`#${id}`);
   const runner = new PidShuttle({ controller, telemetry, calibration, changed: render });
   let preparing = false, prepareId = 0;
   function render() {
     const s=runner.snapshot();
+    for(const [id,unit]of [['pidDistance',' mm'],['pidCycles',' 次'],['pidPercent','%']])field(id+'Value').textContent=field(id).value+unit;
     try { const max=Math.min(...calibration().map(v=>v.maxMmS)); field('pidTestSpeedPreview').textContent=`当前最高目标 ${max}mm/s，本次上限 ${Math.floor(max*Number(field('pidPercent').value)/100)}mm/s（目标值，非实测速度）`; } catch { field('pidTestSpeedPreview').textContent='请先填写有效四轮配置'; }
     const message=direct?s.message.replaceAll('解锁','控制准备').replaceAll('并锁定','').replaceAll('锁定','停止'):s.message;
     field('pidTestState').textContent=`${s.phase} · ${message} · 本段 ${Math.round(s.travelMm)} / ${s.distanceMm??'—'} mm · 上限 ${s.speedMmS??'—'} mm/s`;
     const readyToPrepare=controller.state.connected&&controller.state.uart&&controller.state.session&&!controller.state.fault&&!controller.state.configBusy&&!controller.state.armed&&!controller.state.remoteArmed&&!controller.state.active&&!controller.servoOwner&&!controller.servoMotion?.movingMask;
     field('pidTestStart').disabled=preparing || s.active || !(direct?readyToPrepare:controller.canArm()); field('pidTestStop').disabled=!s.active&&!preparing;
     if(preparing) field('pidTestState').textContent='准备中 · 正在应用当前参数';
-    for (const id of ['pidDistance','pidCycles','pidPercent','pidSpace','pidOverspeed']) field(id).disabled=s.active||preparing;
+    for (const id of ['pidDistance','pidCycles','pidPercent']) field(id).disabled=preparing;
+    for (const id of ['pidSpace','pidOverspeed']) field(id).disabled=s.active||preparing;
     field('pidTestResults').textContent=s.results.map(v=>`第${v.leg}段${v.direction>0?'前进':'后退'}：${v.travelMm.toFixed(1)}mm，端点偏差${v.overshootMm.toFixed(1)}mm`).join('；');
   }
+  for(const id of ['pidDistance','pidCycles','pidPercent'])field(id).addEventListener('input',()=>{
+    try {
+      runner.updateSettings({distanceMm:Number(field('pidDistance').value),cycles:Number(field('pidCycles').value),speedPercent:Number(field('pidPercent').value)});
+      field('pidTestLiveStatus').textContent=runner.active?'距离、次数、速度已更新；下一次控制周期生效，保持当前编码器起点':'已更新测试预设；点击开始才会行驶';
+    }catch(e){error(e);}render();
+  });
   field('pidTestStart').onclick=async()=>{
     try {
       if(!foreground()) throw new Error('测试需要页面处于前台');

@@ -12,6 +12,15 @@ test('measured wheel directions retain the explicit calibration safety gate', ()
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const header = { session: 0x12345678, sequence: 0x90abcdef };
 function packet(kind) { const b = new Uint8Array(20); b[0] = 1; b[1] = kind; return b; }
+test('v13 softened servo telemetry decodes alongside all earlier profiles',()=>{
+  const b=packet(6),v=new DataView(b.buffer);
+  v.setUint32(4,71,true);v.setUint16(8,1600,true);v.setUint16(18,500,true);b[2]=1;
+  for(const [speed,acceleration] of [[100,200],[1000,4000],[1000,2500],[600,1200]]){
+    v.setUint16(14,speed,true);v.setUint16(16,acceleration,true);
+    const s=decodeStatus(b);assert.equal(s.speedUsS,speed);assert.equal(s.accelerationUsS2,acceleration);
+  }
+  v.setUint16(16,0,true);assert.throws(()=>decodeStatus(b),/舵机轨迹/);
+});
 function main({ session = 71, sequence = 0, armed = false, active = false, ready = true, fault = false, uart = true, calibratedMask = 15 } = {}) {
   const b = packet(0), v = new DataView(b.buffer);
   b[2] = Number(uart) | (Number(armed) << 1) | (Number(active) << 2) | (Number(ready) << 3) | (Number(fault) << 4) | 32;
@@ -176,6 +185,16 @@ test('event loop interruption at 150ms clears intent and never resumes on future
   const count = f.writes.length; f.advance(50); f.controller.tick(); await flush(); assert.equal(f.writes.length, count);
 });
 
+test('idle scheduling gaps do not send STOP or cancel an unrelated pending ACK', async () => {
+  const f = fixture();
+  const waiting = f.controller.acks.expect(71, 99, 0);
+  f.advance(250); f.controller.tick(); await flush();
+  assert.equal(f.writes.length, 0);
+  assert.equal(f.controller.acks.pending.size, 1);
+  f.controller.ingest(ack({ sequence: 99, wheel: 0 }), f.generation);
+  await waiting;
+});
+
 test('STOP followed by a fresh disarmed session does not send STOP again', async () => {
   const f = fixture(); await flush(); assert.equal(f.writes.length, 0);
   await armFixture(f); f.controller.setIntent(1000, 0);
@@ -255,9 +274,9 @@ test('servo codec bounds and capability telemetry', () => {
   assert.equal(b[12],1); assert.equal(new DataView(b.buffer).getUint16(14,true),1500);
   assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:3,pulseUs:1500}));
   for(const pulseUs of [1000,1500,2000]) assert.equal(encodeCommand(OP.SERVO,{...header,channel:2,pulseUs})[12],2);
-  for(const pulseUs of [999,2001]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:2,pulseUs}));
+  for(const pulseUs of [499,2501]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:2,pulseUs}));
   for(const p of [NaN,499,2501,-1,1500.5]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:0,pulseUs:p}));
-  for(const p of [1299,1701]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:1,pulseUs:p}));
+  for(const p of [499,2501]) assert.throws(()=>encodeCommand(OP.SERVO,{...header,channel:1,pulseUs:p}));
   assert.deepEqual(servoStatus({pulses:[1500,1550]}).pulses,[1500,1550]);
   const extended=packet(5), v=new DataView(extended.buffer);
   extended[2]=7; extended[3]=15; v.setUint32(4,71,true);

@@ -23,7 +23,7 @@ export class TeachRecorder{
  * Encoder corrections are always evaluated; missing sides use feedforward,
  * explicitly marked estimated. This is not a map/path planner or FTC port. */
 export class TraceReplay{
-  constructor({drive,stop,servo,servoBusy=()=>false,canServo=()=>true,now=()=>performance.now(),changed=()=>{}}){Object.assign(this,{drive,stop,servo,servoBusy,canServo,now,changed});this.active=false;this.message='未复刻';}
+  constructor({drive,stop,servo,servoBusy=()=>false,canServo=()=>true,concurrentMotion=()=>false,now=()=>performance.now(),changed=()=>{}}){Object.assign(this,{drive,stop,servo,servoBusy,canServo,concurrentMotion,now,changed});this.active=false;this.message='未复刻';}
   start(trace,{odometry,session,generation,kp=1.5,toleranceMm=8,scale=1}={}){
     if(this.active)throw Error('已经在复刻');
     this.trace=validateTrace(trace);
@@ -41,13 +41,13 @@ export class TraceReplay{
     try{
       const events=this.trace.servos;
       if(this.nextServo<events.length&&events[this.nextServo].t<=this.clock){
-        this.drive(0,0);
+        if(!this.concurrentMotion())this.drive(0,0);
         if(!this.canServo())return;
         const group=[],t=events[this.nextServo].t;
         while(this.nextServo<events.length&&events[this.nextServo].t<=t+50)group.push(events[this.nextServo++]);
         await this.servo([...new Map(group.map(e=>[e.channel,e])).values()]);
       }
-      if(this.servoBusy()){
+      if(this.servoBusy()&&!this.concurrentMotion()){
         this.drive(0,0);
         const nextMotion=this.trace.samples.find(s=>s.t>=this.clock&&(s.throttle||s.steer));
         this.clock=Math.min(nextMotion?.t??this.trace.samples.at(-1).t,this.clock+dt*this.scale);
@@ -70,6 +70,7 @@ export class TraceReplay{
       const clockScale=lag>100?Math.max(0.25,100/lag):1;
       let left=clamp(ff.left*this.scale*clockScale+correction[0],-1000,1000),right=clamp(ff.right*this.scale*clockScale+correction[1],-1000,1000);
       if(this.clock>=last.t){
+        if(this.servoBusy()) {this.drive(0,0);this.message='底盘时序结束，等待机械臂完成';return;}
         if(this.nextServo>=events.length&&(mask||this.error.every(e=>Math.abs(e)<=this.toleranceMm))){this.cancel(mask||odometry?.pathComplete===false||this.estimated?'复刻时序结束（有估计区段，位置未验证）':'复刻完成（编码器相对里程到达）');return;}
         left=clamp(correction[0],-300,300);right=clamp(correction[1],-300,300);
         this.finishAt??=time;if(time-this.finishAt>10000){this.cancel('复刻结束：末端误差未在10秒内收敛');return;}

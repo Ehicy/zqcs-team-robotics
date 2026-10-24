@@ -1,19 +1,24 @@
-import { installPidTest } from './pid-test.js?v=c3-direct2';
-import { installPidPanel } from './pid-panel.js?v=bootquiet-v5';
-import { installServoPanel } from './servo-panel.js?v=bootquiet-v5';
-import { DirectDrive } from './direct-drive.js?v=c3-direct2';
-import { PwmDrive } from './pwm-drive.js?v=bootquiet-v5';
+import {DEFAULT_TRAVEL_PERMILLE,DEFAULT_TURN_PERMILLE} from './dashboard-defaults.js?v=portable-20261024';
+import {createBleWriter,BLE_COMMAND_ACK_MS} from './ble-write-watchdog.js?v=ble-servo-link-v11';
+import { SameCarLink } from './same-car-link.js?v=softpower-v8r1';
+import { CAR_NAME } from './car-identity.js?v=softpower-v8r1';
+import { EncoderInitializer } from './encoder-initializer.js?v=softpower-v8r1';
+import { installPidTest } from './pid-test.js?v=pid-sliders-v1';
+import { installPidPanel } from './pid-panel.js?v=relay-force-v11r1';
+import { installServoPanel } from './servo-panel.js?v=portable-20261024';
+import { DirectDrive } from './direct-drive.js?v=relay-force-v11r1';
+import { PwmDrive, manualPwmLimit } from './pwm-drive.js?v=portable-20261024';
 /* C3 uses fresh-held-input preparation via DirectDrive. Historical profiles
  * retain manual ARM. Both use the same queue, session and stale-command stop. */
 
-import { UUID, WHEELS, DEFAULT_CALIBRATION, PA_CHASSIS_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js?v=bootquiet-v5';
+import { UUID, WHEELS, DEFAULT_CALIBRATION, PA_CHASSIS_CALIBRATION, RemoteController, decodeStatus, validateCalibration } from './protocol.js?v=portable-20261024';
 import { KeyHoldSet, mixWheels, describeIntent, isDriveKey, isStopKey, normalizeKey } from './dashboard-input.js';
 import { installLiveMap } from './live-map.js';
 import { createDashboardAgent, registerAgentTools } from './dashboard-agent.js';
-import { installAutomation } from './automation-panel.js?v=bootquiet-v5';
+import { installAutomation } from './automation-panel.js?v=portable-20261024';
 
 const $ = id => document.getElementById(id);
-let pidPanel = null, pidTest = null, directDrive = null;
+let pidPanel = null, pidTest = null, directDrive = null, initializer = null;
 const paChassis = document.body.dataset.hardwareProfile === 'c3-pa';
 const pwmSelected = () => paChassis && $('driveMode')?.value === 'pwm';
 const calibrationDefaults = paChassis ? PA_CHASSIS_CALIBRATION : DEFAULT_CALIBRATION;
@@ -34,7 +39,7 @@ let heldPadPointer = null;
 let liveMap = null;
 let dashboardAgent = null;
 let automation = null;
-let calibrationDirty=false,calibrationReadKey='';
+let calibrationDirty=false,mechanicalDirty=false,calibrationReadKey='';
 function readDeviceCalibration(force=false){
   if(!paChassis)return;
   const ds=controller.deviceSettings,values=ds.calibration();
@@ -42,7 +47,7 @@ function readDeviceCalibration(force=false){
   const key=`${ds.session}/${ds.revision}`;
   if(key===calibrationReadKey&&!force||calibrationDirty&&!force)return;
   if(!force&&$('calibrationForm').contains(document.activeElement))return;
-  setCalibration(values);calibrationReadKey=key;calibrationDirty=false;
+  setCalibration(values);calibrationReadKey=key;calibrationDirty=false;mechanicalDirty=false;
   liveMap?.invalidate('C3参数回读更新');
 }
 
@@ -84,7 +89,8 @@ function padIntent() {
 
 /** 合并键盘与虚拟键盘的意图，写入控制器并刷新读数。 */
 function applyIntent({ announce = false } = {}) {
-  if(automation?.isRunning()) automation.cancel('手动输入接管自动动作');
+  if(initializer?.active){stopNow('手动输入接管，初始化已取消，请重新按方向');return {throttle:0,steer:0};}
+  if(automation?.isRunning()&&(!controller.concurrentMotion()||automation.isDriving())) automation.cancel('手动输入接管自动行驶');
   if (pidTest?.runner.active || pidTest?.preparing) { stopNow('手动输入接管，往复测试已中止'); return { throttle: 0, steer: 0 }; }
   if (dashboardAgent?.isDriving()) {
     stopNow('手动输入接管，Agent 短测已停止并锁定');
@@ -119,11 +125,15 @@ function clearHolds(note) {
   }
   if (note) log(note);
   paintIntent({ throttle: 0, steer: 0 });
+  automation?.clearInput();
 }
 
+function manualLimit(intent=lastIntent){
+  return pwmSelected()?manualPwmLimit(intent,controller.state.limit,Number($('turnSpeedLimit').value)):controller.state.limit;
+}
 function paintIntent(intent) {
   $('intentText').textContent = directDrive ? describeIntent(intent) : controller.state.armed ? describeIntent(intent) : `${describeIntent(intent)}（未解锁）`;
-  const mix = mixWheels(intent, controller.state.limit);
+  const mix = mixWheels(intent, manualLimit(intent));
   $('mixText').textContent = pwmSelected() ? `左 ${mix.left/10} / 右 ${mix.right/10} %` : `左 ${mix.left} / 右 ${mix.right} mm/s`;
   const active = {
     w: intent.throttle > 0 && !intent.steer,
@@ -141,7 +151,7 @@ function countBits(value) { return [0, 1, 2, 3].filter(i => value & (1 << i)).le
 
 function render(state = controller.state) {
   readDeviceCalibration();
-  $('connectionText').textContent = state.connected ? 'CRTC-Lower-Car' : (connecting ? '正在连接…' : '尚未连接');
+  $('connectionText').textContent = state.connected ? (connection?.device.name||CAR_NAME||'已连接车辆') : (connecting ? '正在连接…' : '尚未连接');
   $('connectionDot').classList.toggle('online', state.connected);
   $('connectButton').textContent = state.connected ? '断开连接' : (connecting ? '正在连接…' : '连接蓝牙');
   $('connectButton').disabled = !supported || connecting;
@@ -150,10 +160,10 @@ function render(state = controller.state) {
   $('modeBadge').className = `badge${state.fault && state.connected ? ' fault' : state.armed ? ' armed' : ''}`;
 
   $('uartStatus').textContent = state.connected ? (state.uart ? '在线' : '未连接') : '—';
-  $('readyStatus').textContent = state.connected ? (pwmSelected() ? (state.uart?(controller.servoStatus?.quickProfile?'PID辅助 · 快起停':'PWM 直控'):'等待串口') : state.ready ? '就绪' : '等待 PID 反馈') : '—';
+  $('readyStatus').textContent = state.connected ? (pwmSelected() ? (state.uart?(controller.servoStatus?.quickProfile?'PID辅助 · 斜坡控制':'PWM 直控'):'等待串口') : state.ready ? '就绪' : '等待 PID 反馈') : '—';
   if($('driveProfileHint')) $('driveProfileHint').textContent = controller.servoStatus?.quickProfile
-    ? '快起快停版已识别：200ms S曲线启动；松键/STOP/反向采用10ms撤驱动+最多30ms制动。PID上电可用（默认Kp=1、Ki=2、Kd=0），仍可在下方调整。'
-    : '快起快停版尚未识别：需配套更新C3 v5和STM32 0xC3D91023。网页不能替代固件制动；原版STOP只撤驱动。';
+    ? '快起快停协议在线。需烧入 STM32 0xC3D92417：200ms 曲线起步，松杆/STOP 先撤驱动 10ms、再主动制动最多 30ms，制动 PWM 不超过停止前的本轮输出。当前回传不能核验底盘具体版本。'
+    : '等待双板能力；本页兼容旧固件，新增C3 softpower-v13轨迹支持。网页更新不等于车辆已烧入新版。';
   $('calibrationStatus').textContent = `${countBits(state.calibratedMask)} / 4`;
   $('trackSpeeds').textContent = state.connected ? `${state.left} / ${state.right}` : '— / —';
 
@@ -185,6 +195,7 @@ function render(state = controller.state) {
   $('rememberButton').disabled = state.configBusy;
   $('rememberButton').hidden=paChassis;
   if($('resetEncoders'))$('resetEncoders').disabled=!sessionReady||!state.uart||state.active||state.configBusy||!controller.servoStatus?.encoderReset;
+  renderInitializer();
   if($('deviceSettingsText')){
     const ds=controller.deviceSettings;
     $('deviceSettingsText').textContent=!state.connected?'参数唯一来源：C3 Flash；连接后自动读取':!ds.calibration()?'正在读取 C3 参数（约1.5秒）':
@@ -195,7 +206,8 @@ function render(state = controller.state) {
   $('sessionText').textContent = state.session ? `会话 ${state.session.toString(16).padStart(8, '0')}` : '会话 —';
   $('speedLimit').value = state.limit;
   $('speedValue').textContent = pwmSelected() ? state.limit/10 : state.limit;
-  if($('speedLabel')) $('speedLabel').textContent=pwmSelected()?'输出比例':'目标速度上限';
+  if($('speedLabel')) $('speedLabel').textContent=pwmSelected()?'前后行驶上限':'目标速度上限';
+  if($('turnSpeedControl')) $('turnSpeedControl').hidden=!pwmSelected();
   if($('speedUnit')) $('speedUnit').textContent=pwmSelected()?'%':'mm/s';
   if($('mixLabel')) $('mixLabel').textContent=pwmSelected()?'指令输出':'目标轮速';
 
@@ -225,18 +237,22 @@ function renderTelemetry() {
   WHEELS.forEach((_, i) => {
     const countCell = $(`count${i}`);
     const speedCell = $(`wheelSpeed${i}`);
+    const validSpeed = speedFresh && !!(wheelSpeeds.validMask & (1 << i));
     if (countCell) countCell.textContent = encoderFresh && encoder.validMask & (1 << i) ? String(encoder.counts[i]) : '—';
     if (speedCell) {
-      speedCell.textContent = speedFresh && wheelSpeeds.validMask & (1 << i)
+      speedCell.textContent = validSpeed
         ? `${wheelSpeeds.measured[i]} / ${pwmSelected()?'—':wheelSpeeds.targets[i]}` : '— / —';
     }
-    const measured = speedFresh && wheelSpeeds.validMask & (1 << i) ? wheelSpeeds.measured[i] : 0;
-    const target = speedFresh && wheelSpeeds.validMask & (1 << i) ? wheelSpeeds.targets[i] : 0;
+    const measured = validSpeed ? wheelSpeeds.measured[i] : 0;
+    // A PWM request is not a measured/modelled speed target. Missing telemetry
+    // must not masquerade as a real zero-speed command in the bar caption.
+    const target = validSpeed && !pwmSelected() ? wheelSpeeds.targets[i] : 0;
     const bar = document.querySelector(`.bar-${i}`);
     if (bar) {
       paintBar(bar.querySelector('i.measured'), measured);
       paintBar(bar.querySelector('i.target'), target);
-      bar.querySelector('.value').textContent = speedFresh ? `${measured} / ${target}` : '— / —';
+      bar.querySelector('.value').textContent = validSpeed
+        ? `${measured} / ${pwmSelected()?'—':target}` : '— / —';
     }
   });
   $('telemetryFreshness').textContent = encoderFresh || speedFresh ? '样本在线' : '等待采样 / 已过期';
@@ -250,13 +266,18 @@ function paintBar(element, value) {
 }
 
 /* ---------------- 蓝牙 ---------------- */
-function timeout(promise, milliseconds) {
+function timeout(promise, milliseconds, message='蓝牙操作超时') {
   let timer;
-  return Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('写入响应超时')), milliseconds); })])
+  return Promise.race([promise, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), milliseconds); })])
     .finally(() => clearTimeout(timer));
 }
 
+const sameCar=new SameCarLink({bluetooth:navigator.bluetooth,storage:globalThis.localStorage,expectedName:CAR_NAME,service:UUID.service,
+  onState:message=>{if($('reconnectStatus'))$('reconnectStatus').textContent=`${CAR_NAME||'已选车辆'} · ${message}`;}});
+function retryConnection(){sameCar.schedule(()=>connect(true));}
+
 function closeTransport() {
+  initializer?.cancel('蓝牙断开，初始化已取消',false);
   revokeAgentPermission();
   liveMap?.invalidate('蓝牙连接已断开');
   attempt++;
@@ -275,62 +296,63 @@ function closeTransport() {
   render();
 }
 
-async function connect() {
-  if (controller.state.connected) {
-    log('正在断开连接');
-    await Promise.race([controller.stop('正在断开，保持锁定').catch(() => {}), new Promise(resolve => setTimeout(resolve, 200))]);
-    closeTransport();
-    return;
+async function connect(automatic=false) {
+  if(!automatic&&controller.state.connected){
+    sameCar.pause();initializer?.cancel('主动断开，初始化已取消',false);
+    await Promise.race([controller.stop('主动断开').catch(()=>{}),new Promise(r=>setTimeout(r,200))]);
+    closeTransport();return;
   }
-  if (!supported || connecting) return;
-  const currentAttempt = ++attempt;
-  connecting = true;
-  render();
-  let device;
-  try {
-    if(navigator.bluetooth.getDevices) {
-      const granted=await navigator.bluetooth.getDevices();
-      device=granted.find(item=>item.name==='CRTC-Lower-Car');
-    }
-    if(!device) device = await navigator.bluetooth.requestDevice({ filters: [{ name: 'CRTC-Lower-Car' }], optionalServices: [UUID.service] });
-    const server = await device.gatt.connect();
-    const service = await server.getPrimaryService(UUID.service);
-    const control = await service.getCharacteristic(UUID.control);
-    const status = await service.getCharacteristic(UUID.status);
-    if (currentAttempt !== attempt) throw new Error('连接已取消');
-    if (!control.properties.write || typeof control.writeValueWithResponse !== 'function') throw new Error('设备不支持带响应写入，保持锁定');
-    if (!status.properties.read || (!status.properties.notify && !status.properties.indicate)) throw new Error('设备缺少状态读取 / 通知能力');
-
-    const generation = controller.attach(bytes => timeout(control.writeValueWithResponse(bytes), 600));
-    const receive = value => {
-      if (connection?.generation !== generation) return;
-      try {
-        const packet = decodeStatus(value);
-        if (!controller.ingest(packet, generation)) return;
-        if (packet.kind === 1) { encoder = packet; encoderAt = performance.now(); liveMap?.receive(packet); automation?.receive(packet,encoderAt); log(`编码器计数 ${packet.counts.join(' / ')}`); }
-        if (packet.kind === 2) { wheelSpeeds = packet; speedsAt = performance.now(); }
-        renderTelemetry();
-      } catch (error) {
-        safely(controller.stop('状态包异常，已停止并锁定'));
-        showError(error);
+  if(!supported||connecting||controller.state.connected||automatic&&!sameCar.enabled)return;
+  if(!automatic)sameCar.enabled=true;
+  const currentAttempt=++attempt;connecting=true;render();let device;
+  const current=()=>{if(currentAttempt!==attempt)throw Error('连接已取消');};
+  try{
+    // Only a human click can request a new browser permission. Retries restore
+    // the exact previously authorized ID, never the first matching name.
+    device=automatic?await sameCar.restore():(sameCar.device||await sameCar.choose());
+    current();
+    if(!device){sameCar.pause();log(sameCar.record?'浏览器未能恢复原授权设备，请点连接蓝牙重新选择本车；同页断线仍可自动重连':'请点连接蓝牙，首次选择本车授权');return;}
+    sameCar.remember(device);
+    const pending=device.gatt.connect().then(server=>{if(currentAttempt!==attempt){if(server.connected)server.disconnect();throw Error('连接已取消');}return server;});
+    const server=await timeout(pending,8000,'车辆未上线或被另一台电脑占用');current();
+    const service=await timeout(server.getPrimaryService(UUID.service),4000);current();
+    const control=await timeout(service.getCharacteristic(UUID.control),4000);current();
+    const status=await timeout(service.getCharacteristic(UUID.status),4000);current();
+    if(!control.properties.write||typeof control.writeValueWithResponse!=='function')throw Error('设备不支持带响应写入');
+    if(!status.properties.read||(!status.properties.notify&&!status.properties.indicate))throw Error('设备缺少状态读取/通知能力');
+    let lastBlePacketAt=-Infinity;
+    const generation=controller.attach(createBleWriter({
+      write:bytes=>control.writeValueWithResponse(bytes),
+      onSlow:()=>log('蓝牙写入超过600ms，仍等待本次响应；未重复发送、未断开'),
+      timeoutMessage:()=>{
+        const age=performance.now()-lastBlePacketAt;
+        return `写入响应超时（1500ms；GATT${device.gatt.connected?'仍连接':'已断开'}；${Number.isFinite(age)?'最后回传'+Math.round(age)+'ms前':'尚无回传'}）`;
       }
+    }));
+    const receive=value=>{
+      if(connection?.generation!==generation)return;
+      try{
+        const packet=decodeStatus(value);if(!controller.ingest(packet,generation))return;lastBlePacketAt=performance.now();
+        if(packet.kind===1){encoder=packet;encoderAt=performance.now();liveMap?.receive(packet);automation?.receive(packet,encoderAt);}
+        if(packet.kind===2){wheelSpeeds=packet;speedsAt=performance.now();}
+        renderTelemetry();
+      }catch(error){safely(controller.stop('状态包异常，已停止'));showError(error);}
     };
-    const listener = event => receive(event.target.value);
-    const disconnected = () => { if (connection?.generation === generation) { log('蓝牙已断开，保持锁定', true); closeTransport(); } };
-    connection = { device, status, listener, disconnected, generation };
-    status.addEventListener('characteristicvaluechanged', listener);
-    device.addEventListener('gattserverdisconnected', disconnected);
-    await status.startNotifications();
-    receive(await status.readValue());
-    log('已连接 CRTC-Lower-Car，新会话默认锁定');
-  } catch (error) {
-    if (device?.gatt?.connected) device.gatt.disconnect();
-    if (currentAttempt === attempt) closeTransport();
-    showError(error.name === 'NotFoundError' ? new Error('未选择设备；保持锁定') : error);
-  } finally {
-    connecting = false;
-    render();
-  }
+    const listener=event=>receive(event.target.value);
+    const disconnected=()=>{if(connection?.generation===generation){log('蓝牙断开，只重连本车，动作不续跑',true);closeTransport();retryConnection();}};
+    connection={device,status,listener,disconnected,generation};
+    status.addEventListener('characteristicvaluechanged',listener);
+    device.addEventListener('gattserverdisconnected',disconnected);
+    await timeout(status.startNotifications(),4000);current();
+    receive(await timeout(status.readValue(),2000));current();
+    sameCar.succeeded();log(`已连接 ${device.name}；请重新输入操作`);
+  }catch(error){
+    if(currentAttempt===attempt){
+      closeTransport();if(device?.gatt?.connected)device.gatt.disconnect();
+      if(error.name==='NotFoundError'&&!device){sameCar.pause();log('未选择设备');}
+      else {showError(error);retryConnection();}
+    }
+  }finally{if(currentAttempt===attempt){connecting=false;render();}}
 }
 
 /* ---------------- 校准表单 ---------------- */
@@ -392,10 +414,10 @@ function readCalibration() {
 
 /* ---------------- 控制器 ---------------- */
 const controller = new RemoteController({
-  deviceStorage:paChassis,
+  deviceStorage:paChassis,ackTimeoutMs:BLE_COMMAND_ACK_MS,
   changed: render,
-  locked: () => { automation?.cancel('控制已停止'); directDrive?.cancel('控制已停止', false); pidTest?.runner.cancel('控制停止，往复测试已中止'); dashboardAgent?.onLock(); revokeAgentPermission(); clearHolds(); },
-  transportError: error => { closeTransport(); showError(new Error(`蓝牙写入失败，已锁定：${error.message}`)); },
+  locked: event => { automation?.onControllerLock(event); directDrive?.cancel('控制已停止', false); pidTest?.runner.cancel('控制停止，往复测试已中止'); dashboardAgent?.onLock(); revokeAgentPermission(); clearHolds(); },
+  transportError: error => { closeTransport(); showError(new Error(`蓝牙写入失败：${error.message}`)); retryConnection(); },
 });
 
 /* ---------------- 界面装配 ---------------- */
@@ -403,18 +425,18 @@ $('telemetryRows').innerHTML = WHEELS.map((name, i) =>
   `<tr><td>${name}</td><td id="count${i}">—</td><td id="wheelSpeed${i}">— / —</td></tr>`).join('');
 $('wheelBars').innerHTML = WHEELS.map((name, i) =>
   `<div class="bar bar-${i}"><span>${name.split(' ')[0]}</span><div class="track"><i class="target"></i><i class="measured"></i></div><span class="value">— / —</span></div>`).join('');
-pidPanel = installPidPanel({ root: $('pidPanel'), controller, error: showError, log: typeof log === 'function' ? log : () => {}, written:()=>{calibrationDirty=false;calibrationReadKey='';},direct: paChassis });
+pidPanel = installPidPanel({ root: $('pidPanel'), controller, error: showError, log: typeof log === 'function' ? log : () => {}, written:(_gains,{pending=false}={})=>{calibrationDirty=mechanicalDirty||pending;calibrationReadKey='';},direct: paChassis });
 buildCalibration();
-$('calibrationForm').addEventListener('input',()=>{calibrationDirty=true;});
+$('calibrationForm').addEventListener('input',()=>{calibrationDirty=true;mechanicalDirty=true;});
 $('pidPanel').addEventListener('input',()=>{calibrationDirty=true;});
 function createDrive() {
-  const options={controller,calibration:readCalibration,foreground:()=>!document.hidden&&document.hasFocus(),error:showError,changed:()=>render()};
+  const options={controller,turnLimit:()=>Number($('turnSpeedLimit').value),calibration:readCalibration,foreground:()=>!document.hidden&&document.hasFocus(),error:showError,changed:()=>render()};
   return pwmSelected()?new PwmDrive(options):new DirectDrive(options);
 }
 if(paChassis) directDrive=createDrive();
 $('driveMode')?.addEventListener('change',()=>{
   stopNow('行驶方式已切换'); directDrive=createDrive();
-  controller.setLimit(pwmSelected()?200:100); render();
+  controller.setLimit(pwmSelected()?DEFAULT_TRAVEL_PERMILLE:100); render();
 });
 liveMap = installLiveMap({
   snapshot: () => ({ ...controller.state, mainAt: controller.mainStatusAt,
@@ -433,7 +455,12 @@ $('speedLimit').addEventListener('input', event => {
   paintIntent(lastIntent);
 });
 
+$('turnSpeedLimit').addEventListener('input',()=>{
+  $('turnSpeedValue').textContent=Number($('turnSpeedLimit').value)/10;paintIntent(lastIntent);
+});
+
 function stopNow(note = '已停止') {
+  initializer?.cancel(note,false);
   automation?.cancel(note);
   pidTest?.runner.cancel(note);
   pidTest?.cancelPreparation();
@@ -463,7 +490,7 @@ $('calibrationForm').addEventListener('submit', event => {
     }
     const values = readCalibration();
     log(`开始写入四轮配置（已确认 ${values.filter(v => v.confirmed).length} / 4）`);
-    safely(controller.configure(values).then(() => {calibrationDirty=false;calibrationReadKey='';log(paChassis?'已写 C3 Flash，正在回读确认':'统一 PID 与四轮配置已逐包确认（仅存 RAM）');}));
+    safely(controller.configure(values).then(() => {calibrationDirty=false;mechanicalDirty=false;calibrationReadKey='';log(paChassis?'已写 C3 Flash，正在回读确认':'统一 PID 与四轮配置已逐包确认（仅存 RAM）');}));
   } catch (error) { showError(error); }
 });
 $('rememberButton').addEventListener('click', () => {
@@ -507,25 +534,34 @@ document.querySelectorAll('.key').forEach(button => {
 function typingInField(target) {
   if (!target) return false;
   const tag = target.tagName;
-  return tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || target.isContentEditable;
+  return tag === 'INPUT' && target.type !== 'range' || tag === 'SELECT' || tag === 'TEXTAREA' || target.isContentEditable || !!target.closest?.('dialog[open]');
 }
 window.addEventListener('keydown', event => {
   if (event.ctrlKey || event.metaKey || event.altKey || typingInField(event.target)) return;
+  // Keep range arrow-key adjustment; WASD/function keys remain available while
+  // the operator drags a servo slider with the mouse.
+  if(event.target?.type==='range'&&event.key.startsWith('Arrow'))return;
   if (isStopKey(event.key)) {
     event.preventDefault();
+    automation?.keyEvent('down',event);
     if (!event.repeat) stopNow('按键急停：已停止并锁定');
     return;
   }
-  if (!isDriveKey(event.key)) return;
+  if (!isDriveKey(event.key)) { if(automation?.keyEvent('down',event))event.preventDefault();return; }
   event.preventDefault();
   const normalized = normalizeKey(event.key);
   if (event.repeat) return; // STOP/session cancellation always needs a fresh physical press.
   if (keys.press(normalized)) applyIntent({ announce: true });
+  automation?.keyEvent('down',event);
 });
 window.addEventListener('keyup', event => {
-  if (!isDriveKey(event.key)) return;
-  event.preventDefault();
-  if (keys.release(event.key)) applyIntent({ announce: true });
+  const captured=keys.held.has(normalizeKey(event.key))||automation?.recorder.held.has(normalizeKey(event.key));
+  if((typingInField(event.target)||event.ctrlKey||event.metaKey||event.altKey)&&!captured)return;
+  if (isDriveKey(event.key)) {
+    event.preventDefault();
+    if (keys.release(event.key)) applyIntent({ announce: true });
+    automation?.keyEvent('up',event);
+  } else automation?.keyEvent('up',event);
 });
 
 window.addEventListener('blur', () => { revokeAgentPermission(); stopNow('页面失去焦点，已停止并锁定'); });
@@ -533,7 +569,7 @@ document.addEventListener('visibilitychange', () => { revokeAgentPermission(); s
 window.addEventListener('pagehide', () => { revokeAgentPermission(); stopNow('页面已离开，已停止并锁定'); });
 window.addEventListener('pageshow', event => { if (event.persisted) stopNow('页面已恢复，请重新解锁'); });
 
-setInterval(() => { directDrive?.tick(); pidTest?.tick(); dashboardAgent?.tick(); controller.tick(); automation?.tick(); renderTelemetry(); liveMap.tick(); }, 25);
+setInterval(() => { initializer?.tick(); directDrive?.tick(); pidTest?.tick(); dashboardAgent?.tick(); controller.tick(); automation?.tick(); renderTelemetry(); liveMap.tick(); }, 25);
 
 /* 支持性检查 */
 const warning = $('supportWarning');
@@ -555,14 +591,16 @@ window.__crtcDashboard = Object.freeze({
   describeIntent,
 });
 
-controller.setLimit(paChassis?200:80);
+$('turnSpeedLimit').value=String(DEFAULT_TURN_PERMILLE);
+$('turnSpeedValue').textContent=DEFAULT_TURN_PERMILLE/10;
+controller.setLimit(paChassis?DEFAULT_TRAVEL_PERMILLE:80);
 log('遥控台已就绪：等待连接 CRTC-Lower-Car');
 render();
 
 const servoPanel=installServoPanel(controller,{onTarget:e=>automation?.target(e)});
 automation=installAutomation({root:$('automationPanel'),controller,calibration:readCalibration,
-  telemetry:()=>({encoder,encoderAt}),intent:()=>({...lastIntent}),
-  takeover:()=>{directDrive?.cancel('自动动作接管',false);pidTest?.runner.cancel('自动动作接管');clearHolds();}});
+  telemetry:()=>({encoder,encoderAt}),intent:()=>({...lastIntent}),driveLimit:manualLimit,
+  takeover:()=>{initializer?.cancel('自动动作接管');directDrive?.cancel('自动动作接管',false);pidTest?.runner.cancel('自动动作接管');clearHolds();}});
 Object.defineProperty(window,'crtcMotion',{value:Object.freeze({status:()=>automation?.status(),export:()=>automation?.library.export()}),configurable:true});
 pidTest = installPidTest({ root: $('pidTestPanel'), controller,
   telemetry: () => ({ encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }), calibration: readCalibration,
@@ -578,7 +616,7 @@ dashboardAgent = createDashboardAgent({
   controller,
   telemetry: () => ({ encoder, encoderAt, speed: wheelSpeeds, speedAt: speedsAt }),
   calibration: readCalibration,
-  externalMotion: () => !!pidTest?.runner.active,
+  externalMotion: () => !!pidTest?.runner.active||!!initializer?.active,
   permissions: () => ({ write: $('agentWriteAllowed').checked, motion: $('agentMotionAllowed').checked }),
   moveServo: (channel,pulse,reference) => servoPanel.move(channel,pulse,reference),
   foreground: () => !document.hidden && document.hasFocus(),
@@ -627,3 +665,25 @@ $('agentStop').addEventListener('click', async () => {
 });
 setInterval(renderAgent, 250);
 renderAgent();
+
+/* Explicit one-click initialization. Never runs on boot/reconnect. */
+function renderInitializer(){
+  if(!initializer)return;
+  $('initializeEncoders').disabled=initializer.active||!controller.state.connected||!controller.state.uart||controller.state.configBusy;
+  $('cancelInitialization').disabled=!initializer.active;
+  $('initializationStatus').textContent=initializer.message;
+}
+initializer=new EncoderInitializer({controller,telemetry:()=>({encoder,encoderAt}),
+  foreground:()=>!document.hidden&&document.hasFocus(),error:showError,
+  takeover:()=>{if(automation?.recorder.active||automation?.isRunning()||pidTest?.runner.active||pidTest?.preparing||dashboardAgent?.isDriving()||directDrive?.job)throw Error('请先停止当前录制/动作，再初始化');clearHolds();},
+  completed:()=>{automation?.encoderReset?.();liveMap?.invalidate('微动初始化已清零，重设起点');log('编码器微动初始化完成');},changed:renderInitializer});
+$('initializeEncoders').addEventListener('click',()=>{try{initializer.start();}catch(e){showError(e);}});
+$('cancelInitialization').addEventListener('click',()=>stopNow('初始化已取消'));
+$('pidTestStart')?.addEventListener('click',()=>initializer.cancel('往复测试接管'),true);
+$('pauseReconnect').addEventListener('click',()=>{sameCar.pause();stopNow('暂停连接');closeTransport();});
+renderInitializer();
+if($('reconnectStatus'))$('reconnectStatus').textContent=`本包绑定：${CAR_NAME||'首次手选车辆'} · 首次授权后自动重连。换电脑请先断开旧电脑。`;
+if(supported&&sameCar.record){
+  if(sameCar.enabled)void connect(true);
+  else {sameCar.pause();void sameCar.restore().catch(()=>{});}
+}

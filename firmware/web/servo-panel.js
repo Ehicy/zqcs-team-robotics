@@ -1,26 +1,29 @@
 /* Shared desktop/mobile controls; no servo confirmation checkboxes. */
-import { DoorControl } from './door-control.js?v=bootquiet-v5';
-import {servoBounds} from './protocol.js?v=bootquiet-v5';
+import { DoorControl } from './door-control.js?v=portable-20261024';
+import {servoBounds} from './protocol.js?v=portable-20261024';
 export function installServoPanel(controller,{onTarget=()=>{}}={}) {
   const root=document.getElementById('servoPanel');
   const gpio=document.body?.dataset?.hardwareProfile==='c3-pa' ? [7,6,10] : [12,13,14];
-  const names=[`DS3218 270°位置型 · 大臂 · GPIO${gpio[0]}`,`MG995 180° · 小臂 · GPIO${gpio[1]}`,`MG995 · 门约90°行程 · GPIO${gpio[2]}`];
+  const names=[`DS3218 270°位置型 · 大臂 · GPIO${gpio[0]}`,`MG995 180° · 小臂 · GPIO${gpio[1]}`,`MG995 180° · 门 · GPIO${gpio[2]}`];
   // 2026-10-23: user confirmed the arm is the 270-degree position variant.
-  // Keep the existing pulse windows; correcting the scale must not expand travel.
-  const spans=[270,180,90];
-  const ranges=spans.map((span,i)=>i===2?{min:0,max:90,reference:45}:{min:span*0.4,max:span*0.6,reference:span/2});
+  // Full pulse windows are requested; actual mechanical travel still needs calibration.
+  const spans=[270,180,180];
+  const ranges=spans.map(span=>({min:0,max:span,reference:span/2}));
   root.innerHTML=`<h2>舵机 · 大臂 / 小臂 / 开门</h2>
-    <p class="hint">直接拖动目标滑块。ESP32以100μs/s、200μs/s²缓加减速；显示均为指令参考，并非实测角度。</p>
+    <p id="servoSpeedHint" class="hint">直接拖动目标滑块；连接后显示固件实际设置的速度与加速度。角度为PWM指令参考。</p>
     <p class="hint">首次接管无位置反馈：把“起点参考”设为当前机构位置，再拖动目标。起点不符仍可能突然转动；软件限速不等于限流或堵转保护。</p>
     <div class="servo-grid">${names.map((name,i)=>`
       <fieldset><legend id="servoLegend${i}">${name}</legend><output id="servoValue${i}">等待固件状态</output>
-      <label for="servoReference${i}">上电 / 释放后的起点参考 <strong id="servoReferenceValue${i}"></strong></label>
+      <label for="servoReference${i}">启动参考（仅首次启用） <strong id="servoReferenceValue${i}"></strong></label>
       <input id="servoReference${i}" type="range" min="${ranges[i].min}" max="${ranges[i].max}" step="${i===0?0.5:1}" value="${ranges[i].reference}">
-      <label for="servoAngle${i}">目标参考角度 <strong id="servoAngleValue${i}">—</strong></label>
+      <label for="servoAngle${i}">拖动这里调整角度 <strong id="servoAngleValue${i}">—</strong></label>
       <input id="servoAngle${i}" class="servo-angle" type="range" min="${ranges[i].min}" max="${ranges[i].max}" step="${i===0?0.5:1}" value="${ranges[i].reference}" disabled>
-      <div class="row"><label>机械下限 μs<input id="servoMin${i}" type="number" value="${i===0?500:i===2?1000:1300}"></label>
-      <label>机械上限 μs<input id="servoMax${i}" type="number" value="${i===0?2500:i===2?2000:1700}"></label>
+      <div class="row"><label>机械下限 μs<input id="servoMin${i}" type="number" value="500"></label>
+      <label>机械上限 μs<input id="servoMax${i}" type="number" value="2500"></label>
       <button id="servoSave${i}" type="button" disabled>保存限位与参考到 C3</button></div>
+      <button id="servoCaptureReference${i}" type="button" disabled>保存当前为初始参考（不动作）</button>
+      <p class="hint">记录当前 PWM 到 C3，供下次手动启用；上电仍不自动回位。</p>
+      <p id="servoControlHint${i}" class="hint" role="status"></p>
       <p id="servoType${i}" class="hint"></p><div class="servo-buttons">
       <button type="button" data-channel="${i}" data-servo="enable" disabled>从参考起点启用</button>
       <button type="button" data-channel="${i}" data-servo="-25" disabled>−25μs</button>
@@ -28,9 +31,9 @@ export function installServoPanel(controller,{onTarget=()=>{}}={}) {
       <button type="button" data-channel="${i}" data-servo="release" disabled>释放输出</button>
       </div></fieldset>`).join('')}</div>
     <fieldset><legend>第三路 · 门端点</legend>
-      <p class="hint">1000→2000μs仅作约90°行程参考。方向相反可交换端点；不要把目标设到机械死点。</p>
-      <label>关门 μs <input id="doorClosed" type="number" min="1000" max="2000" step="1" value="1000"></label>
-      <label>开门 μs <input id="doorOpen" type="number" min="1000" max="2000" step="1" value="2000"></label>
+      <p class="hint">门按MG995 180°换算：500–2500μs对应0–180°。可交换开关端点，角度均为指令参考。</p>
+      <label>关门 μs <input id="doorClosed" type="number" min="500" max="2500" step="1" value="500"></label>
+      <label>开门 μs <input id="doorOpen" type="number" min="500" max="2500" step="1" value="2500"></label>
       <div class="servo-buttons"><button id="doorClose" type="button" disabled>关门</button><button id="doorOpenButton" type="button" disabled>开门</button><button id="doorStop" type="button" disabled>停止跟随 · 保持</button></div>
       <p id="doorMessage" role="status" class="hint"></p>
     </fieldset>
@@ -41,14 +44,16 @@ export function installServoPanel(controller,{onTarget=()=>{}}={}) {
   const runners=[0,1,2].map(channel=>new DoorControl(controller,{channel})), door=runners[2];
   const endpoints=()=>{
     const a=Number($('doorClosed').value),b=Number($('doorOpen').value);
-    if(!Number.isInteger(a)||!Number.isInteger(b)||a<1000||b<1000||a>2000||b>2000||a===b) throw new Error('门端点须为1000–2000μs且互不相同');
+    if(!Number.isInteger(a)||!Number.isInteger(b)||a<500||b<500||a>2500||b>2500||a===b) throw new Error('门端点须为500–2500μs且互不相同');
     return [a,b];
   };
-  const angleToPulse=(i,angle)=>{if(i!==2)return Math.round(500+angle*2000/spans[i]);const[a,b]=endpoints();return Math.round(a+(b-a)*angle/90);};
-  const pulseToAngle=(i,pulse)=>{if(i!==2)return(pulse-500)*spans[i]/2000;const[a,b]=endpoints();return(pulse-a)*90/(b-a);};
+  const angleToPulse=(i,angle)=>Math.round(500+angle*2000/spans[i]);
+  const pulseToAngle=(i,pulse)=>(pulse-500)*spans[i]/2000;
   const render=()=>{
     const s=controller.servoStatus, fresh=controller.state.connected&&s&&controller.now()-controller.servoStatusAt<500;
     const owner=controller.servoOwner;
+    const motion=controller.servoMotion;
+    if(motion)$('servoSpeedHint').textContent=`当前固件速度 ${motion.speedUsS}μs/s，加速度 ${motion.accelerationUsS2}μs/s²；显示为指令参考，并非实测角度。`;
     for(let i=0;i<3;i++) {
       const setting=controller.deviceSettings?.servos[i],key=setting?`${setting.session}/${setting.revision}`:'';
       if(setting&&key!==readKeys[i]&&!dirty[i]){
@@ -56,18 +61,27 @@ export function installServoPanel(controller,{onTarget=()=>{}}={}) {
         $(`servoMin${i}`).value=setting.minUs;$(`servoMax${i}`).value=setting.maxUs;
         $(`servoReference${i}`).value=pulseToAngle(i,setting.referenceUs);readKeys[i]=key;
       }
-      const [min,max]=setting?[setting.minUs,setting.maxUs]:servoBounds(i,s);
+      const [min,max]=setting?[setting.minUs,setting.maxUs]:servoBounds(i,!s&&document.body?.dataset?.hardwareProfile==='c3-pa'?{servoFullRange:true}:s);
       const a=pulseToAngle(i,min),b=pulseToAngle(i,max);
       for(const id of [`servoReference${i}`,`servoAngle${i}`]){ $(id).setAttribute('min',String(Math.min(a,b)));$(id).setAttribute('max',String(Math.max(a,b))); }
       $(`servoSave${i}`).disabled=!setting||!controller.state.connected||controller.state.configBusy||!!owner;
       const runner=runners[i],old=fresh?s.pulses[i]:0,other=owner&&owner!==runner;
+      $(`servoCaptureReference${i}`).disabled=!setting||!controller.servoSettingsReady(i)||!old||!!owner||controller.state.configBusy||
+        !motion||controller.now()-controller.servoMotionAt>=500||!!(motion.movingMask&(1<<i))||controller.state.active;
       if(fresh&&document.body?.dataset?.hardwareProfile==='c3-pa'){
         const pins=s.armFullRange?[7,6,10]:[7,10,0];
         $(`servoLegend${i}`).textContent=names[i].replace(/GPIO\d+/,`GPIO${pins[i]}${s.armFullRange?'':' · 旧C3端口'}`);
       }
       $(`servoValue${i}`).textContent=fresh?old?`${old} μs · 当前PWM指令`:'PWM已释放':controller.state.connected?'状态过期 / 等待固件':'未连接蓝牙';
       $(`servoType${i}`).textContent=s?.slew?(document.body?.dataset?.hardwareProfile==='c3-pa'&&!s.armFullRange?'旧C3仍用IO7/10/0；接V8端口前需烧新版C3':'ESP32缓加减速 · 拖动只保留最新目标'):'需要支持缓启动的固件';
-      $(`servoAngle${i}`).disabled=!!other||(!runner.active&&!controller.servoAvailable(i));
+      const blocked=other?'其他舵机动作正在执行':controller.servoUnavailableReason(i);
+      $(`servoAngle${i}`).disabled=!!other||(!runner.active&&!!blocked);
+      // The active slider still accepts latest targets while its own ACK is
+      // pending. Do not disable/recreate the range input during a mouse drag.
+      $(`servoControlHint${i}`).textContent=other?blocked:runner.active?
+        (runner.inFlight?'目标发送中，可继续拖动；只保留最新目标':runner.message):blocked?`暂不可调：${blocked}`:
+        old?'当前已启用：用“调整角度”滑块操作；启动参考保持只读':
+        '尚未启用：先选启动参考，再拖动目标滑块；回读参数不会自动回中';
       $(`servoReference${i}`).disabled=!!old||runner.active;
       $(`servoReferenceValue${i}`).textContent=`${$(`servoReference${i}`).value}°`;
       let angle=NaN;
@@ -83,9 +97,12 @@ export function installServoPanel(controller,{onTarget=()=>{}}={}) {
     $('doorClose').disabled=$('doorOpenButton').disabled=!!owner||!controller.servoAvailable(2);
     $('doorStop').disabled=!owner&&!controller.servoMotion?.movingMask;
     $('doorClosed').disabled=$('doorOpen').disabled=door.active;
-    $('doorMessage').textContent=runners.find(r=>r.active)?.message||door.message;
+    $('doorMessage').textContent=door.message;
   };
-  runners.forEach(r=>{r.changed=render;});
+  runners.forEach(r=>{r.changed=()=>{
+    if(!r.active&&/跟随暂停|跟随中止|跟随已取消/.test(r.message))message.textContent=r.message;
+    render();
+  };});
   const move=async(channel,target,referenceUs)=>{
     const r=runners[channel];
     const reference=referenceUs??(controller.servoStatus?.pulses[channel]?0:angleToPulse(channel,Number($(`servoReference${channel}`).value)));
@@ -97,6 +114,13 @@ export function installServoPanel(controller,{onTarget=()=>{}}={}) {
   for(let i=0;i<3;i++) {
     $(`servoReference${i}`).addEventListener('input',()=>{dirty[i]=true;render();});
     for(const kind of ['Min','Max'])$(`servo${kind}${i}`).addEventListener('input',()=>{dirty[i]=true;});
+    $(`servoCaptureReference${i}`).addEventListener('click',async()=>{
+      try{
+        const pulse=await controller.captureServoReference(i);
+        dirty[i]=false;readKeys[i]='';
+        message.textContent=`${names[i]}：已保存初始参考 ${pulse}μs（约${pulseToAngle(i,pulse).toFixed(1)}°），等待 C3 回读；未发送运动指令`;
+      }catch(e){message.textContent=e.message;}render();
+    });
     $(`servoSave${i}`).addEventListener('click',async()=>{
       try{
         let minUs=Number($(`servoMin${i}`).value),maxUs=Number($(`servoMax${i}`).value),reversed=false;

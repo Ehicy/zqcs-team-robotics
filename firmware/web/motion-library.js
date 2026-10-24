@@ -1,15 +1,15 @@
 /* Named commanded positions, poses, action graphs and teach traces.
  * Local browser storage only; loading/importing never executes anything. */
 export const LIBRARY_KEY='crtc-motion-library-270-v1';
-export const SERVO_SPANS=[270,180,90];
+export const SERVO_SPANS=[270,180,180];
 export const SERVO_PINS=[7,6,10];
-export const servoMin=ch=>ch===0?500:ch===1?1300:1000;
-export const servoMax=ch=>ch===0?2500:ch===1?1700:2000;
+export const servoMin=ch=>500;
+export const servoMax=ch=>2500;
 export function pulseFromAngle(ch,angle){
-  const pulse=ch===2?1000+Number(angle)*1000/90:500+Number(angle)*2000/SERVO_SPANS[ch];
+  const pulse=500+Number(angle)*2000/SERVO_SPANS[ch];
   return validatePulse(ch,Math.round(pulse));
 }
-export function angleFromPulse(ch,pulse){return ch===2?(pulse-1000)*90/1000:(pulse-500)*SERVO_SPANS[ch]/2000;}
+export function angleFromPulse(ch,pulse){return (pulse-500)*SERVO_SPANS[ch]/2000;}
 export function validatePulse(ch,pulse){
   if(!Number.isInteger(ch)||ch<0||ch>2||!Number.isInteger(pulse)||pulse<servoMin(ch)||pulse>servoMax(ch))throw Error('舵机通道或位置脉宽无效');
   return pulse;

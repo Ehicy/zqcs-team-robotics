@@ -1,4 +1,4 @@
-import {servoBounds} from './protocol.js?v=bootquiet-v5';
+import {servoBounds} from './protocol.js?v=portable-20261024';
 /* Latest-target owner and short lease renewer. ESP32, not the browser,
  * generates the rate/acceleration-limited PWM trajectory. */
 export class DoorControl {
@@ -15,19 +15,21 @@ export class DoorControl {
   start(target, referenceUs=0) {
     const c=this.controller;
     if(this.active || this.inFlight) throw new Error('上一条舵机操作尚未结束');
-    this.validateTarget(target); c.assertStopped();
-    if(!c.servoAvailable(this.channel)) throw new Error('需缓启动固件、底盘锁定与新鲜状态');
+    // 舵机跟随只依赖本路回读，不让缺失的车轮/PID包阻止滑块发送目标。
+    this.validateTarget(target); if(!c.concurrentMotion?.())c.assertStopped(false,false);
+    if(!c.servoAvailable(this.channel)) throw new Error(c.servoUnavailableReason?.(this.channel)||'舵机状态尚未就绪');
     if(c.servoOwner) throw new Error('其他舵机操作正在运行');
     if(!c.servoStatus.pulses[this.channel]) this.validateTarget(referenceUs);
     else if(referenceUs) throw new Error('已启用时不能重设起点');
     this.referenceUs=referenceUs; this.sent=false;
     this.target=target; this.session=c.state.session; this.generation=c.generation;
-    this.stopGeneration=c.stopGeneration; this.lastTick=this.started=this.now(); this.lastWrite=-Infinity;
+    this.stopGeneration=c.stopGeneration; this.lastTick=this.started=this.now(); this.lastWrite=-Infinity;this.targetSince=Infinity;
     this.active=true; c.servoOwner=this; this.message=`${this.label}限速移向 ${target}μs`; this.changed(); c.notify();
   }
   targetTo(target, referenceUs=0) {
     this.validateTarget(target);
     if(!this.active) return this.start(target,referenceUs);
+    if(this.target!==target)this.targetSince=Infinity;
     this.target=target; this.message=`${this.label}目标更新为 ${target}μs`; this.changed();
   }
   cancel(message='跟随已停止；保持最后指令') {
@@ -44,9 +46,9 @@ export class DoorControl {
     }
     this.lastTick=time;
     if(this.inFlight) return;
-    if(!c.servoAvailable(this.channel)) { this.cancel('状态失效或底盘未锁定，已取消'); return; }
+    if(!c.servoAvailable(this.channel)) { this.cancel(`跟随暂停：${c.servoUnavailableReason?.(this.channel)||'状态失效或底盘正在控制'}`); return; }
     const old=c.servoStatus.pulses[this.channel], motion=c.servoMotion;
-    if(this.sent && motion && c.servoMotionAt>=this.lastWrite && c.servoStatusAt>=this.lastWrite &&
+    if(this.sent && motion && c.servoMotionAt>=this.targetSince && c.servoStatusAt>=this.targetSince &&
        motion.targets[this.channel]===this.target && old===this.target && !(motion.movingMask&(1<<this.channel))) {
       this.cancel(`指令已到 ${this.target}μs，实际位置请观察`); return;
     }
@@ -56,6 +58,9 @@ export class DoorControl {
     this.inFlight=true; this.lastWrite=time; const target=this.target;
     try {
       await c.servo(this.channel,target,this,this.sent?0:this.referenceUs);
+      // Same-target renewals must not move the telemetry completion boundary.
+      // Otherwise staggered PWM/trajectory packets can never both catch up.
+      if(this.target===target&&this.targetSince===Infinity)this.targetSince=time;
       this.sent=true; this.referenceUs=0;
     } catch(e) { this.cancel(`跟随中止：${e.message}`); }
     finally { this.inFlight=false; this.changed(); }

@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CRTC 下层车 · BLE 遥控台</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="dashboard.css?v=teach-v2-m3">
+<link rel="stylesheet" href="dashboard.css?v=power-switch-v14">
 <link rel="stylesheet" href="servo-panel.css?v=1">
 </head>
 <body data-hardware-profile="c3-pa">
@@ -15,20 +15,22 @@
 <header class="topbar">
   <div class="brand">
     <h1>CRTC 下层车 · BLE 遥控台</h1>
-    <p><a href="esp32c3-wiring.html?v=7">接线图：三路相邻PWM · 大臂270°</a></p><p class="sub">Web Bluetooth → ESP32-C3 → USART3 → STM32 · WASD / 位置库 / 动作积木 / 示教复刻</p>
+    <p><a href="esp32c3-wiring.html?v=power-switch-v14">接线图：继电器开关 · 三路舵机</a></p><p class="sub">Web Bluetooth → ESP32-C3 → USART3 → STM32 · WASD / 功能键动作 / 节点录制与复刻</p>
   </div>
   <div class="conn">
     <span id="connectionDot" class="dot" aria-hidden="true"></span>
     <span id="connectionText" class="conn-text">尚未连接</span>
     <a class="agent-link" href="#agentTitle">Agent 诊断</a>
     <button id="connectButton" type="button">连接蓝牙</button>
+    <button id="pauseReconnect" type="button">暂停重连 / 交给另一台电脑</button>
   </div>
 </header>
+<p id="reconnectStatus" class="hint" role="status"></p>
 
 <main class="layout">
   <section class="card drive">
     <h2>行驶控制</h2>
-    <p id="driveProfileHint" class="hint">快起快停版尚未识别，等待双板能力回传。</p>
+    <p id="driveProfileHint" class="hint">等待双板能力回传；底盘使用 200ms 快速起步与限时主动制动。</p>
     <p class="hint">按住 W/S 前进后退，A/D 原地转向，方向键等效。直接输入驱动比例，由STM32逐轮前馈+可信PID补偿，无需解锁或清故障。松开归零，空格停止。</p>
     <p class="hint">新版STM32始终采样编码器：本轮优先，同侧后备；仅近似直行时允许另一侧低权重参考。没有可信反馈时保留前馈，不用切模式。旧STM32仍为直接PWM。</p>
     <label hidden>历史调试方式 <select id="driveMode"><option value="pwm">直接 PWM（默认）</option><option value="pid">历史 PID 速度调试</option></select></label>
@@ -50,9 +52,15 @@
     </div>
 
     <label class="limit">
-      <span><span id="speedLabel">输出比例</span> <b id="speedValue">20</b> <span id="speedUnit">%</span></span>
-      <input id="speedLimit" type="range" min="0" max="1000" step="1" value="200">
+      <span><span id="speedLabel">前后行驶上限</span> <b id="speedValue">19.1</b> <span id="speedUnit">%</span></span>
+      <input id="speedLimit" type="range" min="0" max="1000" step="1" value="191">
     </label>
+
+    <label class="limit" id="turnSpeedControl">
+      <span>转向上限 <b id="turnSpeedValue">21.8</b> %</span>
+      <input id="turnSpeedLimit" type="range" min="0" max="1000" step="1" value="218">
+    </label>
+    <p class="hint">W/S 默认 19.1%，A/D 及组合转弯默认 21.8%，两项独立；均可调到 100%。该比例不是实测转速百分比。</p>
 
     <div class="row">
       <button id="armButton" class="primary" type="button" disabled hidden>控制准备</button>
@@ -68,11 +76,13 @@
   <section class="card telemetry">
     <h2>状态与遥测</h2>
     <button id="resetEncoders" type="button" disabled>四轮编码器清零</button>
-    <span class="hint">底盘每次启动自动清零；清零后重新建立示教／里程起点。</span>
+    <span class="hint">底盘每次启动清零，但不会自动微动。</span>
+    <div class="row"><button id="initializeEncoders" type="button" disabled>一键初始化：前后微动 → 清零</button><button id="cancelInitialization" type="button" disabled>取消初始化</button></div>
+    <p id="initializationStatus" class="hint" role="status">20%输出前后各450ms，留出空间；此检查不能修复电气干扰。</p>
     <div class="stats">
       <div><span class="muted">STM32 链路</span><strong id="uartStatus">—</strong></div>
       <div><span class="muted">底盘就绪</span><strong id="readyStatus">—</strong></div>
-      <div><span class="muted">已应用轮参数</span><strong id="calibrationStatus">0 / 4</strong></div>
+      <div title="已勾选实测确认的轮数；不代表C3参数同步数量，也不阻止手动PWM控制"><span class="muted">实测确认轮数</span><strong id="calibrationStatus">0 / 4</strong></div>
       <div><span class="muted">主控左 / 右</span><strong id="trackSpeeds">— / —</strong></div>
     </div>
     <table class="wheels">
@@ -126,7 +136,7 @@
   </section>
 
   <section id="servoPanel" class="card servo-panel" aria-label="机械臂舵机控制"></section>
-  <section id="automationPanel" class="card automation-panel" aria-label="机械臂状态积木与相对路径示教复刻"></section>
+  <section id="automationPanel" class="card automation-panel" aria-label="功能键舵机动作与编码器节点录制复刻"></section>
 
   <section id="pidPanel" class="card pid-panel" aria-label="第一步：统一 PID 参数"></section>
 
@@ -170,6 +180,6 @@
   </section>
 </main>
 
-<script type="module" src="dashboard.js?v=bootquiet-v5"></script>
+<script type="module" src="dashboard.js?v=portable-20261024"></script>
 </body>
 </html>

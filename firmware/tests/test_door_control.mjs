@@ -48,3 +48,16 @@ test('arm sliders coalesce drag targets and retain independent pulse bounds',asy
     f.telemetry(1600,1600,false);await f.step();assert.equal(f.door.active,false);
   }
 });
+
+
+test('staggered PWM/trajectory telemetry completes slider without endless same-target renewals',async()=>{
+  const f=fixture();f.door.start(2000);await f.step(0);
+  for(let ms=50;ms<=2000&&f.door.active;ms+=50){
+    // Both streams are fresh, but neither can consistently follow every 150ms renewal.
+    if(ms%300===100){f.c.servoStatus.pulses[2]=2000;f.c.servoStatusAt=ms-50;}
+    if(ms%300===250){f.c.servoMotion.targets[2]=2000;f.c.servoMotionAt=ms-50;}
+    await f.step(50);
+  }
+  assert.equal(f.door.active,false);assert.match(f.door.message,/指令已到/);
+  const count=f.writes.length;await f.step(300);assert.equal(f.writes.length,count);
+});

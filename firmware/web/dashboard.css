@@ -236,6 +236,14 @@ fieldset.wheel-config legend { color: var(--muted); font-size: 12px; padding: 0 
 .pid-panel .config-grid label, .pid-test-panel .config-grid label { color: var(--text); }
 .pid-panel input, .pid-test-panel input { font-variant-numeric: tabular-nums; }
 .pid-panel .field-unit { color: var(--muted); font-size: 11px; }
+.pid-panel, .pid-test-panel { scroll-margin-top:145px; }
+.pid-panel .pid-slider-grid, .pid-test-panel .pid-slider-grid { max-width:none; }
+.pid-slider-grid label { padding:12px; border:1px solid var(--line); border-radius:10px; background:#10161d; }
+.pid-slider-grid output { color:var(--accent); font-size:24px; font-weight:650; font-variant-numeric:tabular-nums; }
+.pid-slider-grid input[type="range"] { padding:0; width:100%; min-height:32px; cursor:pointer; accent-color:var(--accent); border:0; }
+.pid-range-label { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+.pid-slider-grid input[type="number"] { margin-top:6px; max-width:160px; }
+#pidWriteStatus { min-height:1.5em; color:var(--accent); }
 .pid-test-panel details { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
 .pid-test-panel summary { cursor: pointer; color: var(--accent); }
 .pid-test-panel details ul { padding-left: 20px; max-width: 100ch; }
@@ -290,3 +298,22 @@ fieldset.wheel-config legend { color: var(--muted); font-size: 12px; padding: 0 
 #automationMessage { color:#ffbd85; overflow-wrap:anywhere; }
 @media(max-width:780px){.automation-grid{grid-template-columns:minmax(0,1fr)}.action-block{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:440px){.action-block{grid-template-columns:minmax(0,1fr)}}
+.key-rows,.node-rows { display:grid; gap:12px; }
+.key-action-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; padding:12px; border:1px solid var(--line); border-radius:10px; background:#10161d; }
+.key-action-row>label { width:64px; margin:0; }
+.key-action-row>label input { width:64px; text-transform:uppercase; font:600 22px Consolas,monospace; text-align:center; }
+.key-action-row>input { width:140px; }
+.number-blocks { display:flex; align-items:center; flex-wrap:wrap; gap:6px; flex:1 1 240px; }
+.automation-panel .number-block { display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:86px; min-height:64px; margin:0; border-color:var(--accent-dim); }
+.number-block b { font-size:22px; color:var(--accent); }.number-block small { font-size:10px; color:var(--muted); }
+.node-row { display:grid; grid-template-columns:24px 120px minmax(260px,1fr) auto; gap:10px; align-items:center; padding:14px; border:1px solid var(--line); border-radius:10px; background:#10161d; }
+.node-row>input { width:100%; }.node-counts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.node-counts>div { padding:6px; border:1px solid var(--line); border-radius:6px; min-width:0; }
+.node-counts small { display:block; color:var(--muted); }.node-counts output { display:block; overflow-wrap:anywhere; font:600 17px Consolas,monospace; color:var(--accent); }
+.node-buttons { display:flex; gap:4px; flex-wrap:wrap; }.node-meta { grid-column:2/-1; color:var(--muted); font-size:12px; }
+.automation-panel dialog { width:min(520px,94vw); max-height:90vh; overflow:auto; background:var(--card); color:var(--text); border:1px solid var(--accent); border-radius:14px; padding:22px; }
+.automation-panel dialog::backdrop { background:#000b; }.automation-panel dialog input,.automation-panel dialog select { padding:9px; background:#10161d; border:1px solid var(--line); border-radius:6px; color:var(--text); }
+.automation-panel dialog input[type=range] { width:100%; accent-color:var(--accent); }#blockError { color:#ffbd85; }
+.automation-panel { scroll-margin-top:145px; }
+@media(max-width:1050px){.node-row{grid-template-columns:24px 120px minmax(260px,1fr)}.node-buttons{grid-column:2/-1}}
+@media(max-width:700px){.node-row{grid-template-columns:24px minmax(0,1fr)}.node-counts{grid-column:1/-1}.node-buttons,.node-meta{grid-column:1/-1}.key-action-row>input{flex:1 1 150px}.number-blocks{flex-basis:100%}}

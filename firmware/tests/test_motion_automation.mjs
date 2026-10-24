@@ -15,13 +15,13 @@ test('270-degree named positions and editable three-channel states persist witho
   other.remove('poses','收拢');assert.equal(other.data.poses.length,0);
 });
 test('malformed records and storage failure never replace the last valid library',()=>{
-  const lib=new MotionLibrary(storage());assert.throws(()=>lib.save('positions','',{channel:0,pulseUs:1500}));assert.throws(()=>lib.save('positions','bad',{channel:1,pulseUs:500}));
+  const lib=new MotionLibrary(storage());assert.throws(()=>lib.save('positions','',{channel:0,pulseUs:1500}));assert.throws(()=>lib.save('positions','bad',{channel:1,pulseUs:499}));
   lib.save('positions','正常',{channel:0,pulseUs:1500});const before=lib.export();assert.throws(()=>lib.import('{"version":99}'));assert.equal(lib.export(),before);
   const broken=new MotionLibrary({getItem:()=>null,setItem:()=>{throw Error('quota');}});assert.throws(()=>broken.save('positions','test',{channel:0,pulseUs:1500}));assert.equal(broken.data.positions.length,0);
 });
 test('action graph rejects forward references, cycles and invalid angle windows',()=>{
   assert.throws(()=>validateProgram([{channel:0,pulseUs:1500,trigger:{after:0,event:'done',delayMs:0}}]));
-  assert.throws(()=>validateProgram([{channel:1,pulseUs:500}]));
+  assert.throws(()=>validateProgram([{channel:1,pulseUs:499}]));
   assert.equal(validateProgram([{channel:0,pulseUs:500}])[0].trigger.after,null);
 });
 function actionFixture(){
@@ -69,16 +69,16 @@ test('full arm pulse range is advertised explicitly and old firmware cannot repo
   v.setUint16(8,500,true);[1000,2000,25].forEach((p,i)=>v.setUint16(14+2*i,p,true));
   assert.equal(decodeStatus(b).armFullRange,true);b[3]=143;assert.throws(()=>decodeStatus(b));
 });
-test('offline panel saves position, edits combination states and builds named blocks without touching hardware',async()=>{
-  const {window,document}=parseHTML(`<html><body><div id="workshop"></div><input id="mapTrack" value="165">${[0,1,2].map(ch=>`<input id="servoReference${ch}" value="${ch===0?135:ch===1?90:45}"><input id="servoAngle${ch}" value="${ch===0?135:ch===1?90:45}">`).join('')}</body></html>`);
-  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return(this.querySelector('option[selected]')||this.querySelector('option'))?.value||'';},set(value){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',o.value===String(value));}});
+test('offline workshop replaces old position/pose/program editors with function rows and nodes without hardware writes',async()=>{
+  const {window,document}=parseHTML('<html><body><div id="workshop"></div></body></html>');
   const old={document:globalThis.document,window:globalThis.window,localStorage:globalThis.localStorage};Object.assign(globalThis,{document,window,localStorage:storage()});
   try{
     let calls=0;const c={state:{connected:false,session:0},now:()=>0,async servo(){calls++;}};
     const panel=installAutomation({root:document.getElementById('workshop'),controller:c,telemetry:()=>({encoder:null,encoderAt:-Infinity}),calibration:()=>[],intent:()=>({throttle:0,steer:0})});
-    const $=id=>document.getElementById(id);$('positionName').value='<任意中文位置>';$('positionAngle').value='202.5';await $('savePosition').onclick();assert.equal(panel.library.data.positions[0].pulseUs,2000);assert.equal($('positionList').textContent,'<任意中文位置>');assert.equal(document.querySelector('#positionList img'),null);
-    $('poseName').value='收拢';await $('savePose').onclick();await $('poseToBlocks').onclick();assert.equal($('actionBlocks').children.length,3);
-    $('programName').value='依次收拢';await $('saveProgram').onclick();assert.equal(panel.library.data.programs[0].steps[1].trigger.after,0);
+    assert.equal(document.querySelectorAll('.key-action-row').length,3);
+    assert.equal(document.querySelectorAll('.node-row').length,1);
+    assert.equal(document.querySelectorAll('#savePosition,#positionList,#poseList,#programList,#capturePosition').length,0);
+    assert.equal(panel.library.data.bindings[0].key,'f');
     assert.equal(calls,0);assert.equal(panel.isRunning(),false);
   }finally{Object.assign(globalThis,old);}
 });

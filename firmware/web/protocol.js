@@ -6,7 +6,7 @@ export const UUID = Object.freeze({
 });
 export const OP = Object.freeze({ ARM: 1, DRIVE: 2, STOP: 3, LED: 4, MECHANICAL: 5, TUNING: 6, CLEAR_FAULT: 7, SERVO: 8, PID: 9, SERVO_TARGET: 10, PWM: 11, ENCODER_RESET: 12, SERVO_SETTINGS: 13 });
 export const WHEELS = Object.freeze(['M1 右前', 'M2 左前', 'M3 右后', 'M4 左后']);
-export const servoBounds=(channel,status)=>channel===0&&status?.armFullRange?[500,2500]:channel===2?[1000,2000]:[1300,1700];
+export const servoBounds=(channel,status)=>status?.servoFullRange||channel===0&&status?.armFullRange?[500,2500]:channel===2?[1000,2000]:[1300,1700];
 export const DEFAULT_CALIBRATION = Object.freeze(WHEELS.map((_, wheel) => Object.freeze({
   wheel, motorNegative: wheel % 2 === 1, encoderNegative: wheel % 2 === 0, confirmed: false,
   diameterTenthMm: 650, countsPerRev: wheel === 3 ? 884 : 1768,
@@ -49,7 +49,7 @@ export function validateCalibration(value) {
   return item;
 }
 export function encodeCommand(op, args) {
-  integer(op, 1, 13, '操作码');
+  integer(op, 1, 14, '操作码');
   const bytes = new Uint8Array(20), v = new DataView(bytes.buffer);
   bytes[0] = 1; bytes[1] = op;
   v.setUint32(4, integer(args.session, 1, 0xffffffff, '会话'), true);
@@ -62,15 +62,15 @@ export function encodeCommand(op, args) {
   } else if (op === OP.SERVO || op === OP.SERVO_TARGET) {
     bytes[12] = integer(args.channel, 0, 2, '舵机通道');
     v.setUint16(14, args.pulseUs === 0 ? 0 : integer(args.pulseUs,
-      args.channel === 0 ? 500 : args.channel === 2 ? 1000 : 1300, args.channel === 0 ? 2500 : args.channel === 2 ? 2000 : 1700, '脉宽 μs'), true);
+      500, 2500, '脉宽 μs'), true);
     if (op === OP.SERVO_TARGET) {
       const referenceUs = args.referenceUs ?? 0;
       if (!args.pulseUs && referenceUs) throw new RangeError('释放时不能设置起点');
       v.setUint16(16, referenceUs === 0 ? 0 : integer(referenceUs,
-        args.channel === 0 ? 500 : args.channel === 2 ? 1000 : 1300, args.channel === 0 ? 2500 : args.channel === 2 ? 2000 : 1700, '起点参考 μs'), true);
+        500, 2500, '起点参考 μs'), true);
     }
   } else if (op === OP.SERVO_SETTINGS) {
-    const channel=integer(args.channel,0,2,'舵机通道'), [lo,hi]=servoBounds(channel,{armFullRange:true});
+    const channel=integer(args.channel,0,2,'舵机通道'), [lo,hi]=servoBounds(channel,{armFullRange:true,servoFullRange:true});
     bytes[12]=channel; bytes[13]=(args.calibrated?1:0)|(args.reversed?2:0);
     if(channel!==2&&args.reversed)throw new Error('仅门端点支持交换');
     const min=integer(args.minUs,lo,hi,'机械下限'),max=integer(args.maxUs,lo,hi,'机械上限');
@@ -135,18 +135,20 @@ export function decodeStatus(bytes) {
   if (kind === 5) {
     const pulses = [8,10,12].map(offset => v.getUint16(offset,true));
     if (flags & ~7 || pulses.some((p,i) =>
-        p !== 0 && (p < servoBounds(i,{armFullRange:!!(extra&16)})[0] || p > servoBounds(i,{armFullRange:!!(extra&16)})[1]) || !!p !== !!(flags & (1<<i))) ||
+        p !== 0 && (p < (i===0&&!(extra&16)?1300:500) || p > (i===0&&!(extra&16)?1700:2500)) || !!p !== !!(flags & (1<<i))) ||
         v.getUint16(14,true)!==1000 || v.getUint16(16,true)!==2000 || v.getUint16(18,true)!==25)
       throw new Error('三舵机状态字段无效');
     return { kind, session:v.getUint32(4,true), pulses, available:!!(extra&1), positionMask:(extra>>1)&7, slew:!!(extra&128), armFullRange:!!(extra&16), quickProfile:!!(extra&32), encoderReset:!!(extra&64) };
   }
   if (kind === 6) {
     const targets = [8,10,12].map(offset => v.getUint16(offset,true));
-    if (flags & ~7 || extra & ~7 || targets.some((p,i) => p && (p<(i===0?500:i===2?1000:1300) || p>(i===0?2500:i===2?2000:1700)) || !p && (flags&(1<<i))) ||
-        v.getUint16(14,true)!==100 || v.getUint16(16,true)!==200 || v.getUint16(18,true)!==500)
+    if (flags & ~7 || extra & ~7 || targets.some((p,i) => p && (p<500 || p>2500) || !p && (flags&(1<<i))) ||
+        !((v.getUint16(14,true)===100&&v.getUint16(16,true)===200)||
+          (v.getUint16(14,true)===600&&v.getUint16(16,true)===1200)||
+          (v.getUint16(14,true)===1000&&[2500,4000].includes(v.getUint16(16,true)))) || v.getUint16(18,true)!==500)
       throw new Error('舵机轨迹状态字段无效');
     return {kind, session:v.getUint32(4,true), targets, movingMask:flags, errorMask:extra,
-      speedUsS:100, accelerationUsS2:200, leaseMs:500};
+      speedUsS:v.getUint16(14,true), accelerationUsS2:v.getUint16(16,true), leaseMs:500};
   }
   if(kind===7){
     if(flags>3||extra>7)throw new Error('轮设置字段无效');
@@ -156,17 +158,17 @@ export function decodeStatus(bytes) {
       maxMmS:integer(v.getUint16(14,true),1,1000,'轮速'),accelMmS2:integer(v.getUint16(16,true),1,5000,'加速度')};
   }
   if(kind===8){
-    if(flags>3||extra||v.getUint16(14,true)!==200||v.getUint16(16,true)!==50)throw new Error('统一设置字段无效');
+    if(flags>3||extra>31||v.getUint16(14,true)!==200||v.getUint16(16,true)!==50)throw new Error('统一设置字段无效');
     const kpMilli=integer(v.getUint16(8,true),0,20000,'Kp'),kiMilli=integer(v.getUint16(10,true),0,20000,'Ki');
     if(!(kpMilli||kiMilli))throw new Error('PID全零');
     return {kind,session:v.getUint32(4,true),revision:integer(v.getUint16(18,true),1,65535,'修订'),
-      loaded:!!(flags&1),synced:!!(flags&2),kpMilli,kiMilli,kdMilli:integer(v.getUint16(12,true),0,20000,'Kd')};
+      loaded:!!(flags&1),synced:!!(flags&2),servoFullRange:!!(extra&1),concurrentDrive:!!(extra&16),kpMilli,kiMilli,kdMilli:integer(v.getUint16(12,true),0,20000,'Kd')};
   }
   if(kind===9){
     if(flags>2||extra>3||flags!==2&&(extra&2))throw new Error('舵机设置字段无效');
-    const [lo,hi]=servoBounds(flags,{armFullRange:true}),minUs=integer(v.getUint16(8,true),lo,hi,'机械下限'),maxUs=integer(v.getUint16(10,true),lo,hi,'机械上限');
+    const [lo,hi]=servoBounds(flags,{armFullRange:true,servoFullRange:true}),minUs=integer(v.getUint16(8,true),lo,hi,'机械下限'),maxUs=integer(v.getUint16(10,true),lo,hi,'机械上限');
     if(minUs>=maxUs)throw new Error('舵机机械范围无效');
-    const doorClosed=integer(v.getUint16(14,true),1000,2000,'关门'),doorOpen=integer(v.getUint16(16,true),1000,2000,'开门');
+    const doorClosed=integer(v.getUint16(14,true),500,2500,'关门'),doorOpen=integer(v.getUint16(16,true),500,2500,'开门');
     if(doorClosed===doorOpen)throw new Error('门端点相同');
     return {kind,channel:flags,calibrated:!!(extra&1),reversed:!!(extra&2),session:v.getUint32(4,true),
       revision:integer(v.getUint16(18,true),1,65535,'修订'),minUs,maxUs,referenceUs:integer(v.getUint16(12,true),minUs,maxUs,'起点'),doorClosed,doorOpen};
@@ -283,13 +285,13 @@ export class AckRegistry {
 function atLeast(candidate, reference) { return ((candidate - reference) >>> 0) < 0x80000000; }
 
 export class RemoteController {
-  constructor({ now = () => performance.now(), changed = () => {}, locked = () => {}, transportError = () => {}, deviceStorage=false } = {}) {
+  constructor({ now = () => performance.now(), changed = () => {}, locked = () => {}, transportError = () => {}, deviceStorage=false, ackTimeoutMs=1500 } = {}) {
     this.now = now; this.changed = changed; this.locked = locked; this.transportError = transportError;
     this.queue = new WriteQueue({ now, onError: error => { this.disconnect(); transportError(error); } });
     this.acks = new AckRegistry(now); this.sequence = 0; this.generation = 0;
     this.stopGeneration = 0; this.servoOwner = null;
     this.deviceSettings=new DeviceSettings();
-    this.requireDeviceStorage=deviceStorage;
+    this.requireDeviceStorage=deviceStorage;this.ackTimeoutMs=ackTimeoutMs;
     this.state = { connected: false, session: 0, armed: false, armPending: false, remoteArmed: false,
       uart: false, ready: false, pidReady: false, phase: 0, active: false, fault: false, faultCode: 0, reason: 0,
       calibratedMask: 0, left: 0, right: 0, limit: 100, configBusy: false, note: '尚未连接' };
@@ -313,23 +315,36 @@ export class RemoteController {
     Object.assign(this.state, { connected: false, session: 0, armed: false, armPending: false,
       remoteArmed: false, uart: false, ready: false, pidReady: false, phase: 0, active: false, calibratedMask: 0, note: '连接已断开，保持锁定' });
     this.throttle = this.steer = 0; this.armSequence = null; this.mainStatusAt = -Infinity;
-    this.locked(); this.notify();
+    this.locked({recoverable:true,reason:'蓝牙连接中断'}); this.notify();
   }
   nextSequence() { this.sequence = (this.sequence + 1) >>> 0; return this.sequence; }
   packet(op, args = {}) {
     const sequence = this.nextSequence();
     return { bytes: encodeCommand(op, { ...args, session: this.state.session, sequence }), sequence };
   }
-  lockLocally(note) {
+  lockLocally(note, event = {}) {
     this.stopGeneration++;
     this.throttle = this.steer = 0; this.armSequence = null;
     this.state.armed = false; this.state.armPending = false; this.state.note = note;
-    this.acks.clear(note); this.queue.cancelPending(note); this.locked(); this.notify();
+    this.acks.clear(note); this.queue.cancelPending(note); this.locked({reason:note,...event}); this.notify();
   }
   stop(note = '已停止并锁定') {
     this.lockLocally(note);
     if (!this.state.connected || !this.state.session) return Promise.resolve();
     return this.queue.offer(this.packet(OP.STOP).bytes, { kind: 'stop', expiresAt: this.now() + 500 });
+  }
+  concurrentMotion() {
+    const p=this.deviceSettings.pid;
+    return !!(p?.concurrentDrive && p.session===this.state.session && this.state.session);
+  }
+  stopDrive(note = '底盘已停止') {
+    if(!this.concurrentMotion()) return this.stop(note);
+    this.state.note=note;
+    // A zero PWM command replaces pending drive samples without clearing servo
+    // ACKs/owners. The C3 converts it to the STM32 quick-stop frame.
+    if(!this.state.connected||!this.state.session) return Promise.resolve();
+    return this.queue.offer(this.packet(OP.PWM,{throttle:0,steer:0,limit:1000,ttl:200}).bytes,
+      {kind:'drive',expiresAt:this.now()+100});
   }
   canArm() {
     return this.state.connected && !!this.state.session && this.state.uart && this.state.ready && this.state.pidReady &&
@@ -362,7 +377,9 @@ export class RemoteController {
   }
   tick() {
     const now = this.now(), gap = now - this.lastTick; this.lastTick = now; this.acks.expire();
-    if (gap >= 150 && (this.state.connected || this.state.armed)) {
+    // This timer owns legacy ARM/DRIVE only. An idle page's previous tick is
+    // not the age of a newly pressed PWM key; PwmDrive times its own held job.
+    if (gap >= 150 && (this.state.armed || this.state.armPending)) {
       this.stop('页面调度中断，已停止并锁定').catch(() => {}); return;
     }
     if (this.state.connected && this.mainStatusAt !== -Infinity && now - this.mainStatusAt >= 500 &&
@@ -381,6 +398,7 @@ export class RemoteController {
       if(!this.deviceSettings.accept(packet,this.state.session))return false;
       const calibration=this.deviceSettings.calibration();
       if(calibration)this.appliedCalibration=calibration;
+      if(this.servoStatus)this.servoStatus={...this.servoStatus,servoFullRange:!!this.deviceSettings.pid?.servoFullRange};
       this.notify();return true;
     }
     if (packet.kind === 6) {
@@ -389,7 +407,7 @@ export class RemoteController {
     }
     if (packet.kind === 4 || packet.kind === 5) {
       if (packet.session !== this.state.session) return false;
-      this.servoStatus = packet; this.servoStatusAt = this.now(); this.notify(); return true;
+      this.servoStatus = {...packet,servoFullRange:!!this.deviceSettings.pid?.servoFullRange}; this.servoStatusAt = this.now(); this.notify(); return true;
     }
     if (packet.kind !== 0) return !!this.state.session;
     if (!packet.session) return false;
@@ -402,7 +420,9 @@ export class RemoteController {
       this.unsolicitedArmedStopped = false;
       // Firmware rotates the session when STOP is accepted. Sending STOP in
       // response to every new session would cause an endless STOP/session loop.
-      this.lockLocally('会话已更新，请手动解锁');
+      // 人工 STOP 不续跑。仅断链/超时会话变化允许已按下的
+      // 一键舵机动作保留目标；底盘、路径复刻仍撤销，不自动驾驶。
+      this.lockLocally('会话已更新，等待当前状态',{recoverable:![4,5,8].includes(packet.reason)});
     }
     this.mainStatusAt = this.now();
     Object.assign(this.state, { uart: packet.uart, ready: packet.ready, pidReady: packet.pidReady, phase: packet.phase, remoteArmed: packet.armed,
@@ -425,19 +445,43 @@ export class RemoteController {
     if (!packet.armed) this.unsolicitedArmedStopped = false;
     this.notify(); return true;
   }
+  servoSettingsReady(channel) {
+    const s=this.deviceSettings.servos[channel];
+    return !this.requireDeviceStorage || !!(s && s.session===this.state.session && s.revision===this.deviceSettings.revision);
+  }
   servoAvailable(channel, release = false) {
+    return !this.servoUnavailableReason(channel,release);
+  }
+  servoUnavailableReason(channel, release = false) {
+    // Keep enable/disable decisions and the visible explanation identical.
+    // A command ACK is NOT telemetry and must never refresh these timestamps.
     const s = this.servoStatus;
-    return !!(Number.isInteger(channel) && channel>=0 && s && channel<s.pulses.length &&
-      s.available && s.session === this.state.session && this.now()-this.servoStatusAt < 500 &&
-      this.state.connected && this.state.uart && !this.state.armed && !this.state.armPending &&
-      !this.state.remoteArmed && !this.state.active && !this.state.configBusy &&
-      this.now()-this.mainStatusAt < 500 && (release || s.slew && this.servoMotion && this.now()-this.servoMotionAt<500 &&
-        !(this.servoMotion.errorMask & (1<<channel)) && !this.state.fault && (s.positionMask & (1<<channel))));
+    if(!Number.isInteger(channel)||channel<0||channel>2)return '舵机通道无效';
+    if(!this.state.connected)return '蓝牙未连接';
+    if(!this.state.session)return '等待主控会话';
+    if(this.now()-this.mainStatusAt>=500)return '主控状态回传已超过500ms';
+    if(!this.state.uart)return 'C3 与 STM32 串口未连通';
+    if(!this.concurrentMotion()&&(this.state.armed||this.state.armPending||this.state.remoteArmed||this.state.active))return '当前 C3 固件要求底盘停稳；烧入并行版后可同时操作';
+    if(this.state.configBusy)return '正在等待上一条指令确认';
+    if(!s||s.session!==this.state.session||this.now()-this.servoStatusAt>=500)return '舵机 PWM 状态回传已超过500ms或正在等待新会话';
+    if(channel>=s.pulses.length||!s.available)return '主控舵机输出尚未就绪';
+    if(release)return '';
+    if(!this.servoSettingsReady(channel))return '等待 C3 回读本路舵机参数';
+    if(!s.slew)return '需要支持缓启动的舵机固件';
+    if(!this.servoMotion||this.now()-this.servoMotionAt>=500)return '舵机轨迹状态回传已超过500ms';
+    if(this.servoMotion.errorMask&(1<<channel))return '主控报告本路 PWM 输出异常';
+    if(this.state.fault)return '主控报告底盘异常';
+    if(!(s.positionMask&(1<<channel)))return '本路未配置为位置舵机';
+    return '';
   }
   async servo(channel, pulseUs, owner = null, referenceUs = 0) {
     if (this.servoOwner && this.servoOwner !== owner) throw new Error('其他舵机操作正在运行，请先停止');
-    this.assertStopped();
-    if (!this.servoAvailable(channel, pulseUs === 0)) throw new Error('需缓启动固件与新鲜状态，且底盘已锁定停稳');
+    // 2026-10-24：舵机目标不是底盘参数写入，不应等待四轮/PID整套回读。
+    // 仅使用当前会话中该通道的C3限位；释放PWM不需要任何机械参数。
+    if(!this.concurrentMotion())this.assertStopped(false,false);
+    if(pulseUs&&!this.servoSettingsReady(channel))throw new Error('等待 C3 回读本路舵机参数');
+    const unavailable=this.servoUnavailableReason(channel,pulseUs===0);
+    if(unavailable)throw new Error(unavailable);
     const mechanical=this.deviceSettings.servos[channel];
     const [min,max]=mechanical?[mechanical.minUs,mechanical.maxUs]:servoBounds(channel,this.servoStatus);
     if(pulseUs&&(pulseUs<min||pulseUs>max)||referenceUs&&(referenceUs<min||referenceUs>max))throw new Error(`当前固件范围为${min}–${max}μs；完整270°需新版C3固件`);
@@ -457,12 +501,12 @@ export class RemoteController {
   }
   async acknowledged(op, args, wheel) {
     const packet = this.packet(op, args);
-    const acknowledged = this.acks.expect(this.state.session, packet.sequence, wheel);
+    const acknowledged = this.acks.expect(this.state.session, packet.sequence, wheel, this.ackTimeoutMs);
     try { await Promise.all([acknowledged, this.queue.offer(packet.bytes, { expiresAt: this.now() + 500 })]); }
     catch (error) { this.acks.clear(error.message); throw error; }
   }
-  assertStopped(allowOffline=false) {
-    if(this.requireDeviceStorage&&!this.deviceSettings.calibration())throw new Error('等待 C3 完整参数回读，避免用网页初值覆盖设备');
+  assertStopped(allowOffline=false, requireChassisSettings=true) {
+    if(requireChassisSettings&&this.requireDeviceStorage&&!this.deviceSettings.calibration())throw new Error('等待 C3 完整参数回读，避免用网页初值覆盖设备');
     if (!this.state.connected || !this.state.session || !allowOffline&&!this.state.uart || this.state.armed ||
         this.state.armPending || this.state.remoteArmed || this.state.active || this.state.configBusy ||
         this.now() - this.mainStatusAt >= 500) throw new Error('请连接主控、停止锁定并等待停稳状态');
@@ -502,9 +546,25 @@ export class RemoteController {
     finally { this.state.configBusy = false; this.notify(); }
   }
   async configureServo(channel,settings){
-    this.assertStopped(true);this.state.configBusy=true;this.notify();
+    this.assertStopped(true,false);
+    if(!this.servoSettingsReady(channel))throw new Error('等待 C3 回读本路舵机参数');
+    this.state.configBusy=true;this.notify();
     try{await this.acknowledged(OP.SERVO_SETTINGS,{channel,...settings},254);this.state.note='舵机设置已写 C3 Flash；未执行位置';}
     finally{this.state.configBusy=false;this.notify();}
+  }
+  async captureServoReference(channel){
+    // Store the exact returned pulse, not the rounded degree label. This is
+    // configuration only: never release PWM, issue a TARGET, or move to centre.
+    this.assertStopped(true,false);
+    const s=this.servoStatus,m=this.servoMotion,setting=this.deviceSettings.servos[channel];
+    if(!Number.isInteger(channel)||channel<0||channel>2||!setting||!this.servoSettingsReady(channel))throw new Error('等待 C3 回读本路舵机参数');
+    if(this.servoOwner||!s||s.session!==this.state.session||this.now()-this.servoStatusAt>=500||
+       !m||m.session!==this.state.session||this.now()-this.servoMotionAt>=500||m.movingMask&(1<<channel))throw new Error('请等本路目标停止变化并收到最新 PWM，再记录初始态');
+    const referenceUs=s.pulses[channel];
+    if(!referenceUs)throw new Error('本路 PWM 尚未启用，不能把界面默认角度当作当前位置');
+    await this.configureServo(channel,{minUs:setting.minUs,maxUs:setting.maxUs,referenceUs,
+      calibrated:setting.calibrated,reversed:setting.reversed});
+    return referenceUs;
   }
   async resetEncoders(){
     this.assertStopped();if(!this.servoStatus?.encoderReset)throw new Error('底盘固件不支持清零，需要更新 STM32');

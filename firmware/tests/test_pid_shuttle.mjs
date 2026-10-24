@@ -55,6 +55,25 @@ test('rated speed is a reference, explicit over-rating up to configured 1000mm/s
   const h=fixture({max:1000});await assert.rejects(h.r.start(settings),/额定/);
   await h.r.start({...settings,overspeed:true});assert.equal(h.r.limit,1000);h.r.stop();
 });
+test('live distance/speed/cycle edits keep encoder origin, update next tick and still finish finite legs',async()=>{
+  const h=fixture();await h.r.start({...settings,distanceMm:300,cycles:3});h.advance();h.move(20);h.move(20);
+  const origin=[...h.r.origin];
+  h.r.updateSettings({distanceMm:50,cycles:1,speedPercent:50});
+  assert.deepEqual(h.r.origin,origin);assert.equal(h.r.limit,150);assert.equal(h.r.legs,2);
+  h.advance();assert.equal(h.controller.state.limit,Math.min(150,h.controller.state.limit));
+  h.move(10);assert.equal(h.r.phase,'SETTLING');
+  for(let i=0;i<10;i++)h.advance();assert.equal(h.r.phase,'REVERSE');
+  for(let i=0;i<5;i++)h.move(-10);for(let i=0;i<10;i++)h.advance();
+  assert.equal(h.r.phase,'DONE');assert.equal(h.r.results.length,2);assert.equal(h.controller.state.limit,80);
+});
+test('live shortening below travelled distance settles without rebasing; malformed edits leave active settings intact',async()=>{
+  const h=fixture();await h.r.start({...settings,distanceMm:300});h.advance();for(let i=0;i<8;i++)h.move(10);
+  const origin=[...h.r.origin];
+  assert.throws(()=>h.r.updateSettings({distanceMm:20,cycles:1,speedPercent:100}));assert.equal(h.r.distance,300);
+  h.r.updateSettings({distanceMm:50,cycles:1,speedPercent:100});h.advance();
+  assert.equal(h.r.phase,'SETTLING');assert.deepEqual(h.r.origin,origin);
+  const n=h.commands.length;h.r.cancel();h.r.updateSettings({distanceMm:100,cycles:2,speedPercent:90});h.advance();assert.equal(h.commands.length,n);
+});
 test('global PID codec, PID-init status/state and extended speed bounds match C layout',()=>{
   const bytes=encodeCommand(OP.PID,{session:7,sequence:9,kpMilli:1234,kiMilli:567,kdMilli:25}),v=new DataView(bytes.buffer);
   assert.equal(bytes.length,20);assert.equal(bytes[12],0);assert.equal(bytes[13],0);
